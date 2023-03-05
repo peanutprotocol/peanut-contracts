@@ -1,0 +1,42 @@
+{
+  "ethereum": {
+    "mainnet": "",
+    "goerli": "0xeCDB0A54881fd12146BA257Ab37dcdbDB85aACD5"
+  },
+  "polygon": {
+    "mainnet": "0xB184b7D19d747Db9084C355b5B6a093d7063B710",
+    "mumbai": ""
+  },
+  "optimism": {
+    "mainnet": "0x9B0817fA08b46670B92300B58AA1f4AB155701ea",
+    "kovan": ""
+  },
+  "solana": {
+    "mainnet": "",
+    "devnet": ""
+  },
+  "moonbeam": {
+    "mainnet": "0xF5D83DF662f58255D9E9d5fe9a59ac7Cd1eF85BC",
+    "moonbase": ""
+  },
+  "avalanche": {
+    "mainnet": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
+    "fuji": ""
+  },
+  "arbitrum": {
+    "mainnet": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
+    "rinkeby": ""
+  },
+  "fantom": {
+    "mainnet": "",
+    "testnet": ""
+  },
+  "harmony": {
+    "mainnet": "",
+    "testnet": ""
+  },
+  "xdai": {
+    "mainnet": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
+    "testnet": ""
+  }
+}

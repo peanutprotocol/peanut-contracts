@@ -1,0 +1,1 @@
+brownie networks add Scroll scroll-prealpha-l2 chainid=534354 explorer=534354 host=https://prealpha-rpc.scroll.io/l2
