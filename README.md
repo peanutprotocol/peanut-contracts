@@ -1,5 +1,7 @@
 # peanut-contracts
-Contracts for Peanut Protocol
+Contracts for Peanut Protocol.
+
+Also check out the [Peanut SDK](https://github.com/ProphetFund/peanut-sdk)
 
 
 ## Testing
