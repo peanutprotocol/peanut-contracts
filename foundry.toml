@@ -2,5 +2,29 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+optimizer = true
+optimizer_runs = 20_000
+
+[rpc_endpoints]
+mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
+goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
+optimism = "https://optimism-mainnet.infura.io/v3/${INFURA_API_KEY}"
+arbitrum = "https://arbitrum-mainnet.infura.io/v3/${INFURA_API_KEY}"
+palm = "https://palm-mainnet.infura.io/v3/${INFURA_API_KEY}"
+avalanche = "https://avalanche-mainnet.infura.io/v3/${INFURA_API_KEY}"
+near = "https://near-mainnet.infura.io/v3/${INFURA_API_KEY}"
+aurora = "https://aurora-mainnet.infura.io/v3/${INFURA_API_KEY}"
+starknet = "https://starknet-mainnet.infura.io/v3/${INFURA_API_KEY}"
+celo = "https://celo-mainnet.infura.io/v3/${INFURA_API_KEY}"
+moonbase = "https://rpc.api.moonbase.moonbeam.network"
+moonbeam = "https://rpc.api.moobeam.network"
+
+
+[etherscan]
+goerli = { key = "${ETHERSCAN_TOKEN}" }
+mainnet = { key = "${ETHERSCAN_TOKEN}" }
+optimism = { key = "${OPTISCAN_TOKEN}" }
+
+# unknownchain = { key = "ABCDEFG", url = "https://<etherscan-api-url-for-that-chain>" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
