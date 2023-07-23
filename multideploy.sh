@@ -57,6 +57,7 @@ forge script script/PeanutV4.s.sol:DeployScript --rpc-url zetachain-testnet --br
 
 # deploy on polygon zkEVM testnet
 forge script script/PeanutV4.s.sol:DeployScript --rpc-url polygon-zkevm-testnet --etherscan-api-key polygon-zkevm-testnet --broadcast --verify -vvvv
+# 0x60d5db92eca3ee10ccf60517f910d8154ff62231
 # https://testnet-zkevm.polygonscan.com/address/0x60d5db92eca3ee10ccf60517f910d8154ff62231
 
 
