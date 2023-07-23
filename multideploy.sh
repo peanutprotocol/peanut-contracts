@@ -67,6 +67,14 @@ forge script script/PeanutV4.s.sol:DeployScript --rpc-url filecoin-testnet --bro
 # https://calibration.filfox.info/en/address/0x1851359AB8B002217cf4D108d7F027B63563754C
 
 
+# deploy on zkSync
+
+# deploy on zkSync testnet
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url zksync-testnet --broadcast -vvvv
+# got stuck on https://github.com/omurovec/foundry-zksync-era
+# https://goerli.explorer.zksync.io/
+# contract address will be at 0x8d1a17A3A4504aEB17515645BA8098f1D75237f7 once fixed
+
 
 
 ### OPTIONAL ### 

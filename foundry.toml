@@ -37,6 +37,8 @@ gnosis = "https://rpc.gnosis.pm" # 100
 gnosis-testnet = "https://rpc.chiadochain.net" # 10200
 filecoin = "https://rpc.ankr.com/filecoin" # 314
 filecoin-testnet = "https://filecoin-calibration.chainstacklabs.com/rpc/v1" # 314159
+zksync = "https://mainnet.era.zksync.io" # 324
+zksync-testnet = "https://testnet.era.zksync.dev" # 280
 
 
 
