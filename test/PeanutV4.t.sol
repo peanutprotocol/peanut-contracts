@@ -89,47 +89,47 @@ contract PeanutV4Test is Test {
     //     assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
     // }
 
-    function testBatchMakeDeposit() public {
-        address[] memory tokenAddresses = new address[](3);
-        uint8[] memory contractTypes = new uint8[](3);
-        uint256[] memory amounts = new uint256[](3);
-        uint256[] memory tokenIds = new uint256[](3);
-        address[] memory pubKeys20 = new address[](3);
+    // function testBatchMakeDeposit() public {
+    //     address[] memory tokenAddresses = new address[](3);
+    //     uint8[] memory contractTypes = new uint8[](3);
+    //     uint256[] memory amounts = new uint256[](3);
+    //     uint256[] memory tokenIds = new uint256[](3);
+    //     address[] memory pubKeys20 = new address[](3);
 
-        // Deposit 1: ERC20
-        tokenAddresses[0] = address(testToken);
-        contractTypes[0] = 1;
-        amounts[0] = 100;
-        tokenIds[0] = 0;
-        pubKeys20[0] = PUBKEY20;
+    //     // Deposit 1: ERC20
+    //     tokenAddresses[0] = address(testToken);
+    //     contractTypes[0] = 1;
+    //     amounts[0] = 100;
+    //     tokenIds[0] = 0;
+    //     pubKeys20[0] = PUBKEY20;
 
-        // Deposit 2: ERC721
-        tokenAddresses[1] = address(testToken721);
-        contractTypes[1] = 2;
-        amounts[1] = 1;
-        tokenIds[1] = 1;
-        pubKeys20[1] = PUBKEY20;
+    //     // Deposit 2: ERC721
+    //     tokenAddresses[1] = address(testToken721);
+    //     contractTypes[1] = 2;
+    //     amounts[1] = 1;
+    //     tokenIds[1] = 1;
+    //     pubKeys20[1] = PUBKEY20;
 
-        // Deposit 3: Ether
-        tokenAddresses[2] = address(0);
-        contractTypes[2] = 0;
-        amounts[2] = 1 ether;
-        tokenIds[2] = 0;
-        pubKeys20[2] = PUBKEY20;        
+    //     // Deposit 3: Ether
+    //     tokenAddresses[2] = address(0);
+    //     contractTypes[2] = 0;
+    //     amounts[2] = 1 ether;
+    //     tokenIds[2] = 0;
+    //     pubKeys20[2] = PUBKEY20;        
 
 
-        // Moved minting and approval to the setup function
-        uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}( // solhint-disable-line
-            tokenAddresses,
-            contractTypes,
-            amounts,
-            tokenIds,
-            pubKeys20
-        );
+    //     // Moved minting and approval to the setup function
+    //     uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}( // solhint-disable-line
+    //         tokenAddresses,
+    //         contractTypes,
+    //         amounts,
+    //         tokenIds,
+    //         pubKeys20
+    //     );
 
-        assertEq(depositIndexes.length, 3, "Batch deposit failed");
-        assertEq(peanutV4.getDepositCount(), 3, "Deposit count mismatch");
-    }
+    //     assertEq(depositIndexes.length, 3, "Batch deposit failed");
+    //     assertEq(peanutV4.getDepositCount(), 3, "Deposit count mismatch");
+    // }
 
     function test_BatchMakeDepositEther() public {
         // function batchMakeDepositEther(

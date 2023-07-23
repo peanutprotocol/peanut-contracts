@@ -195,7 +195,74 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         return deposits.length - 1;
     }
 
+    /**
+     * @notice This is an absolute gas nightmare, please don't let CT see this
+     */
+    function batchMakeDeposit(
+        address[] calldata _tokenAddresses,
+        uint8[] calldata _contractTypes,
+        uint256[] calldata _amounts,
+        uint256[] calldata _tokenIds,
+        address[] calldata _pubKeys20
+    ) external payable returns (uint256[] memory) {
+        require(
+            _tokenAddresses.length == _contractTypes.length &&
+                _contractTypes.length == _amounts.length &&
+                _amounts.length == _tokenIds.length &&
+                _tokenIds.length == _pubKeys20.length,
+            "PARAMETERS LENGTH MISMATCH"
+        );
+
+        uint256[] memory depositIndexes = new uint256[](_tokenAddresses.length);
+
+        for (uint256 i = 0; i < _tokenAddresses.length; i++) {
+            depositIndexes[i] = makeDeposit(
+                _tokenAddresses[i],
+                _contractTypes[i],
+                _amounts[i],
+                _tokenIds[i],
+                _pubKeys20[i]
+            );
+        }
+
+        return depositIndexes;
+    }
+
+    /**
+     * @notice Batch ether deposit. Slightly better for gas, still bad.
+     * @param _amounts uint256 array of the amounts of ether being sent
+     * @param _pubKeys20 array of the last 20 bytes of the public keys of the deposit signers
+     * @return uint256[] array of indices of the deposits
+     */
     function batchMakeDepositEther(
+        uint256[] calldata _amounts,
+        address[] calldata _pubKeys20
+    ) external payable returns (uint256[] memory) {
+        require(
+            _amounts.length == _pubKeys20.length,
+            "PARAMETERS LENGTH MISMATCH"
+        );
+
+        uint256[] memory depositIndexes = new uint256[](_amounts.length);
+        uint256 totalAmount = 0;
+
+        for (uint256 i = 0; i < _amounts.length; i++) {
+            depositIndexes[i] = makeDeposit(
+                address(0),
+                0,
+                _amounts[i],
+                0,
+                _pubKeys20[i]
+            );
+            totalAmount += _amounts[i];
+        }
+
+        require(msg.value == totalAmount, "INVALID TOTAL ETHER SENT");
+
+        return depositIndexes;
+    }
+
+    function batchMakeDepositEtherOptimized(
         uint256[] calldata _amounts,
         address[] calldata _pubKeys20
     ) external payable returns (uint256[] memory) {

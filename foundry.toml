@@ -6,24 +6,48 @@ optimizer = true
 optimizer_runs = 20_000
 
 [rpc_endpoints]
-mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
-goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
-optimism = "https://optimism-mainnet.infura.io/v3/${INFURA_API_KEY}"
-arbitrum = "https://arbitrum-mainnet.infura.io/v3/${INFURA_API_KEY}"
+mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}" # 1
+goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}" # 5
+optimism = "https://optimism-mainnet.infura.io/v3/${INFURA_API_KEY}" # 10
+optimism-goerli = "https://optimism-goerli.infura.io/v3/${INFURA_API_KEY}" # 420
+arbitrum = "https://arbitrum-mainnet.infura.io/v3/${INFURA_API_KEY}" # 42161
+arbitrum-goerli = "https://arbitrum-goerli.infura.io/v3/${INFURA_API_KEY}"
 palm = "https://palm-mainnet.infura.io/v3/${INFURA_API_KEY}"
+palm-testnet = "https://palm-testnet.infura.io/v3/${INFURA_API_KEY}"
 avalanche = "https://avalanche-mainnet.infura.io/v3/${INFURA_API_KEY}"
 near = "https://near-mainnet.infura.io/v3/${INFURA_API_KEY}"
 aurora = "https://aurora-mainnet.infura.io/v3/${INFURA_API_KEY}"
 starknet = "https://starknet-mainnet.infura.io/v3/${INFURA_API_KEY}"
+starket-goerli = "https://starknet-goerli.infura.io/v3/${INFURA_API_KEY}"
 celo = "https://celo-mainnet.infura.io/v3/${INFURA_API_KEY}"
+celo-alfajores = "https://celo-alfajores.infura.io/v3/${INFURA_API_KEY}"
 moonbase = "https://rpc.api.moonbase.moonbeam.network"
 moonbeam = "https://rpc.api.moobeam.network"
+polygon = "https://polygon-mainnet.infura.io/v3/${INFURA_API_KEY}"
+polygon-zkevm = "https://zkevm-rpc.com"
+polygon-zkevm-testnet = "https://rpc.public.zkevm-test.net"
+mantle = "https://rpc.mantle.xyz/" # 5000
+mantle-testnet = "https://rpc.testnet.mantle.xyz/" # 5001
+# zetachain-testnet = "https://api.athens3.zetachain.com/evm" # 7001
+zetachain-testnet = "https://zetachain-athens-evm.blockpi.network/v1/rpc/public" # 7001
+zetachain = "https://api.mainnet.zetachain.com/evm" # 7000
+neon = "https://neon-mainnet.everstake.one" # 245022934
+neon-devnet = "https://devnet.neonevm.org" # 245022926
+gnosis = "https://rpc.gnosis.pm" # 100
+gnosis-testnet = "https://rpc.chiadochain.net" # 10200
+filecoin = "https://rpc.ankr.com/filecoin" # 314
+filecoin-testnet = "https://filecoin-calibration.chainstacklabs.com/rpc/v1" # 314159
+
 
 
 [etherscan]
 goerli = { key = "${ETHERSCAN_TOKEN}" }
 mainnet = { key = "${ETHERSCAN_TOKEN}" }
 optimism = { key = "${OPTISCAN_TOKEN}" }
+optimism-goerli = { key = "${OPTISCAN_TOKEN}" }
+arbitrum = { key = "${ARBISCAN_TOKEN}" }
+polygon-zkevm-testnet = { key = "${POLYGOSCAN_ZKEVM_TOKEN}" }
+
 
 # unknownchain = { key = "ABCDEFG", url = "https://<etherscan-api-url-for-that-chain>" }
 
