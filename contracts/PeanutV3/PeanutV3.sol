@@ -106,7 +106,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         address _pubKey20
     ) external payable returns (uint256) {
         // check that the contract type is valid
-        require(_contractType < 4 || _contractType == 5, "INVALID CONTRACT TYPE");
+        require(_contractType < 5, "INVALID CONTRACT TYPE");
 
         // handle deposit types
         if (_contractType == 0) {
@@ -162,7 +162,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
                 _amount,
                 "Internal transfer"
             );
-        } else if (_contractType == 5) {
+        } else if (_contractType == 4) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function
             IECO token = IECO(_tokenAddress);
 
@@ -343,7 +343,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
 
         // get the params from calldata and make a deposit
         address _tokenAddress = msg.sender;
-        uint8 _contractType = 4;
+        uint8 _contractType = 3;
         address _pubKey20;
         uint256 _amount;
         uint256 _tokenId;
@@ -442,7 +442,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
                 _deposit.amount,
                 ""
             );
-        } else if (_deposit.contractType == 5) {
+        } else if (_deposit.contractType == 4) {
             /// handle rebasing erc20 deposits
             IECO token = IECO(_deposit.tokenAddress);
             uint256 scaledAmount = _deposit.amount/token.getPastLinearInflation(block.number);

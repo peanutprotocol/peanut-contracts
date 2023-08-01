@@ -111,7 +111,7 @@ describe('PeanutV3.1', () => {
             await ECO.connect(alice).approve(Peanut.address, depositAmount)
             await Peanut.connect(alice).makeDeposit(
                 ECO.address,
-                5,
+                4,
                 depositAmount,
                 0,
                 bob.address,
@@ -141,7 +141,7 @@ describe('PeanutV3.1', () => {
             )).to.emit(Peanut,'WithdrawEvent')
             .withArgs(
                 0,
-                5,
+                4,
                 depositAmount.mul(INITIAL_INFLATION_MULTIPLIER),
                 charlie.address,
             )
