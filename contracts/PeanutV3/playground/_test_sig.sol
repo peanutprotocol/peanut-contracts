@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 // import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol"; // for signature verification
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.0/contracts/utils/cryptography/ECDSA.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.0/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
 
 contract TestContract2 {
