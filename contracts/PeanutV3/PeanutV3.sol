@@ -8,10 +8,9 @@ pragma solidity ^0.8.0;
 //          Links use asymmetric ECDSA encryption by default to be secure & enable trustless,
 //          gasless claiming.
 //          more at: https://peanut.to
-// @version 0.3
+// @version 0.3.1
 // @author  H & K
 //////////////////////////////////////////////////////////////////////////////////////
-//⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 //                         ⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀
 // ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣶⣦⣌⠙⠋⢡⣴⣶⡄⠀⠀
 // ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⣿⣿⣿⡿⢋⣠⣶⣶⡌⠻⣿⠟⠀⠀
@@ -33,6 +32,7 @@ pragma solidity ^0.8.0;
 // imports
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@helix-foundation/currency/contracts/currency/IECO.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
@@ -43,7 +43,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         address pubKey20; // last 20 bytes of the hash of the public key for the deposit
         uint256 amount; // amount of the asset being sent
         address tokenAddress; // address of the asset being sent. 0x0 for eth
-        uint8 contractType; // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155
+        uint8 contractType; // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 5 for ECO-like rebasing erc20
         uint256 tokenId; // id of the token being sent (if erc721 or erc1155)
         // TODO: Can also potentially add link time expiry here. Future approach.
     }
@@ -78,7 +78,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
      */
     function supportsInterface(bytes4 _interfaceId)
         external
-        view
+        pure
         override
         returns (bool)
     {
@@ -92,7 +92,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
      * @notice Function to make a deposit
      * @dev For token deposits, allowance must be set before calling this function
      * @param _tokenAddress address of the token being sent. 0x0 for eth
-     * @param _contractType uint8 for the type of contract being sent. 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155
+     * @param _contractType uint8 for the type of contract being sent. 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155, 5 for ECO-like rebasing erc20
      * @param _amount uint256 of the amount of tokens being sent (if erc20)
      * @param _tokenId uint256 of the id of the token being sent if erc721 or erc1155
      * @param _pubKey20 last 20 bytes of the public key of the deposit signer
@@ -106,7 +106,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         address _pubKey20
     ) external payable returns (uint256) {
         // check that the contract type is valid
-        require(_contractType < 4, "INVALID CONTRACT TYPE");
+        require(_contractType < 4 || _contractType == 5, "INVALID CONTRACT TYPE");
 
         // handle deposit types
         if (_contractType == 0) {
@@ -162,6 +162,30 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
                 _amount,
                 "Internal transfer"
             );
+        } else if (_contractType == 5) {
+            // REMINDER: User must approve this contract to spend the tokens before calling this function
+            IECO token = IECO(_tokenAddress);
+
+            // require users token balance to be greater than or equal to the amount being deposited
+            require(
+                token.balanceOf(msg.sender) >= _amount,
+                "INSUFFICIENT TOKEN BALANCE"
+            );
+
+            // require allowance to be at least the amount being deposited
+            require(
+                token.allowance(msg.sender, address(this)) >= _amount,
+                "INSUFFICIENT ALLOWANCE"
+            );
+
+            // transfer the tokens to the contract
+            require(
+                token.transferFrom(msg.sender, address(this), _amount),
+                "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
+            );
+
+            // calculate the rebase invariant amount to store in the deposits array
+            _amount *= token.getPastLinearInflation(block.number);
         }
 
         // create deposit
@@ -377,7 +401,9 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
     ) external returns (bool) {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
-        require(deposits[_index].amount > 0, "DEPOSIT ALREADY WITHDRAWN");
+
+        deposit memory _deposit = deposits[_index];
+        require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
         // check that the recipientAddress hashes to the same value as recipientAddressHash
         require(
             _recipientAddressHash ==
@@ -388,41 +414,46 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         );
         // check that the signer is the same as the one stored in the deposit
         address depositSigner = getSigner(_recipientAddressHash, _signature);
-        require(depositSigner == deposits[_index].pubKey20, "WRONG SIGNATURE");
+        require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
 
         // Deposit request is valid. Withdraw the deposit to the recipient address.
-        if (deposits[_index].contractType == 0) {
+        if (_deposit.contractType == 0) {
             /// handle eth deposits
-            payable(_recipientAddress).transfer(deposits[_index].amount);
-        } else if (deposits[_index].contractType == 1) {
+            payable(_recipientAddress).transfer(_deposit.amount);
+        } else if (_deposit.contractType == 1) {
             /// handle erc20 deposits
-            IERC20 token = IERC20(deposits[_index].tokenAddress);
-            token.transfer(_recipientAddress, deposits[_index].amount);
-        } else if (deposits[_index].contractType == 2) {
+            IERC20 token = IERC20(_deposit.tokenAddress);
+            token.transfer(_recipientAddress, _deposit.amount);
+        } else if (_deposit.contractType == 2) {
             /// handle erc721 deposits
-            IERC721 token = IERC721(deposits[_index].tokenAddress);
+            IERC721 token = IERC721(_deposit.tokenAddress);
             token.transferFrom(
                 address(this),
                 _recipientAddress,
-                deposits[_index].tokenId
+                _deposit.tokenId
             );
-        } else if (deposits[_index].contractType == 3) {
+        } else if (_deposit.contractType == 3) {
             /// handle erc1155 deposits
-            IERC1155 token = IERC1155(deposits[_index].tokenAddress);
+            IERC1155 token = IERC1155(_deposit.tokenAddress);
             token.safeTransferFrom(
                 address(this),
                 _recipientAddress,
-                deposits[_index].tokenId,
-                deposits[_index].amount,
+                _deposit.tokenId,
+                _deposit.amount,
                 ""
             );
+        } else if (_deposit.contractType == 5) {
+            /// handle rebasing erc20 deposits
+            IECO token = IECO(_deposit.tokenAddress);
+            uint256 scaledAmount = _deposit.amount/token.getPastLinearInflation(block.number);
+            token.transfer(_recipientAddress, scaledAmount);
         }
 
         // emit the withdraw event
         emit WithdrawEvent(
             _index,
-            deposits[_index].contractType,
-            deposits[_index].amount,
+            _deposit.contractType,
+            _deposit.amount,
             _recipientAddress
         );
 
