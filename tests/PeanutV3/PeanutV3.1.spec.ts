@@ -59,7 +59,7 @@ describe('PeanutV3.1', () => {
         it('can deposit', async () => {
             await Peanut.connect(alice).makeDeposit(
                 ECO.address,
-                5,
+                4,
                 depositAmount,
                 0,
                 bob.address,
@@ -70,7 +70,7 @@ describe('PeanutV3.1', () => {
             await expect(
                 Peanut.connect(alice).makeDeposit(
                     ECO.address,
-                    5,
+                    4,
                     depositAmount,
                     0,
                     bob.address,
@@ -78,7 +78,7 @@ describe('PeanutV3.1', () => {
             ).to.emit(Peanut, 'DepositEvent')
             .withArgs(
                 0,
-                5,
+                4,
                 depositAmount.mul(INITIAL_INFLATION_MULTIPLIER),
                 alice.address,
             )
@@ -87,7 +87,7 @@ describe('PeanutV3.1', () => {
         it('stores the correct data', async () => {
             await Peanut.connect(alice).makeDeposit(
                 ECO.address,
-                5,
+                4,
                 depositAmount,
                 1,
                 bob.address,
@@ -97,7 +97,7 @@ describe('PeanutV3.1', () => {
             expect(deposit.pubKey20 === bob.address).to.be.true
             expect(deposit.amount.eq(depositAmount.mul(INITIAL_INFLATION_MULTIPLIER))).to.be.true
             expect(deposit.tokenAddress === ECO.address).to.be.true
-            expect(deposit.contractType === 5).to.be.true
+            expect(deposit.contractType === 4).to.be.true
             expect(deposit.tokenId.eq('1')).to.be.true
         })
     })
