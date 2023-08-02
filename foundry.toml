@@ -39,6 +39,8 @@ filecoin = "https://rpc.ankr.com/filecoin" # 314
 filecoin-testnet = "https://filecoin-calibration.chainstacklabs.com/rpc/v1" # 314159
 zksync = "https://mainnet.era.zksync.io" # 324
 zksync-testnet = "https://testnet.era.zksync.dev" # 280
+base = "https://developer-access-mainnet.base.org" # 8453
+base-testnet = "https://goerli.base.org" # 84531
 
 
 
@@ -49,6 +51,8 @@ optimism = { key = "${OPTISCAN_TOKEN}" }
 optimism-goerli = { key = "${OPTISCAN_TOKEN}" }
 arbitrum = { key = "${ARBISCAN_TOKEN}" }
 polygon-zkevm-testnet = { key = "${POLYGOSCAN_ZKEVM_TOKEN}" }
+base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org" }
+base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org" }
 
 
 # unknownchain = { key = "ABCDEFG", url = "https://<etherscan-api-url-for-that-chain>" }

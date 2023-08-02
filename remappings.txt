@@ -1,2 +1,2 @@
 openzeppelin-contracts=lib/openzeppelin-contracts
-@openzeppelin=lib/openzeppelin-contracts/
+@openzeppelin=lib/openzeppelin-contracts

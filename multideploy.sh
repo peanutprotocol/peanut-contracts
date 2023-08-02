@@ -76,6 +76,26 @@ forge script script/PeanutV4.s.sol:DeployScript --rpc-url zksync-testnet --broad
 # https://goerli.explorer.zksync.io/
 # contract address will be at 0x8d1a17A3A4504aEB17515645BA8098f1D75237f7 once fixed
 
+# deploy on Base
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url base --etherscan-api-key base --broadcast --verify -vvvv
+# v3 
+forge script script/PeanutV3.s.sol:DeployScript --rpc-url base --etherscan-api-key base --broadcast --verify -vv
+# verify existing
+forge verify-contract \
+    --chain-id 8453 \
+    --num-of-optimizations 200 \
+    --watch \
+    -e "Y56JD8HMC2K5MQFID84PF6MSEE81TKDFRR" \
+    --compiler-version "v0.8.20" \
+    "0x1851359ab8b002217cf4d108d7f027b63563754c" \
+    "src/archive/V3/PeanutV3.sol:PeanutV3"
+
+forge verify-contract 0x1851359ab8b002217cf4d108d7f027b63563754c --rpc-url base --etherscan-api-key base --verify -vvvv
+
+# deploy on Base testnet
+# v3 
+forge script script/PeanutV3.s.sol:DeployScript --rpc-url base-testnet --etherscan-api-key base-testnet --broadcast --verify -vvvv
+
 
 
 ### OPTIONAL ### 
