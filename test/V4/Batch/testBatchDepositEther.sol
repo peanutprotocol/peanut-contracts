@@ -1,5 +1,5 @@
-// // SPDX-License-Identifier: UNLICENSED
-// pragma solidity ^0.8.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.0;
 
 // import "forge-std/Test.sol";
 // import "../src/V4/PeanutV4.sol";
@@ -68,7 +68,7 @@
 
 //     //     return depositIndexes;
 //     // }
-//     function testBatchMakeDepositEtherOptimized() public {
+//     function testBatchMakeDepositEther() public {
 //         uint256[] memory amounts = new uint256[](3);
 //         address[] memory pubKeys20 = new address[](3);
 //         amounts[0] = 100;
@@ -79,7 +79,7 @@
 //         pubKeys20[2] = PUBKEY20;
 
 //         // value should be sum of amounts
-//         uint256[] memory depositIndexes = peanutV4.batchMakeDepositEtherOptimized{value: 600}(
+//         uint256[] memory depositIndexes = peanutV4.batchMakeDepositEther{value: 600}(
 //             amounts,
 //             pubKeys20
 //         );
@@ -88,25 +88,26 @@
 //         assertEq(depositIndexes.length, 3, "Batch deposit failed");
 //         assertEq(peanutV4.getDepositCount(), 3, "Deposit count mismatch");
 
-//         // // console log the deposit indexes
-//         // for (uint256 i = 0; i < depositIndexes.length; i++) {
-//         //     console.log("Deposit index: %s", depositIndexes[i]);
-//         // }
-//         // // console log the deposits themselves
-//         // for (uint256 i = 0; i < depositIndexes.length; i++) {
-//         //     // print deposit index
-//         //     console.log("    Deposit index: %s", depositIndexes[i]);
-//         //     console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).pubKey20);
-//         //     console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).amount);
-//         //     console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).tokenAddress);
-//         //     console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).contractType);
-//         //     console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).tokenId);
-//         //     console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).senderAddress);
-//         //     console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).timestamp);
-//         // }
+//         // console log the deposit indexes
+//         for (uint256 i = 0; i < depositIndexes.length; i++) {
+//             console.log("Deposit index: %s", depositIndexes[i]);
+//         }
+//         // console log the deposits themselves
+//         for (uint256 i = 0; i < depositIndexes.length; i++) {
+//             // print deposit index
+//             console.log("    Deposit index: %s", depositIndexes[i]);
+//             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).pubKey20);
+//             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).amount);
+//             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).tokenAddress);
+//             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).contractType);
+//             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).tokenId);
+//             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).senderAddress);
+//             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).timestamp);
+//         }
+                
 //     }
 
-//     function testBatchMakeDepositEtherOptimized100() public {
+//     function testBatchMakeDepositEther100() public {
 //     uint256[] memory amounts = new uint256[](100);
 //     address[] memory pubKeys20 = new address[](100);
 //     uint256 totalValue = 0;
@@ -119,7 +120,7 @@
 //     }
 
 //     // value should be sum of amounts
-//     uint256[] memory depositIndexes = peanutV4.batchMakeDepositEtherOptimized{value: totalValue}(
+//     uint256[] memory depositIndexes = peanutV4.batchMakeDepositEther{value: totalValue}(
 //         amounts,
 //         pubKeys20
 //     );
@@ -127,7 +128,6 @@
 //     assertEq(depositIndexes.length, 100, "Batch deposit failed");
 //     assertEq(peanutV4.getDepositCount(), 100, "Deposit count mismatch");
 //     }
-
 
 //     // // fuzzy testing of batchMakeDeposit with varying length of input arrays
 //     // function testFuzz_BatchMakeDeposit_number(
