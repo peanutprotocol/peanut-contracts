@@ -15,5 +15,8 @@ contract DeployScript is Script {
         PeanutV4 peanutV4 = new PeanutV4();
 
         vm.stopBroadcast();
+
+        // do something for no unused variable warning
+        peanutV4;
     }
 }
