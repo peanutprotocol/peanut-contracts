@@ -6,8 +6,10 @@ import "../../src/V4/PeanutV4.sol";
 import "../../src/util/ERC20Mock.sol";
 import "../../src/util/ERC721Mock.sol";
 import "../../src/util/ERC1155Mock.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
-contract testSenderWithdrawEther is Test {
+contract TestSenderWithdrawEther is Test {
     PeanutV4 public peanutV4;
     // a dummy private/public keypair to test withdrawals
     address public constant PUBKEY20 =
@@ -72,7 +74,7 @@ contract testSenderWithdrawEther is Test {
     }
 }
 
-contract testSenderWithdrawERC20 is Test {
+contract TestSenderWithdrawErc20 is Test {
     PeanutV4 public peanutV4;
     ERC20Mock public testToken;
 
@@ -82,7 +84,7 @@ contract testSenderWithdrawERC20 is Test {
     bytes32 public constant PRIVKEY =
         0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
 
-    uint256 depositIdx;
+    uint256 _depositIdx;
 
     // apparently not possible to fuzz test in setUp() function?
     function setUp() public {
@@ -98,7 +100,7 @@ contract testSenderWithdrawERC20 is Test {
 
         // Make a deposit
         uint256 amount = 2**128;
-        depositIdx = peanutV4.makeDeposit(
+        _depositIdx = peanutV4.makeDeposit(
             address(testToken),
             1,
             amount,
@@ -108,24 +110,142 @@ contract testSenderWithdrawERC20 is Test {
     }
 
     // test sender withdrawal of ERC20
-    function testSenderTimeWithdrawERC20() public {
+    function testSenderTimeWithdrawErc20() public {
         // wait 25 hours
         vm.warp(block.timestamp + 25 hours);
 
         // Withdraw the deposit
-        peanutV4.withdrawDepositSender(depositIdx);
+        peanutV4.withdrawDepositSender(_depositIdx);
     }
 
-    function testFailSenderTimeWithdrawERC20_Immediate() public {
+    function testFailSenderTimeWithdrawErc20Immediate() public {
         // Withdraw the deposit
-        peanutV4.withdrawDepositSender(depositIdx);
+        peanutV4.withdrawDepositSender(_depositIdx);
     }
 
-    function testFailSenderTimeWithdrawERC20_1Hour() public {
+    function testFailSenderTimeWithdrawErc201Hour() public {
         // wait 1 hour
         vm.warp(block.timestamp + 1 hours);
 
         // Withdraw the deposit
-        peanutV4.withdrawDepositSender(depositIdx);
+        peanutV4.withdrawDepositSender(_depositIdx);
+    }
+}
+
+
+contract TestSenderWithdrawErc721 is Test, ERC721Holder {
+    PeanutV4 public peanutV4;
+    ERC721Mock public testToken;
+
+    // a dummy private/public keypair to test withdrawals
+    address public constant PUBKEY20 =
+        address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
+    bytes32 public constant PRIVKEY =
+        0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
+
+    uint256 _depositIdx;
+    uint256 _tokenId = 1; // tokenId used for ERC721
+
+    // apparently not possible to fuzz test in setUp() function?
+    function setUp() public {
+        console.log("Setting up test");
+        peanutV4 = new PeanutV4();
+        testToken = new ERC721Mock(); // contractype 2
+
+        // Mint token for test
+        testToken.mint(address(this), _tokenId);
+
+        // Approve the contract to spend the tokens
+        testToken.approve(address(peanutV4), _tokenId);
+
+        // Make a deposit
+        _depositIdx = peanutV4.makeDeposit(
+            address(testToken),
+            2,
+            0,
+            _tokenId,
+            PUBKEY20
+        );
+    }
+
+    // test sender withdrawal of ERC721
+    function testSenderTimeWithdrawErc721() public {
+        // wait 25 hours
+        vm.warp(block.timestamp + 25 hours);
+
+        // Withdraw the deposit
+        peanutV4.withdrawDepositSender(_depositIdx);
+    }
+
+    function testFailSenderTimeWithdrawErc721Immediate() public {
+        // Withdraw the deposit
+        peanutV4.withdrawDepositSender(_depositIdx);
+    }
+
+    function testFailSenderTimeWithdrawErc7211Hour() public {
+        // wait 1 hour
+        vm.warp(block.timestamp + 1 hours);
+
+        // Withdraw the deposit
+        peanutV4.withdrawDepositSender(_depositIdx);
+    }
+}
+
+contract TestSenderWithdrawErc1155 is Test, ERC1155Holder {
+    PeanutV4 public peanutV4;
+    ERC1155Mock public testToken;
+
+    // a dummy private/public keypair to test withdrawals
+    address public constant PUBKEY20 =
+        address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
+    bytes32 public constant PRIVKEY =
+        0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
+
+    uint256 _depositIdx;
+    uint256 _tokenId = 1; // tokenId used for ERC1155
+    uint256 _tokenAmount = 100; // amount of ERC1155 tokens
+
+    // apparently not possible to fuzz test in setUp() function?
+    function setUp() public {
+        console.log("Setting up test");
+        peanutV4 = new PeanutV4();
+        testToken = new ERC1155Mock(); // contractype 3
+
+        // Mint tokens for test
+        testToken.mint(address(this), _tokenId, _tokenAmount, "");
+
+        // Approve the contract to spend the tokens
+        testToken.setApprovalForAll(address(peanutV4), true);
+
+        // Make a deposit
+        _depositIdx = peanutV4.makeDeposit(
+            address(testToken),
+            3,
+            _tokenAmount,
+            _tokenId,
+            PUBKEY20
+        );
+    }
+
+    // test sender withdrawal of ERC1155
+    function testSenderTimeWithdrawErc1155() public {
+        // wait 25 hours
+        vm.warp(block.timestamp + 25 hours);
+
+        // Withdraw the deposit
+        peanutV4.withdrawDepositSender(_depositIdx);
+    }
+
+    function testFailSenderTimeWithdrawErc1155Immediate() public {
+        // Withdraw the deposit
+        peanutV4.withdrawDepositSender(_depositIdx);
+    }
+
+    function testFailSenderTimeWithdrawErc11551Hour() public {
+        // wait 1 hour
+        vm.warp(block.timestamp + 1 hours);
+
+        // Withdraw the deposit
+        peanutV4.withdrawDepositSender(_depositIdx);
     }
 }

@@ -52,7 +52,6 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         uint256 tokenId; // id of the token being sent (if erc721 or erc1155)
         address senderAddress; // address of the sender
         uint256 timestamp; // timestamp of the deposit
-        // TODO: Can also potentially add link time expiry here. Future approach.
     }
 
     Deposit[] public deposits; // array of deposits
