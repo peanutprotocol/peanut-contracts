@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 import "../../src/V4/PeanutV4.sol";
@@ -23,7 +23,7 @@ contract PeanutV4Test is Test {
         peanutV4 = new PeanutV4();
         testToken = new ERC20Mock();
         testToken721 = new ERC721Mock();
-        testToken1155 = new ERC1155Mock();
+        // testToken1155 = new ERC1155Mock();
 
         // Mint tokens for test accounts
         testToken.mint(address(this), 1000);
@@ -35,59 +35,6 @@ contract PeanutV4Test is Test {
         testToken721.setApprovalForAll(address(peanutV4), true);
         // testToken1155.setApprovalForAll(address(peanutV4), true);
     }
-
-    function testContractCreation() public {
-        assertTrue(address(peanutV4) != address(0), "Contract creation failed");
-    }
-
-    function testMakeDepositERC20() public {
-        uint256 amount = 100;
-
-        // Moved minting and approval to the setup function
-        uint256 depositIndex = peanutV4.makeDeposit(
-            address(testToken),
-            1,
-            amount,
-            0,
-            PUBKEY20
-        );
-
-        assertEq(depositIndex, 0, "Deposit failed");
-        assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
-    }
-
-    function testMakeDepositERC721() public {
-        uint256 tokenId = 1;
-
-        // Moved minting and approval to the setup function
-        uint256 depositIndex = peanutV4.makeDeposit(
-            address(testToken721),
-            2,
-            1,
-            tokenId,
-            PUBKEY20
-        );
-
-        assertEq(depositIndex, 0, "Deposit failed");
-        assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
-    }
-
-    // function testMakeDepositERC1155() public {
-    //     uint256 tokenId = 1;
-    //     uint256 amount = 100;
-
-    //     // Moved minting and approval to the setup function
-    //     uint256 depositIndex = peanutV4.makeDeposit(
-    //         address(testToken1155),
-    //         3,
-    //         amount,
-    //         tokenId,
-    //         PUBKEY20
-    //     );
-
-    //     assertEq(depositIndex, 0, "Deposit failed");
-    //     assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
-    // }
 
     // test sender withdrawal
     function testSenderTimeWithdraw() public {

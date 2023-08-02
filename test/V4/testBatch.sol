@@ -1,40 +1,40 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "forge-std/Test.sol";
-import "../../src/V4/PeanutV4.sol";
-import "../../src/util/ERC20Mock.sol";
-import "../../src/util/ERC721Mock.sol";
-import "../../src/util/ERC1155Mock.sol";
+// import "forge-std/Test.sol";
+// import "../../src/V4/PeanutV4.sol";
+// import "../../src/util/ERC20Mock.sol";
+// import "../../src/util/ERC721Mock.sol";
+// import "../../src/util/ERC1155Mock.sol";
 
-contract test is Test {
-    PeanutV4 public peanutV4;
-    ERC20Mock public testToken;
-    ERC721Mock public testToken721;
-    ERC1155Mock public testToken1155;
+// contract test is Test {
+//     PeanutV4 public peanutV4;
+//     ERC20Mock public testToken;
+//     ERC721Mock public testToken721;
+//     ERC1155Mock public testToken1155;
 
-    // a dummy private/public keypair to test withdrawals
-    address public constant PUBKEY20 =
-        address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
-    bytes32 public constant PRIVKEY = 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
+//     // a dummy private/public keypair to test withdrawals
+//     address public constant PUBKEY20 =
+//         address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
+//     bytes32 public constant PRIVKEY = 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
 
-    function setUp() public {
-        console.log("Setting up test");
-        peanutV4 = new PeanutV4();
-        testToken = new ERC20Mock();
-        testToken721 = new ERC721Mock();
-        // testToken1155 = new ERC1155Mock();
+//     function setUp() public {
+//         console.log("Setting up test");
+//         peanutV4 = new PeanutV4();
+//         testToken = new ERC20Mock();
+//         testToken721 = new ERC721Mock();
+//         // testToken1155 = new ERC1155Mock();
 
-        // Mint tokens for test accounts
-        testToken.mint(address(this), 10000000);
-        testToken721.mint(address(this), 1);
-        // testToken1155.mint(address(this), 1, 1000, "");
+//         // Mint tokens for test accounts
+//         testToken.mint(address(this), 10000000);
+//         testToken721.mint(address(this), 1);
+//         // testToken1155.mint(address(this), 1, 1000, "");
 
-        // Approve PeanutV4 to spend tokens
-        testToken.approve(address(peanutV4), 100000000);
-        testToken721.setApprovalForAll(address(peanutV4), true);
-        // testToken1155.setApprovalForAll(address(peanutV4), true);
-    }
+//         // Approve PeanutV4 to spend tokens
+//         testToken.approve(address(peanutV4), 100000000);
+//         testToken721.setApprovalForAll(address(peanutV4), true);
+//         // testToken1155.setApprovalForAll(address(peanutV4), true);
+//     }
 
     // function testBatchMakeDeposit() public {
     //     address[] memory tokenAddresses = new address[](3);
@@ -109,4 +109,4 @@ contract test is Test {
     //     assertEq(peanutV4.getDepositCount(), arrayLength, "Deposit count mismatch");
     // }
 
-}
+// }
