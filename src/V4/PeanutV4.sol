@@ -505,7 +505,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     function getSigner(
         bytes32 messageHash,
         bytes memory signature
-    ) internal pure returns (address) {
+    ) public pure returns (address) {
         address signer = ECDSA.recover(messageHash, signature);
         return signer;
     }
