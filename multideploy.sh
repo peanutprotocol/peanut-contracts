@@ -10,6 +10,18 @@ forge script script/PeanutV4.s.sol:DeployScript --rpc-url goerli --etherscan-api
 # 0x0e16cd9de31dc2fbd58f1cff09b6e380c4368f95
 # https://goerli.etherscan.io/address/0x0e16cd9de31dc2fbd58f1cff09b6e380c4368f95#code
 
+# deploy on polygon
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url polygon --etherscan-api-key polygon --broadcast --verify -vvvv --legacy
+
+# deploy on polygon mumbai
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url polygon-mumbai --etherscan-api-key polygon --broadcast --verify -vvvv --legacy
+
+
+# deploy on Optimism
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url optimism --etherscan-api-key optimism --broadcast --verify -vvvv
+# deploy on Optimism testnet
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url optimism-goerli --etherscan-api-key optimism --broadcast --verify -vvvv
+
 
 # deploy on Gnosis Chain
 
@@ -93,8 +105,8 @@ forge verify-contract \
 forge verify-contract 0x1851359ab8b002217cf4d108d7f027b63563754c --rpc-url base --etherscan-api-key base --verify -vvvv
 
 # deploy on Base testnet
-# v3 
-forge script script/PeanutV3.s.sol:DeployScript --rpc-url base-testnet --etherscan-api-key base-testnet --broadcast --verify -vvvv
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url base-testnet --etherscan-api-key base-testnet --broadcast --verify -vvvv
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url base --etherscan-api-key base --broadcast --verify -vvvv
 
 
 
@@ -104,7 +116,4 @@ forge script script/PeanutV3.s.sol:DeployScript --rpc-url base-testnet --ethersc
 
 # deploy on Arbitrum testnet
 
-# deploy on Optimism
-
-# deploy on Optimism testnet
 
