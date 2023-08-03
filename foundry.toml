@@ -3,7 +3,7 @@ src = "src"
 out = "out"
 libs = ["lib"]
 optimizer = true
-optimizer_runs = 20_000
+optimizer_runs = 10_000
 
 [rpc_endpoints]
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}" # 1
@@ -42,6 +42,8 @@ zksync = "https://mainnet.era.zksync.io" # 324
 zksync-testnet = "https://testnet.era.zksync.dev" # 280
 base = "https://developer-access-mainnet.base.org" # 8453
 base-testnet = "https://goerli.base.org" # 84531
+milkomeda-c1 = "https://rpc-mainnet-cardano-evm.c1.milkomeda.com"	# 2001
+milkomeda-c1-testnet = "https://rpc-devnet-cardano-evm.c1.milkomeda.com	" # 200101
 
 
 

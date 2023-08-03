@@ -4,63 +4,70 @@
       "v3": "0xdB60C736A30C41D9df0081057Eae73C3eb119895"
     },
     "5": {
-      "ethereum-goerli": ".json files need comment support :(",
+      "ethereum-goerli": "",
       "v1": "0x616d197A29E50EBD08a4287b26e47041286F171D",
       "v2": "0xd4964Df4dc2eb6B2fD4157DFda264AA9dd720C92",
       "v3": "0xd068b1F6F0623CbCC7ADC7545290f8991C9B8Ec9",
       "v4": "0x6Ca58219297c156F218Fa8B45371C09D464fd3b0"
     },
+    "42": {
+      "ethereum-kovan": ""
+    },
+    "4": {
+      "ethereum-rinkeby": ""
+    },
     "137": {
-      "polygon-mainnet": ".json files need comment support :(",
+      "polygon-mainnet": "",
       "v1": "0xB184b7D19d747Db9084C355b5B6a093d7063B710",
       "v2": "0x45fd48f58c47d929E9D181837fBB7Cda1974a773",
       "v3": "0xCEd763C2Ff8d5B726b8a5D480c17C24B6686837F",
       "v4": "0x68f3Fbc12D1dFe892B5F976C23809CeFAB5EB463"
     },
     "80001": {
-      "polygon-mumbai": ".json files need comment support :(",
+      "polygon-mumbai": "",
       "v4": "0x34A4Cc70bb0F5dd3B5A60175c7E5D3f916093E29"
     },
     "84531":{
-      "base-goerli": ".json files need comment support :(",
+      "base-goerli": "",
       "v4": "0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5"
     },
     "8453": {
-      "base": ".json files need comment support :("
+      "base": ""
     },
     "10": {
-      "optimism-mainnet": ".json files need comment support :(",
+      "optimism-mainnet": "",
       "v1": "0x9B0817fA08b46670B92300B58AA1f4AB155701ea",
       "v3": "0x1aBe03DC4706aE47c4F2ae04EEBe5c8607c74e17"
     },
     "420":{
-      "optimism-goerli": ".json files need comment support :(",
+      "optimism-goerli": "",
       "v3": "0xDC608f2Bc4f0AFf02D12d51Ca8b543B343525c8a",
       "v4": "0xD3fBCb1AF168e985c5Ab20B0D2dbe39840043291"
     },
-    "42": {
-      "ethereum-kovan": ".json files need comment support :("
-    },
     "42161": {
-      "arbitrum-mainnet": ".json files need comment support :(",
+      "arbitrum-mainnet": "",
       "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
       "v3": "0x9B0817fA08b46670B92300B58AA1f4AB155701ea"
     },
-    "4": {
-      "ethereum-rinkeby": ".json files need comment support :("
-    },
     "100": {
-      "xdai-mainnet": ".json files need comment support :(",
+      "xdai-mainnet": "",
       "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
       "v3": "0x897F8EDdB345F0d16081615823F76055Ad60A00c"
     },
+    "200101": {
+      "milkomeda-c1-testnet": "",
+      "v4": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
+    },
+    "2001": {
+      "milkomeda-c1": ""
+    },
     "bsctestnet": {},
     "56": {
-      "bsc-mainnet": ".json files need comment support :(",
+      "bsc-mainnet": "",
       "v3": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
     },
     "97": {
-      "bsc-testnet": ".json files need comment support :("
+      "bsc-testnet": ""
     },
     "moonbeam": {
       "mainnet": {
@@ -69,11 +76,11 @@
       "moonbase": {}
     },
     "43114": {
-      "avalanche-mainnet": ".json files need comment support :(",
+      "avalanche-mainnet": "",
       "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
     },
     "43113": {
-      "avalanche-fuji": ".json files need comment support :("
+      "avalanche-fuji": ""
     },
     "314159": {
       "comment": "filecoin testnet",

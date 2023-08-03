@@ -18,3 +18,6 @@ test_uni_example/
 
 # Ignore all files in a directory
 broadcast/
+
+# flattened files
+*.flattened.sol
