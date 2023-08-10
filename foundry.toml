@@ -48,9 +48,9 @@ milkomeda-c1-testnet = "https://rpc-devnet-cardano-evm.c1.milkomeda.com	" # 2001
 
 
 [etherscan]
-goerli = { key = "${ETHERSCAN_TOKEN}" }
-polygon = { key = "${ETHERSCAN_TOKEN}" }
 mainnet = { key = "${ETHERSCAN_TOKEN}" }
+goerli = { key = "${ETHERSCAN_TOKEN}" }
+polygon = { key = "${POLYGONSCAN_TOKEN}" }
 optimism = { key = "${OPTISCAN_TOKEN}" }
 optimism-goerli = { key = "${OPTISCAN_TOKEN}" }
 arbitrum = { key = "${ARBISCAN_TOKEN}" }

@@ -14,6 +14,7 @@ forge script script/PeanutV4.s.sol:DeployScript --rpc-url polygon --etherscan-ap
 
 # polygon mumbai
 forge script script/PeanutV4.s.sol:DeployScript --rpc-url polygon-mumbai --etherscan-api-key polygon --broadcast --verify -vvvv --legacy
+forge script script/PeanutV3.s.sol:DeployScript --rpc-url polygon-mumbai --etherscan-api-key polygon --broadcast --verify -vvvv --legacy
 
 
 ### Optimism
