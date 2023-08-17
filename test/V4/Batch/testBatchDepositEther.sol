@@ -36,7 +36,6 @@ pragma solidity ^0.8.0;
 //         // testToken1155.setApprovalForAll(address(peanutV4), true);
 //     }
 
-
 //     // /**
 //     //  * @notice Batch ERC20 token deposit
 //     //  * @param _tokenAddress address of the token being sent
@@ -84,7 +83,6 @@ pragma solidity ^0.8.0;
 //             pubKeys20
 //         );
 
-
 //         assertEq(depositIndexes.length, 3, "Batch deposit failed");
 //         assertEq(peanutV4.getDepositCount(), 3, "Deposit count mismatch");
 
@@ -104,14 +102,14 @@ pragma solidity ^0.8.0;
 //             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).senderAddress);
 //             console.log("Deposit: %s", peanutV4.getDeposit(depositIndexes[i]).timestamp);
 //         }
-                
+
 //     }
 
 //     function testBatchMakeDepositEther100() public {
 //     uint256[] memory amounts = new uint256[](100);
 //     address[] memory pubKeys20 = new address[](100);
 //     uint256 totalValue = 0;
-    
+
 //     // fill the arrays
 //     for (uint256 i = 0; i < 100; i++) {
 //         amounts[i] = 100; // or any other amount
@@ -148,7 +146,7 @@ pragma solidity ^0.8.0;
 //     //         pubKeys20[i] = PUBKEY20;
 //     //     }
 
-//     //     uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}( 
+//     //     uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}(
 //     //         tokenAddresses,
 //     //         contractTypes,
 //     //         amounts,

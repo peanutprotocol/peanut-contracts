@@ -14,8 +14,7 @@ contract PeanutV4Test is Test {
     ERC1155Mock public testToken1155;
 
     // a dummy private/public keypair to test withdrawals
-    address public constant PUBKEY20 =
-        address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
+    address public constant PUBKEY20 = address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
     bytes32 public constant PRIVKEY = 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
 
     function setUp() public {
@@ -44,13 +43,7 @@ contract PeanutV4Test is Test {
         uint256 amount = 100;
 
         // Moved minting and approval to the setup function
-        uint256 depositIndex = peanutV4.makeDeposit(
-            address(testToken),
-            1,
-            amount,
-            0,
-            PUBKEY20
-        );
+        uint256 depositIndex = peanutV4.makeDeposit(address(testToken), 1, amount, 0, PUBKEY20);
 
         assertEq(depositIndex, 0, "Deposit failed");
         assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
@@ -60,13 +53,7 @@ contract PeanutV4Test is Test {
         uint256 tokenId = 1;
 
         // Moved minting and approval to the setup function
-        uint256 depositIndex = peanutV4.makeDeposit(
-            address(testToken721),
-            2,
-            1,
-            tokenId,
-            PUBKEY20
-        );
+        uint256 depositIndex = peanutV4.makeDeposit(address(testToken721), 2, 1, tokenId, PUBKEY20);
 
         assertEq(depositIndex, 0, "Deposit failed");
         assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
@@ -95,18 +82,12 @@ contract PeanutV4Test is Test {
 
         assertEq(testToken.balanceOf(address(peanutV4)), 0, "Contract balance mismatch");
         // Moved minting and approval to the setup function
-        uint256 depositIndex = peanutV4.makeDeposit(
-            address(testToken),
-            1,
-            amount,
-            0,
-            PUBKEY20
-        );
+        uint256 depositIndex = peanutV4.makeDeposit(address(testToken), 1, amount, 0, PUBKEY20);
 
         assertEq(depositIndex, 0, "Deposit failed");
         assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
         assertEq(testToken.balanceOf(address(peanutV4)), 1000, "Contract balance mismatch");
-        
+
         // wait 25 hours
         vm.warp(block.timestamp + 25 hours);
 
@@ -117,5 +98,4 @@ contract PeanutV4Test is Test {
         assertEq(testToken.balanceOf(address(peanutV4)), 0, "Contract balance mismatch");
         assertEq(testToken.balanceOf(address(this)), 1000, "Sender balance mismatch");
     }
-
 }

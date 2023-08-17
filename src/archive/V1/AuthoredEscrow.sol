@@ -37,6 +37,7 @@ contract AuthoredEscrow is Ownable {
         bytes32 pwdHash; // hash of the deposit password
     }
     // technically sender and pwdHash could be optional, optimizing on gas fees
+
     deposit[] public deposits; // array of deposits
     bool emergency = false; // emergency flag
 
@@ -65,10 +66,7 @@ contract AuthoredEscrow is Ownable {
     // sender can always withdraw deposited assets at any time
     function withdrawSender(uint256 _index) external {
         require(_index < deposits.length, "index out of bounds");
-        require(
-            deposits[_index].sender == msg.sender,
-            "only sender can withdraw"
-        );
+        require(deposits[_index].sender == msg.sender, "only sender can withdraw");
 
         // transfer ether back to sender
         payable(msg.sender).transfer(deposits[_index].amount);
@@ -81,23 +79,13 @@ contract AuthoredEscrow is Ownable {
     // centralized transfer function to transfer ether to recipients newly created wallet
     // TODO: replace with zk-SNARK based function
     // TODO: rename AuthoredWithdraw
-    function withdrawOwner(
-        uint256 _index,
-        address _recipient,
-        bytes32 _pwd
-    ) external onlyOwner {
+    function withdrawOwner(uint256 _index, address _recipient, bytes32 _pwd) external onlyOwner {
         require(_index < deposits.length, "index out of bounds");
         // require that the deposits[idx] is not deleted
-        require(
-            deposits[_index].sender != address(0),
-            "deposit has already been claimed"
-        );
+        require(deposits[_index].sender != address(0), "deposit has already been claimed");
         // require that the password is correct (disable if DB loss)
         if (!emergency) {
-            require(
-                keccak256(abi.encodePacked(_pwd)) == deposits[_index].pwdHash,
-                "incorrect password"
-            );
+            require(keccak256(abi.encodePacked(_pwd)) == deposits[_index].pwdHash, "incorrect password");
         }
 
         // transfer ether to recipient
@@ -117,11 +105,7 @@ contract AuthoredEscrow is Ownable {
         return deposits[_index];
     }
 
-    function getDepositsSent(address _sender)
-        external
-        view
-        returns (deposit[] memory)
-    {
+    function getDepositsSent(address _sender) external view returns (deposit[] memory) {
         deposit[] memory depositsSent = new deposit[](deposits.length);
         uint256 count = 0;
         for (uint256 i = 0; i < deposits.length; i++) {

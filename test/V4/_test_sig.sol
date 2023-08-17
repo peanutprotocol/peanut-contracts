@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract TestContract2 {
     // sample address
     address address1 = 0x06222Dd7f30f0d802d764aBa8f0DA48f7FC1d177;
+
     using ECDSA for bytes32;
 
     // sample messageHash
@@ -22,29 +23,19 @@ contract TestContract2 {
         testAddressHash(address2);
     }
 
-    function getSigner(bytes32 messageHash, bytes memory signature)
-        public
-        view
-        returns (address)
-    {
+    function getSigner(bytes32 messageHash, bytes memory signature) public view returns (address) {
         /* returns the signer of the messageHash using ECDSA recover */
         address signer = ECDSA.recover(messageHash, signature);
         console.log("Signer: ", signer);
         return signer;
     }
 
-    function testHash(bytes20 data)
-        public
-        view
-        returns (bool)
-    {
+    function testHash(bytes20 data) public view returns (bool) {
         bytes32 dataHash = ECDSA.toEthSignedMessageHash(data);
         console.logBytes32(dataHash);
         dataHash = keccak256(abi.encodePacked(data));
         console.logBytes32(dataHash);
-        dataHash = ECDSA.toEthSignedMessageHash(
-            keccak256(abi.encodePacked(data))
-        );
+        dataHash = ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(data)));
         console.logBytes32(dataHash);
 
         // // cast to string and use hashAddress
@@ -57,12 +48,7 @@ contract TestContract2 {
     }
 
     // hashes the address with ethereum signed message prefix and compares to ethHash
-    function testAddressHash(address addr)
-        public
-        view
-        returns (bool)
-    {
-
+    function testAddressHash(address addr) public view returns (bool) {
         bytes32 hash1 = keccak256(abi.encodePacked(addr));
         bytes32 hash2 = ECDSA.toEthSignedMessageHash(hash1);
         bytes32 hash3 = hash1.toEthSignedMessageHash();
@@ -73,7 +59,6 @@ contract TestContract2 {
 
         bytes32 temp = 0x5931b4ed56ace4c46b68524cb5bcbf4195f1bbaacbe5228fbd090546c88dd229;
         console.logBytes32(ECDSA.toEthSignedMessageHash(temp));
-
 
         // cast addr to bytes20
         bytes20 addrBytes = bytes20(addr);
@@ -99,39 +84,22 @@ contract TestContract2 {
         // sign with prefix
 
         // try out different ways to hash the address
-        addrHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n", "20", addr)
-        );
+        addrHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", "20", addr));
         console.logBytes32(addrHash);
-        addrHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n", "22", addr)
-        );
+        addrHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", "22", addr));
         console.logBytes32(addrHash);
-        addrHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n", "42", addr)
-        );
+        addrHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", "42", addr));
         console.logBytes32(addrHash);
 
-        addrHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n", "20", abi.encodePacked(addr))
-        );
+        addrHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", "20", abi.encodePacked(addr)));
         console.logBytes32(addrHash);
-        addrHash = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n", "20", abi.encodePacked(addr))
-        );
+        addrHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", "20", abi.encodePacked(addr)));
         console.logBytes32(addrHash);
-        addrHash = keccak256(
-            abi.encodePacked(
-                "\x19Ethereum Signed Message:\n",
-                "32",
-                abi.encodePacked(addr)
-            )
-        );
+        addrHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", "32", abi.encodePacked(addr)));
         console.logBytes32(addrHash);
 
         console.logBytes32(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n20", addr)));
         console.logBytes32(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", addr)));
-
 
         // try using toEthSignedMessageHash
         // cast to bytes memory
@@ -148,18 +116,11 @@ contract TestContract2 {
     }
 
     // uses ECDSA.toEthSignedMessageHash to hash a string
-    function testStringHash(bytes memory str)
-        public
-        view
-        returns (bool)
-    {
-        bytes32 strHash = ECDSA.toEthSignedMessageHash(
-            keccak256(abi.encodePacked(str))
-        );
+    function testStringHash(bytes memory str) public view returns (bool) {
+        bytes32 strHash = ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(str)));
         console.logBytes32(strHash);
         strHash = ECDSA.toEthSignedMessageHash(str);
         console.logBytes32(strHash);
         return true;
     }
-
 }

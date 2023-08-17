@@ -121,7 +121,9 @@ contract PeanutV2 is Ownable {
             require(token.allowance(msg.sender, address(this)) >= _amount, "INSUFFICIENT ALLOWANCE");
 
             // transfer the tokens to the contract
-            require(token.transferFrom(msg.sender, address(this), _amount), "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE");
+            require(
+                token.transferFrom(msg.sender, address(this), _amount), "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
+            );
 
             // create the deposit
             deposits.push(
@@ -166,13 +168,7 @@ contract PeanutV2 is Ownable {
             );
         } else if (_contractType == 3) {
             IERC1155 token = IERC1155(_tokenAddress);
-            token.safeTransferFrom(
-                msg.sender,
-                address(this),
-                _tokenId,
-                _amount,
-                ""
-            );
+            token.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "");
 
             // TODO: Support IERC1155Receiver
 
@@ -204,14 +200,8 @@ contract PeanutV2 is Ownable {
     // sender can withdraw deposited assets at any time
     function withdrawSender(uint256 _index) external {
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
-        require(
-            deposits[_index].senderCanWithdraw,
-            "DEPOSIT DOES NOT ALLOW SENDER TO WITHDRAW"
-        );
-        require(
-            deposits[_index].sender == msg.sender,
-            "MUST BE SENDER TO WITHDRAW"
-        );
+        require(deposits[_index].senderCanWithdraw, "DEPOSIT DOES NOT ALLOW SENDER TO WITHDRAW");
+        require(deposits[_index].sender == msg.sender, "MUST BE SENDER TO WITHDRAW");
 
         // handle eth deposits
         if (deposits[_index].contractType == 0) {
@@ -222,20 +212,10 @@ contract PeanutV2 is Ownable {
             token.transfer(msg.sender, deposits[_index].amount);
         } else if (deposits[_index].contractType == 2) {
             IERC721 token = IERC721(deposits[_index].tokenAddress);
-            token.transferFrom(
-                address(this),
-                msg.sender,
-                deposits[_index].tokenId
-            );
+            token.transferFrom(address(this), msg.sender, deposits[_index].tokenId);
         } else if (deposits[_index].contractType == 3) {
             IERC1155 token = IERC1155(deposits[_index].tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                msg.sender,
-                deposits[_index].tokenId,
-                deposits[_index].amount,
-                ""
-            );
+            token.safeTransferFrom(address(this), msg.sender, deposits[_index].tokenId, deposits[_index].amount, "");
         }
 
         // emit the withdraw event
@@ -250,14 +230,8 @@ contract PeanutV2 is Ownable {
     // 1. claimer lock functionality. Sets the recipient address and opens a 100 block timewindow in which the claimer can withdraw the deposit.
     // Costs some ETH to prevent spamming and DoS attacks. Is later refunded to the sender.
     function openWithdrawWindow(uint256 _depositIdx) public payable {
-        require(
-            msg.value >= deposits[_depositIdx].lockCost,
-            "THE SENDER SET A HIGHER LOCK COST THAN PROVIDED"
-        );
-        require(
-            block.number > deposits[_depositIdx].unlockUntilBlockNumber,
-            "DEPOSIT WINDOW IS STILL OPEN"
-        );
+        require(msg.value >= deposits[_depositIdx].lockCost, "THE SENDER SET A HIGHER LOCK COST THAN PROVIDED");
+        require(block.number > deposits[_depositIdx].unlockUntilBlockNumber, "DEPOSIT WINDOW IS STILL OPEN");
 
         // set the claimer
         deposits[_depositIdx].claimer = msg.sender;
@@ -270,24 +244,11 @@ contract PeanutV2 is Ownable {
     }
 
     // 2. claimer withdraw functionality. Withdraws the deposit to the recipient address.
-    function withdraw(
-        uint256 _index,
-        bytes32 _key,
-        address _recipient
-    ) external {
+    function withdraw(uint256 _index, bytes32 _key, address _recipient) external {
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
-        require(
-            deposits[_index].claimer == msg.sender,
-            "MUST BE CLAIMER TO WITHDRAW"
-        );
-        require(
-            block.number < deposits[_index].unlockUntilBlockNumber,
-            "DEPOSIT WINDOW NOT OPEN"
-        );
-        require(
-            keccak256(abi.encodePacked(_key)) == deposits[_index].key,
-            "KEY DOES NOT MATCH"
-        );
+        require(deposits[_index].claimer == msg.sender, "MUST BE CLAIMER TO WITHDRAW");
+        require(block.number < deposits[_index].unlockUntilBlockNumber, "DEPOSIT WINDOW NOT OPEN");
+        require(keccak256(abi.encodePacked(_key)) == deposits[_index].key, "KEY DOES NOT MATCH");
 
         // handle eth deposits
         if (deposits[_index].contractType == 0) {
@@ -298,20 +259,10 @@ contract PeanutV2 is Ownable {
             token.transfer(_recipient, deposits[_index].amount);
         } else if (deposits[_index].contractType == 2) {
             IERC721 token = IERC721(deposits[_index].tokenAddress);
-            token.transferFrom(
-                address(this),
-                _recipient,
-                deposits[_index].tokenId
-            );
+            token.transferFrom(address(this), _recipient, deposits[_index].tokenId);
         } else if (deposits[_index].contractType == 3) {
             IERC1155 token = IERC1155(deposits[_index].tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _recipient,
-                deposits[_index].tokenId,
-                deposits[_index].amount,
-                ""
-            );
+            token.safeTransferFrom(address(this), _recipient, deposits[_index].tokenId, deposits[_index].amount, "");
         }
 
         // emit the withdraw event
@@ -321,22 +272,12 @@ contract PeanutV2 is Ownable {
         delete deposits[_index];
     }
 
-
     // centralized transfer function to transfer ether to recipients newly created wallet
     // Is optional, only works if sender has enabled this
-    function withdrawOwner(uint256 _index, address _recipient)
-        external
-        onlyOwner
-    {
+    function withdrawOwner(uint256 _index, address _recipient) external onlyOwner {
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
-        require(
-            deposits[_index].sender != address(0),
-            "DEPOSIT ALREADY WITHDRAWN"
-        );
-        require(
-            deposits[_index].ownerCanWithdraw,
-            "DEPOSIT DOES NOT ALLOW OWNER TO WITHDRAW"
-        );
+        require(deposits[_index].sender != address(0), "DEPOSIT ALREADY WITHDRAWN");
+        require(deposits[_index].ownerCanWithdraw, "DEPOSIT DOES NOT ALLOW OWNER TO WITHDRAW");
 
         // handle eth deposits
         if (deposits[_index].contractType == 0) {
@@ -347,20 +288,10 @@ contract PeanutV2 is Ownable {
             token.transfer(_recipient, deposits[_index].amount);
         } else if (deposits[_index].contractType == 2) {
             IERC721 token = IERC721(deposits[_index].tokenAddress);
-            token.transferFrom(
-                address(this),
-                _recipient,
-                deposits[_index].tokenId
-            );
+            token.transferFrom(address(this), _recipient, deposits[_index].tokenId);
         } else if (deposits[_index].contractType == 3) {
             IERC1155 token = IERC1155(deposits[_index].tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _recipient,
-                deposits[_index].tokenId,
-                deposits[_index].amount,
-                ""
-            );
+            token.safeTransferFrom(address(this), _recipient, deposits[_index].tokenId, deposits[_index].amount, "");
         }
 
         // emit the withdraw event
@@ -379,11 +310,7 @@ contract PeanutV2 is Ownable {
         return deposits[_index];
     }
 
-    function getDepositsSent(address _sender)
-        external
-        view
-        returns (deposit[] memory)
-    {
+    function getDepositsSent(address _sender) external view returns (deposit[] memory) {
         deposit[] memory depositsSent = new deposit[](deposits.length);
         uint256 count = 0;
         for (uint256 i = 0; i < deposits.length; i++) {

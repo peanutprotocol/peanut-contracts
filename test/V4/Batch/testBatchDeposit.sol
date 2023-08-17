@@ -62,11 +62,10 @@ pragma solidity ^0.8.0;
 //         contractTypes[2] = 0;
 //         amounts[2] = 1 ether;
 //         tokenIds[2] = 0;
-//         pubKeys20[2] = PUBKEY20;        
-
+//         pubKeys20[2] = PUBKEY20;
 
 //         // Moved minting and approval to the setup function
-//         uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}( 
+//         uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}(
 //             tokenAddresses,
 //             contractTypes,
 //             amounts,
@@ -97,7 +96,7 @@ pragma solidity ^0.8.0;
 //             pubKeys20[i] = PUBKEY20;
 //         }
 
-//         uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}( 
+//         uint256[] memory depositIndexes = peanutV4.batchMakeDeposit{value: 1 ether}(
 //             tokenAddresses,
 //             contractTypes,
 //             amounts,

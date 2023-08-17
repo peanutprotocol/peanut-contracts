@@ -18,7 +18,8 @@ contract TestSigWithdrawEther is Test {
     address _recipientAddress = 0x6B3751c5b04Aa818EA90115AA06a4D9A36A16f02;
     // bytes32 _recipientAddressHash = 0x43fcd47dd82c4fd18ae2f2d674b46273c645331bdfdf312badfe3592d43e58cd;
     bytes32 _recipientAddressHashEip191 = 0x9192b2026401b2d52667b8458bb54cc7847746441d70cd1bc63fc875a5b4f54a;
-    bytes public signature = hex"997928768fcdb48faa1af08cdd9bb5e694d51a8d1495ec9b464ea1b10d20501119f1eb0cca20bc684c5d6b9663191181b68e159e08a06dfc29d17693ed4d8b981b";
+    bytes public signature =
+        hex"997928768fcdb48faa1af08cdd9bb5e694d51a8d1495ec9b464ea1b10d20501119f1eb0cca20bc684c5d6b9663191181b68e159e08a06dfc29d17693ed4d8b981b";
 
     receive() external payable {} // necessary to receive ether
 
@@ -30,13 +31,7 @@ contract TestSigWithdrawEther is Test {
     // test sender withdrawal of ERC20
     function testSigWithdrawEther(uint64 amount) public {
         vm.assume(amount > 0);
-        uint256 depositIdx = peanutV4.makeDeposit{value: amount}(
-            address(0),
-            0,
-            amount,
-            0,
-            _pubkey20
-        );
+        uint256 depositIdx = peanutV4.makeDeposit{value: amount}(address(0), 0, amount, 0, _pubkey20);
         peanutV4.withdrawDeposit(depositIdx, _recipientAddress, _recipientAddressHashEip191, signature);
     }
 }

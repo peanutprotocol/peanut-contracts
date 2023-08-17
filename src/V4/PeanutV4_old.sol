@@ -58,26 +58,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
     // events
     event DepositEvent(
-        uint256 indexed _index,
-        uint8 indexed _contractType,
-        uint256 _amount,
-        address indexed _senderAddress
+        uint256 indexed _index, uint8 indexed _contractType, uint256 _amount, address indexed _senderAddress
     );
     event WithdrawEvent(
-        uint256 indexed _index,
-        uint8 indexed _contractType,
-        uint256 _amount,
-        address indexed _recipientAddress
-    );
-    event TopUpEvent(
-        uint256 indexed _index,
-        uint256 _additionalAmount,
-        address indexed _senderAddress
-    );
-    event PartialWithdrawEvent(
-        uint256 indexed _index,
-        uint256 _withdrawAmount,
-        address indexed _recipientAddress
+        uint256 indexed _index, uint8 indexed _contractType, uint256 _amount, address indexed _recipientAddress
     );
     event MessageEvent(string message);
 
@@ -87,18 +71,14 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     }
 
     /**
-        @notice supportsInterface function
-        @dev ERC165 interface detection
-        @param _interfaceId bytes4 the interface identifier, as specified in ERC-165
-        @return bool true if the contract implements the interface specified in _interfaceId
+     * @notice supportsInterface function
+     *     @dev ERC165 interface detection
+     *     @param _interfaceId bytes4 the interface identifier, as specified in ERC-165
+     *     @return bool true if the contract implements the interface specified in _interfaceId
      */
-    function supportsInterface(
-        bytes4 _interfaceId
-    ) external pure override returns (bool) {
-        return
-            _interfaceId == type(IERC165).interfaceId ||
-            _interfaceId == type(IERC721Receiver).interfaceId ||
-            _interfaceId == type(IERC1155Receiver).interfaceId;
+    function supportsInterface(bytes4 _interfaceId) external pure override returns (bool) {
+        return _interfaceId == type(IERC165).interfaceId || _interfaceId == type(IERC721Receiver).interfaceId
+            || _interfaceId == type(IERC1155Receiver).interfaceId;
     }
 
     /**
@@ -142,32 +122,20 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
             IERC721 token = IERC721(_tokenAddress);
             // require(token.ownerOf(_tokenId) == msg.sender, "Invalid token id");
-            token.safeTransferFrom(
-                msg.sender,
-                address(this),
-                _tokenId,
-                "Internal transfer"
-            );
+            token.safeTransferFrom(msg.sender, address(this), _tokenId, "Internal transfer");
         } else if (_contractType == 3) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function.
             // alternatively, the user can call the safeTransferFrom function directly and append the appropriate calldata
 
             IERC1155 token = IERC1155(_tokenAddress);
-            token.safeTransferFrom(
-                msg.sender,
-                address(this),
-                _tokenId,
-                _amount,
-                "Internal transfer"
-            );
+            token.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "Internal transfer");
         } else if (_contractType == 4) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function
             IECO token = IECO(_tokenAddress);
 
             // transfer the tokens to the contract
             require(
-                token.transferFrom(msg.sender, address(this), _amount),
-                "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
+                token.transferFrom(msg.sender, address(this), _amount), "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
             );
 
             // calculate the rebase invariant amount to store in the deposits array
@@ -188,12 +156,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         );
 
         // emit the deposit event
-        emit DepositEvent(
-            deposits.length - 1,
-            _contractType,
-            _amount,
-            msg.sender
-        );
+        emit DepositEvent(deposits.length - 1, _contractType, _amount, msg.sender);
 
         // return id of new deposit
         return deposits.length - 1;
@@ -209,12 +172,11 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @param _tokenId uint256 ID of the token being transferred
      * @param _data bytes data to send along with a safe transfer check
      */
-    function onERC721Received(
-        address _operator,
-        address _from,
-        uint256 _tokenId,
-        bytes calldata _data
-    ) external override returns (bytes4) {
+    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data)
+        external
+        override
+        returns (bytes4)
+    {
         if (_operator == address(this)) {
             // if operator is this contract, nothing to do, return
             return this.onERC721Received.selector;
@@ -246,23 +208,21 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     }
 
     /**
-        @notice Erc1155 token receiver function
-        @dev These functions are called by the token contracts when a token is sent to this contract
-        @dev If calldata is "Internal transfer" then the token was sent by this contract and we don't need to do anything
-        @dev Otherwise, calldata needs 20 bytes pubKey20
-        @param _operator address operator requesting the transfer
-        @param _from address address which previously owned the token
-        @param _tokenId uint256 ID of the token being transferred
-        @param _value uint256 amount of tokens being transferred
-        @param _data bytes data passed with the call
+     * @notice Erc1155 token receiver function
+     *     @dev These functions are called by the token contracts when a token is sent to this contract
+     *     @dev If calldata is "Internal transfer" then the token was sent by this contract and we don't need to do anything
+     *     @dev Otherwise, calldata needs 20 bytes pubKey20
+     *     @param _operator address operator requesting the transfer
+     *     @param _from address address which previously owned the token
+     *     @param _tokenId uint256 ID of the token being transferred
+     *     @param _value uint256 amount of tokens being transferred
+     *     @param _data bytes data passed with the call
      */
-    function onERC1155Received(
-        address _operator,
-        address _from,
-        uint256 _tokenId,
-        uint256 _value,
-        bytes calldata _data
-    ) external override returns (bytes4) {
+    function onERC1155Received(address _operator, address _from, uint256 _tokenId, uint256 _value, bytes calldata _data)
+        external
+        override
+        returns (bytes4)
+    {
         if (_operator == address(this)) {
             // if data is "Internal transfer", nothing to do, return
             return this.onERC1155Received.selector;
@@ -372,10 +332,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
         // check that the recipientAddress hashes to the same value as recipientAddressHash
         require(
-            _recipientAddressHash ==
-                ECDSA.toEthSignedMessageHash(
-                    keccak256(abi.encodePacked(_recipientAddress))
-                ),
+            _recipientAddressHash == ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(_recipientAddress))),
             "HASHES DO NOT MATCH"
         );
         // check that the signer is the same as the one stored in the deposit
@@ -383,12 +340,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
 
         // emit the withdraw event
-        emit WithdrawEvent(
-            _index,
-            _deposit.contractType,
-            _deposit.amount,
-            _recipientAddress
-        );
+        emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _recipientAddress);
 
         // delete the deposit
         delete deposits[_index];
@@ -404,26 +356,15 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         } else if (_deposit.contractType == 2) {
             /// handle erc721 deposits
             IERC721 token = IERC721(_deposit.tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _recipientAddress,
-                _deposit.tokenId
-            );
+            token.safeTransferFrom(address(this), _recipientAddress, _deposit.tokenId);
         } else if (_deposit.contractType == 3) {
             /// handle erc1155 deposits
             IERC1155 token = IERC1155(_deposit.tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _recipientAddress,
-                _deposit.tokenId,
-                _deposit.amount,
-                ""
-            );
+            token.safeTransferFrom(address(this), _recipientAddress, _deposit.tokenId, _deposit.amount, "");
         } else if (_deposit.contractType == 4) {
             /// handle rebasing erc20 deposits
             IECO token = IECO(_deposit.tokenAddress);
-            uint256 scaledAmount = _deposit.amount /
-                token.getPastLinearInflation(block.number);
+            uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
             token.transfer(_recipientAddress, scaledAmount);
         }
 
@@ -435,27 +376,17 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @param _index uint256 index of the deposit
      * @return bool true if successful
      */
-    function withdrawDepositSender(
-        uint256 _index
-    ) external nonReentrant returns (bool) {
+    function withdrawDepositSender(uint256 _index) external nonReentrant returns (bool) {
         // check that the deposit exists
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
         // check that the sender is the one who made the deposit
         require(_deposit.senderAddress == msg.sender, "NOT THE SENDER");
         // check that 24 hours have passed since the deposit
-        require(
-            block.timestamp >= _deposit.timestamp + 24 hours,
-            "NOT 24 HOURS YET"
-        );
+        require(block.timestamp >= _deposit.timestamp + 24 hours, "NOT 24 HOURS YET");
 
         // emit the withdraw event
-        emit WithdrawEvent(
-            _index,
-            _deposit.contractType,
-            _deposit.amount,
-            _deposit.senderAddress
-        );
+        emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _deposit.senderAddress);
 
         // Delete the deposit
         delete deposits[_index];
@@ -470,161 +401,16 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         } else if (_deposit.contractType == 2) {
             /// handle erc721 deposits
             IERC721 token = IERC721(_deposit.tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _deposit.senderAddress,
-                _deposit.tokenId
-            );
+            token.safeTransferFrom(address(this), _deposit.senderAddress, _deposit.tokenId);
         } else if (_deposit.contractType == 3) {
             /// handle erc1155 deposits
             IERC1155 token = IERC1155(_deposit.tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _deposit.senderAddress,
-                _deposit.tokenId,
-                _deposit.amount,
-                ""
-            );
+            token.safeTransferFrom(address(this), _deposit.senderAddress, _deposit.tokenId, _deposit.amount, "");
         } else if (_deposit.contractType == 4) {
             /// handle rebasing erc20 deposits
             IECO token = IECO(_deposit.tokenAddress);
-            uint256 scaledAmount = _deposit.amount /
-                token.getPastLinearInflation(block.number);
+            uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
             token.transfer(_deposit.senderAddress, scaledAmount);
-        }
-
-        return true;
-    }
-
-    /**
-     * @notice Function to top up a deposit. Adds the additional amount to the deposit.
-     * @dev Requires that the deposit type is either ETH or ERC20.
-     * @param _index uint256 index of the deposit
-     * @param _additionalAmount uint256 additional amount to be added to the deposit
-     * @return void
-     */
-    function topUpDeposit(
-        uint256 _index,
-        uint256 _additionalAmount
-    ) external payable nonReentrant {
-        // check that the deposit exists
-        require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
-        Deposit storage _deposit = deposits[_index];
-
-        // check that the deposit type is ETH or ERC20
-        require(
-            _deposit.contractType <= 1,
-            "CAN ONLY TOP UP ETH OR ERC20 DEPOSITS"
-        );
-
-        if (_deposit.contractType == 0) {
-            // handle eth deposits
-            require(
-                msg.value == _additionalAmount,
-                "SENT ETH DOES NOT MATCH THE ADDITIONAL AMOUNT"
-            );
-            _deposit.amount += msg.value;
-        } else if (_deposit.contractType == 1) {
-            // handle erc20 deposits
-            IERC20 token = IERC20(_deposit.tokenAddress);
-            token.safeTransferFrom(
-                msg.sender,
-                address(this),
-                _additionalAmount
-            );
-            _deposit.amount += _additionalAmount;
-        }
-
-        // emit a top up event (you should define this event at the top of your contract)
-        emit TopUpEvent(_index, _additionalAmount, msg.sender);
-    }
-
-    /**
-     * @notice Function to withdraw a part of a deposit. Reduces the deposit by the withdrawn amount.
-     * @dev Requires that the withdraw amount is less than or equal to the deposit amount.
-     * @param _index uint256 index of the deposit
-     * @param _withdrawAmount uint256 amount to withdraw from the deposit
-     * @param _recipientAddress address of the recipient
-     * @param _recipientAddressHash bytes32 hash of the recipient address (prefixed with "\x19Ethereum Signed Message:\n32")
-     * @param _signature bytes signature of the recipient address (65 bytes)
-     * @return bool true if successful
-     */
-    /**
-     * @notice Function to withdraw a part of a deposit. Reduces the deposit by the withdrawn amount.
-     * @dev Requires that the withdraw amount is less than or equal to the deposit amount.
-     * @param _index uint256 index of the deposit
-     * @param _withdrawAmount uint256 amount to withdraw from the deposit
-     * @param _recipientAddress address of the recipient
-     * @param _recipientAddressHash bytes32 hash of the recipient address (prefixed with "\x19Ethereum Signed Message:\n32")
-     * @param _signature bytes signature of the recipient address (65 bytes)
-     * @return bool true if successful
-     */
-    function withdrawPartialDeposit(
-        uint256 _index,
-        uint256 _withdrawAmount,
-        address _recipientAddress,
-        bytes32 _recipientAddressHash,
-        bytes memory _signature
-    ) external nonReentrant returns (bool) {
-        // check that the deposit exists and that it isn't already withdrawn
-        require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
-        Deposit memory _deposit = deposits[_index];
-        require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
-        // check that the recipientAddress hashes to the same value as recipientAddressHash
-        require(
-            _recipientAddressHash ==
-                ECDSA.toEthSignedMessageHash(
-                    keccak256(abi.encodePacked(_recipientAddress))
-                ),
-            "HASHES DO NOT MATCH"
-        );
-        // check that the signer is the same as the one stored in the deposit
-        address depositSigner = getSigner(_recipientAddressHash, _signature);
-        require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
-
-        // check that the withdraw amount is less than or equal to the deposit amount
-        require(
-            _deposit.amount >= _withdrawAmount,
-            "WITHDRAW AMOUNT IS GREATER THAN DEPOSIT AMOUNT"
-        );
-
-        // subtract the withdraw amount from the deposit amount
-        _deposit.amount -= _withdrawAmount;
-
-        // All the existing withdrawal logic, replacing _deposit.amount with _withdrawAmount...
-
-        // Deposit request is valid. Withdraw the deposit to the recipient address.
-        if (_deposit.contractType == 0) {
-            /// handle eth deposits
-            payable(_recipientAddress).transfer(_withdrawAmount);
-        } else if (_deposit.contractType == 1) {
-            /// handle erc20 deposits
-            IERC20 token = IERC20(_deposit.tokenAddress);
-            token.safeTransfer(_recipientAddress, _withdrawAmount);
-        } else if (_deposit.contractType == 2) {
-            /// handle erc721 deposits
-            IERC721 token = IERC721(_deposit.tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _recipientAddress,
-                _deposit.tokenId
-            );
-        } else if (_deposit.contractType == 3) {
-            /// handle erc1155 deposits
-            IERC1155 token = IERC1155(_deposit.tokenAddress);
-            token.safeTransferFrom(
-                address(this),
-                _recipientAddress,
-                _deposit.tokenId,
-                _withdrawAmount,
-                ""
-            );
-        } else if (_deposit.contractType == 4) {
-            /// handle rebasing erc20 deposits
-            IECO token = IECO(_deposit.tokenAddress);
-            uint256 scaledAmount = _withdrawAmount /
-                token.getPastLinearInflation(block.number);
-            token.transfer(_recipientAddress, scaledAmount);
         }
 
         return true;
@@ -640,10 +426,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @param signature bytes signature of the message
      * @return address of the signer
      */
-    function getSigner(
-        bytes32 messageHash,
-        bytes memory signature
-    ) public pure returns (address) {
+    function getSigner(bytes32 messageHash, bytes memory signature) public pure returns (address) {
         address signer = ECDSA.recover(messageHash, signature);
         return signer;
     }
@@ -658,13 +441,38 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
     /**
      * @notice Simple way to get single deposit
-        * @param _index uint256 index of the deposit
-        * @return Deposit struct
-        // TODO: Can also potentially add link time expiry here. Future approach.
-    }
-        */
+     * @param _index uint256 index of the deposit
+     * @return Deposit struct
+     *     // TODO: Can also potentially add link time expiry here. Future approach.
+     * }
+     */
     function getDeposit(uint256 _index) external view returns (Deposit memory) {
         return deposits[_index];
+    }
+
+    /**
+     * @notice Get all deposits in contract
+     * @return Deposit[] array of deposits
+     */
+    function getAllDeposits() external view returns (Deposit[] memory) {
+        return deposits;
+    }
+
+    /**
+     * @notice Get all deposits for a given address
+     * @param _address address of the deposits
+     * @return Deposit[] array of deposits
+     */
+    function getAllDepositsForAddress(address _address) external view returns (Deposit[] memory) {
+        Deposit[] memory _deposits = new Deposit[](deposits.length);
+        uint256 count = 0;
+        for (uint256 i = 0; i < deposits.length; i++) {
+            if (deposits[i].senderAddress == _address) {
+                _deposits[count] = deposits[i];
+                count++;
+            }
+        }
+        return _deposits;
     }
 
     // and that's all! Have a nutty day!

@@ -45,24 +45,14 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         address tokenAddress; // address of the asset being sent. 0x0 for eth
         uint8 contractType; // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155
         uint256 tokenId; // id of the token being sent (if erc721 or erc1155)
-        // TODO: Can also potentially add link time expiry here. Future approach.
+            // TODO: Can also potentially add link time expiry here. Future approach.
     }
 
     deposit[] public deposits; // array of deposits
 
     // events
-    event DepositEvent(
-        uint256 _index,
-        uint8 _contractType,
-        uint256 _amount,
-        address indexed _senderAddress
-    );
-    event WithdrawEvent(
-        uint256 _index,
-        uint8 _contractType,
-        uint256 _amount,
-        address indexed _recipientAddress
-    );
+    event DepositEvent(uint256 _index, uint8 _contractType, uint256 _amount, address indexed _senderAddress);
+    event WithdrawEvent(uint256 _index, uint8 _contractType, uint256 _amount, address indexed _recipientAddress);
     event MessageEvent(string message);
 
     // constructor
@@ -71,21 +61,14 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
     }
 
     /**
-        @notice supportsInterface function
-        @dev ERC165 interface detection
-        @param _interfaceId bytes4 the interface identifier, as specified in ERC-165
-        @return bool true if the contract implements the interface specified in _interfaceId
+     * @notice supportsInterface function
+     *     @dev ERC165 interface detection
+     *     @param _interfaceId bytes4 the interface identifier, as specified in ERC-165
+     *     @return bool true if the contract implements the interface specified in _interfaceId
      */
-    function supportsInterface(bytes4 _interfaceId)
-        external
-        view
-        override
-        returns (bool)
-    {
-        return
-            _interfaceId == type(IERC165).interfaceId ||
-            _interfaceId == type(IERC721Receiver).interfaceId ||
-            _interfaceId == type(IERC1155Receiver).interfaceId;
+    function supportsInterface(bytes4 _interfaceId) external view override returns (bool) {
+        return _interfaceId == type(IERC165).interfaceId || _interfaceId == type(IERC721Receiver).interfaceId
+            || _interfaceId == type(IERC1155Receiver).interfaceId;
     }
 
     /**
@@ -122,21 +105,14 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
             IERC20 token = IERC20(_tokenAddress);
 
             // require users token balance to be greater than or equal to the amount being deposited
-            require(
-                token.balanceOf(msg.sender) >= _amount,
-                "INSUFFICIENT TOKEN BALANCE"
-            );
+            require(token.balanceOf(msg.sender) >= _amount, "INSUFFICIENT TOKEN BALANCE");
 
             // require allowance to be at least the amount being deposited
-            require(
-                token.allowance(msg.sender, address(this)) >= _amount,
-                "INSUFFICIENT ALLOWANCE"
-            );
+            require(token.allowance(msg.sender, address(this)) >= _amount, "INSUFFICIENT ALLOWANCE");
 
             // transfer the tokens to the contract
             require(
-                token.transferFrom(msg.sender, address(this), _amount),
-                "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
+                token.transferFrom(msg.sender, address(this), _amount), "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
             );
         } else if (_contractType == 2) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function.
@@ -144,24 +120,13 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
 
             IERC721 token = IERC721(_tokenAddress);
             // require(token.ownerOf(_tokenId) == msg.sender, "Invalid token id");
-            token.safeTransferFrom(
-                msg.sender,
-                address(this),
-                _tokenId,
-                "Internal transfer"
-            );
+            token.safeTransferFrom(msg.sender, address(this), _tokenId, "Internal transfer");
         } else if (_contractType == 3) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function.
             // alternatively, the user can call the safeTransferFrom function directly and append the appropriate calldata
 
             IERC1155 token = IERC1155(_tokenAddress);
-            token.safeTransferFrom(
-                msg.sender,
-                address(this),
-                _tokenId,
-                _amount,
-                "Internal transfer"
-            );
+            token.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "Internal transfer");
         }
 
         // create deposit
@@ -176,12 +141,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         );
 
         // emit the deposit event
-        emit DepositEvent(
-            deposits.length - 1,
-            _contractType,
-            _amount,
-            msg.sender
-        );
+        emit DepositEvent(deposits.length - 1, _contractType, _amount, msg.sender);
 
         // return id of new deposit
         return deposits.length - 1;
@@ -197,12 +157,11 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
      * @param _tokenId uint256 ID of the token being transferred
      * @param _data bytes data to send along with a safe transfer check
      */
-    function onERC721Received(
-        address _operator,
-        address _from,
-        uint256 _tokenId,
-        bytes calldata _data
-    ) external override returns (bytes4) {
+    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data)
+        external
+        override
+        returns (bytes4)
+    {
         if (keccak256(_data) == keccak256("Internal transfer")) {
             // if data is "Internal transfer", nothing to do, return
             return this.onERC721Received.selector;
@@ -229,35 +188,28 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         );
 
         // emit the deposit event
-        emit DepositEvent(
-            deposits.length - 1,
-            _contractType,
-            _amount,
-            _operator
-        );
+        emit DepositEvent(deposits.length - 1, _contractType, _amount, _operator);
 
         // return correct bytes4
         return this.onERC721Received.selector;
     }
 
     /**
-        @notice Erc1155 token receiver function
-        @dev These functions are called by the token contracts when a token is sent to this contract
-        @dev If calldata is "Internal transfer" then the token was sent by this contract and we don't need to do anything
-        @dev Otherwise, calldata needs 20 bytes pubKey20
-        @param _operator address operator requesting the transfer
-        @param _from address address which previously owned the token
-        @param _tokenId uint256 ID of the token being transferred
-        @param _value uint256 amount of tokens being transferred
-        @param _data bytes data passed with the call
+     * @notice Erc1155 token receiver function
+     *     @dev These functions are called by the token contracts when a token is sent to this contract
+     *     @dev If calldata is "Internal transfer" then the token was sent by this contract and we don't need to do anything
+     *     @dev Otherwise, calldata needs 20 bytes pubKey20
+     *     @param _operator address operator requesting the transfer
+     *     @param _from address address which previously owned the token
+     *     @param _tokenId uint256 ID of the token being transferred
+     *     @param _value uint256 amount of tokens being transferred
+     *     @param _data bytes data passed with the call
      */
-    function onERC1155Received(
-        address _operator,
-        address _from,
-        uint256 _tokenId,
-        uint256 _value,
-        bytes calldata _data
-    ) external override returns (bytes4) {
+    function onERC1155Received(address _operator, address _from, uint256 _tokenId, uint256 _value, bytes calldata _data)
+        external
+        override
+        returns (bytes4)
+    {
         if (keccak256(_data) == keccak256("Internal transfer")) {
             // if data is "Internal transfer", nothing to do, return
             return this.onERC1155Received.selector;
@@ -346,12 +298,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
             );
 
             // emit the deposit event
-            emit DepositEvent(
-                deposits.length - 1,
-                _contractType,
-                _amount,
-                _from
-            );
+            emit DepositEvent(deposits.length - 1, _contractType, _amount, _from);
         }
 
         // return correct bytes4
@@ -380,10 +327,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         require(deposits[_index].amount > 0, "DEPOSIT ALREADY WITHDRAWN");
         // check that the recipientAddress hashes to the same value as recipientAddressHash
         require(
-            _recipientAddressHash ==
-                ECDSA.toEthSignedMessageHash(
-                    keccak256(abi.encodePacked(_recipientAddress))
-                ),
+            _recipientAddressHash == ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(_recipientAddress))),
             "HASHES DO NOT MATCH"
         );
         // check that the signer is the same as the one stored in the deposit
@@ -401,30 +345,17 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
         } else if (deposits[_index].contractType == 2) {
             /// handle erc721 deposits
             IERC721 token = IERC721(deposits[_index].tokenAddress);
-            token.transferFrom(
-                address(this),
-                _recipientAddress,
-                deposits[_index].tokenId
-            );
+            token.transferFrom(address(this), _recipientAddress, deposits[_index].tokenId);
         } else if (deposits[_index].contractType == 3) {
             /// handle erc1155 deposits
             IERC1155 token = IERC1155(deposits[_index].tokenAddress);
             token.safeTransferFrom(
-                address(this),
-                _recipientAddress,
-                deposits[_index].tokenId,
-                deposits[_index].amount,
-                ""
+                address(this), _recipientAddress, deposits[_index].tokenId, deposits[_index].amount, ""
             );
         }
 
         // emit the withdraw event
-        emit WithdrawEvent(
-            _index,
-            deposits[_index].contractType,
-            deposits[_index].amount,
-            _recipientAddress
-        );
+        emit WithdrawEvent(_index, deposits[_index].contractType, deposits[_index].amount, _recipientAddress);
 
         // delete the deposit
         delete deposits[_index];
@@ -442,11 +373,7 @@ contract PeanutV3 is IERC721Receiver, IERC1155Receiver {
      * @param signature bytes signature of the message
      * @return address of the signer
      */
-    function getSigner(bytes32 messageHash, bytes memory signature)
-        internal
-        pure
-        returns (address)
-    {
+    function getSigner(bytes32 messageHash, bytes memory signature) internal pure returns (address) {
         address signer = ECDSA.recover(messageHash, signature);
         return signer;
     }

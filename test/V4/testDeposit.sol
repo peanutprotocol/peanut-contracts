@@ -20,10 +20,8 @@ contract PeanutV4Test is Test, ERC1155Holder, ERC721Holder {
     ERC1155Mock public testToken1155;
 
     // a dummy private/public keypair to test withdrawals
-    address public constant PUBKEY20 =
-        address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
-    bytes32 public constant PRIVKEY =
-        0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
+    address public constant PUBKEY20 = address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
+    bytes32 public constant PRIVKEY = 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
 
     function setUp() public {
         console.log("Setting up test");
@@ -36,18 +34,11 @@ contract PeanutV4Test is Test, ERC1155Holder, ERC721Holder {
     // make contract payable
     receive() external payable {}
 
-
     // Make a deposit, withdraw the deposit.
     // check invariants
     function testDepositEther(uint64 amount, address randomAddress) public {
         vm.assume(amount > 0);
-        peanutV4.makeDeposit{value: amount}(
-            randomAddress,
-            0,
-            amount,
-            0,
-            PUBKEY20
-        );
+        peanutV4.makeDeposit{value: amount}(randomAddress, 0, amount, 0, PUBKEY20);
     }
 
     function testDepositERC20(uint64 amount) public {
@@ -57,18 +48,9 @@ contract PeanutV4Test is Test, ERC1155Holder, ERC721Holder {
         // approve the contract to spend the tokens
         testToken.approve(address(peanutV4), amount);
         // console log allowance and amount
-        console.log(
-            "Allowance: ",
-            testToken.allowance(address(this), address(peanutV4))
-        );
+        console.log("Allowance: ", testToken.allowance(address(this), address(peanutV4)));
         console.log("Amount: ", amount);
-        peanutV4.makeDeposit(
-            address(testToken),
-            1,
-            amount,
-            0,
-            PUBKEY20
-        );
+        peanutV4.makeDeposit(address(testToken), 1, amount, 0, PUBKEY20);
     }
 
     // Test for ERC721 Token
@@ -77,31 +59,16 @@ contract PeanutV4Test is Test, ERC1155Holder, ERC721Holder {
         testToken721.mint(address(this), tokenId);
         // approve the contract to spend the tokens
         testToken721.approve(address(peanutV4), tokenId);
-        peanutV4.makeDeposit(
-            address(testToken721),
-            2,
-            1,
-            tokenId,
-            PUBKEY20
-        );
+        peanutV4.makeDeposit(address(testToken721), 2, 1, tokenId, PUBKEY20);
     }
 
     // Test for ERC1155 Token
-    function testDepositERC1155(
-        uint64 tokenId,
-        uint64 amount
-    ) public {
+    function testDepositERC1155(uint64 tokenId, uint64 amount) public {
         vm.assume(amount > 0);
         // mint tokens to the contract
         testToken1155.mint(address(this), tokenId, amount, "");
         // approve the contract to spend the tokens
         testToken1155.setApprovalForAll(address(peanutV4), true);
-        peanutV4.makeDeposit(
-            address(testToken1155),
-            3,
-            amount,
-            tokenId,
-            PUBKEY20
-        );
+        peanutV4.makeDeposit(address(testToken1155), 3, amount, tokenId, PUBKEY20);
     }
 }
