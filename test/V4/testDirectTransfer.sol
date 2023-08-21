@@ -89,21 +89,7 @@ contract PeanutV4Test is Test, ERC1155Holder, ERC721Holder {
             amounts[i] = tokens[i].amount;
         }
 
-        // Call safeBatchTransferFrom with the new data array
-        console.log("Calling safeBatchTransferFrom with values:");
-        console.log(tokenIds.length);
-        console.log(amounts.length);
-        console.log(data.length);
-        console.log(data.length / 32);
-        // print the full data array
-        console.logBytes(data);
-        console.logUint(tokenIds[0]);
-        console.logUint(amounts[0]);
-        console.log("im here");
-
         testToken1155.safeBatchTransferFrom(address(this), address(peanutV4), tokenIds, amounts, data);
-
-        console.log("Done calling safeBatchTransferFrom");
 
         for (uint256 i = 0; i < tokens.length; i++) {
             console.log(peanutV4.getDepositCount());
