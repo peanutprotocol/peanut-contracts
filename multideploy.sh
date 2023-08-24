@@ -23,6 +23,19 @@ forge script script/PeanutV4.s.sol:DeployScript --rpc-url optimism --etherscan-a
 forge script script/PeanutV4.s.sol:DeployScript --rpc-url optimism-goerli --etherscan-api-key optimism --broadcast --verify -vvvv
 
 
+### Arbitrum
+forge script script/PeanutV4.s.sol:DeployScript --rpc-url arbitrum --etherscan-api-key arbitrum --broadcast --verify -vvvv
+
+
+### Base
+
+# Base Testnet
+
+
+### Binance Smart Chain (BNB)
+
+# Binance Smart Chain (BNB) testnet
+
 ### Gnosis Chain
 
 # gnosis chain testnet
