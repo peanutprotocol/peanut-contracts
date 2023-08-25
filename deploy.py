@@ -165,12 +165,13 @@ def deploy_to_all_chains(contracts: List[str]):
             deploy_to_chain(chain, contracts)
 
 
-def deploy_to_specific_chain(chain: str, contracts: List[str]):
-    if chain not in config["rpc_endpoints"]:
-        print(f"Error: Unknown chain {chain}")
-        return
+def deploy_to_specific_chains(chains: List[str], contracts: List[str]):
+    for chain in chains:
+        if chain not in config["rpc_endpoints"]:
+            print(f"Error: Unknown chain {chain}")
+            continue
+        deploy_to_chain(chain, contracts)
 
-    deploy_to_chain(chain, contracts)
 
 
 def main():
@@ -186,8 +187,11 @@ Deploy single contract on single chain:
 Deploying Multiple Contracts to a Specific Chain:
   python3 deploy.py -c PeanutV3 PeanutV4 -ch goerli
 
+Deploying Single Contract to a Multiple Chains:
+  python3 deploy.py -c PeanutV3 PeanutV4 -ch goerli polygon-mumbai
+
 Deploying a specific contract to all chains:
-  python3 script_name.py -c PeanutV4
+  python3 deploy.py -c PeanutV4
 
 Notice: you have to update CONTRACTS_MAPPING and foundry.toml for this script to work.
     """
@@ -205,15 +209,17 @@ Notice: you have to update CONTRACTS_MAPPING and foundry.toml for this script to
         help="Specify which contracts to deploy.",
     )
     parser.add_argument(
-        "-ch",
-        "--chain",
-        type=str,
-        help="Specify a specific chain to deploy to. If not provided, will ask for all chains.",
-    )
+    "-ch",
+    "--chain",
+    nargs="+",
+    type=str,
+    help="Specify specific chains to deploy to. If not provided, will ask for all chains.",
+)
+
     args = parser.parse_args()
 
     if args.chain:
-        deploy_to_specific_chain(args.chain, args.contracts)
+        deploy_to_specific_chains(args.chain, args.contracts)
     else:
         deploy_to_all_chains(args.contracts)
 

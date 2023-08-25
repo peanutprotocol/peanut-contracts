@@ -33,25 +33,30 @@ contract PeanutBatcherV4 {
         peanut = IPeanut(_peanutAddress);
 
         uint256 totalAmount = _amount * _pubKeys20.length;
+        uint256 etherAmount;
 
         // Transfer tokens to this contract & approve them for the peanut contract.
         if (_contractType == 0) {
             require(msg.value == totalAmount, "INVALID TOTAL ETHER SENT");
+            etherAmount = _amount;
         } else if (_contractType == 1) {
             IERC20(_tokenAddress).safeTransferFrom(msg.sender, address(this), totalAmount);
             IERC20(_tokenAddress).safeApprove(address(peanut), type(uint256).max);
+            etherAmount = 0;
         } else if (_contractType == 2) {
             IERC721(_tokenAddress).setApprovalForAll(address(peanut), true);
+            etherAmount = 0;
         } else if (_contractType == 3) {
             IERC1155(_tokenAddress).safeTransferFrom(msg.sender, address(this), _tokenId, totalAmount, "");
             IERC1155(_tokenAddress).setApprovalForAll(address(peanut), true);
+            etherAmount = 0;
         }
 
         uint256[] memory depositIndexes = new uint256[](_pubKeys20.length);
 
         for (uint256 i = 0; i < _pubKeys20.length; i++) {
             depositIndexes[i] =
-                peanut.makeDeposit{value: _amount}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i]);
+                peanut.makeDeposit{value: etherAmount}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i]);
         }
 
         return depositIndexes;
