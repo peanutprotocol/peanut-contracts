@@ -58,32 +58,6 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
         testToken.mint(address(this), amount * numDeposits);
         testToken.approve(address(batcher), amount * numDeposits);
 
-        // console.log("Balance: ", testToken.balanceOf(msg.sender));
-        // // approve the PeanutV4 contract to spend the tokens
-        // console.log("Allowance: ", testToken.allowance(msg.sender, address(peanutV4)));
-        // console.log("Allowance: ", testToken.allowance(msg.sender, address(batcher)));
-        // // print my address
-        // console.log("My address: ", msg.sender);
-        // // print tx initiator
-        // console.log("Tx initiator: ", tx.origin);
-        // // print all balances for all and allowances of the testToken
-        // console.log("Balance: ", testToken.balanceOf(msg.sender));
-        // console.log("Allowance: ", testToken.allowance(msg.sender, address(peanutV4)));
-        // console.log("Allowance: ", testToken.allowance(msg.sender, address(batcher)));
-        // console.log("Balance: ", testToken.balanceOf(address(peanutV4)));
-        // console.log("Balance: ", testToken.balanceOf(address(batcher)));
-        // console.log("Allowance: ", testToken.allowance(address(peanutV4), address(batcher)));
-        // console.log("Allowance: ", testToken.allowance(address(batcher), address(peanutV4)));
-        // // check how many tokens have been minted
-        // console.log("Total supply: ", testToken.totalSupply());
-        // // get the balances object
-        // console.log(address(this));
-        // console.log(address(peanutV4));
-        // console.log(address(batcher));
-        // console.log(address(testToken));
-        // console.log("Allowance for address(this): ", testToken.allowance(address(this), address(peanutV4)));
-        // console.log("Allowance for address(this): ", testToken.allowance(address(this), address(batcher)));
-
         // make the batch deposit
         uint256[] memory depositIndexes =
             batcher.batchMakeDeposit(address(peanutV4), address(testToken), 1, amount, 0, pubKeys20);

@@ -23,6 +23,7 @@ def has_etherscan_key(chain: str) -> bool:
 
 
 def run_command(command: str) -> str:
+    print(f"== Running command: ==\n{command}")
     env = os.environ.copy()
 
     with subprocess.Popen(
@@ -75,16 +76,28 @@ def get_chain_info(chain: str) -> Tuple[str, bool]:
 
 def deploy_contract(command: str) -> str:
     """Attempts to deploy a contract and retries without broadcast flag if necessary."""
-    output = run_command(command)
-
-    # Check if there's an Etherscan error
-    if "Etherscan could not detect the deployment." in output:
-        print("Etherscan verification failed. Retrying without --broadcast flag...")
-        time.sleep(30)  # Wait for 30 seconds
-        command = command.replace("--broadcast", "")
+    try:
         output = run_command(command)
 
-    return output
+        # Define the maximum time (in seconds) and interval for retries
+        max_time = 120
+        retry_interval = 30
+        attempts = max_time // retry_interval
+
+        # Check if there's an Etherscan error
+        while "Etherscan could not detect the deployment." in output and attempts > 0:
+            print("Etherscan verification failed. Retrying without --broadcast flag...")
+            time.sleep(retry_interval)
+            command_without_broadcast = command.replace("--broadcast", "", 1)  # replace only the first occurrence
+            output = run_command(command_without_broadcast)
+            attempts -= 1
+
+        return output
+
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with error: {e}")
+        return str(e)
+
 
 
 def deploy_to_chain(chain: str, contracts: List[str]):
