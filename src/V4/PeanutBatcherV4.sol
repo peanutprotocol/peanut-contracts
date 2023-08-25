@@ -16,8 +16,9 @@ interface IPeanut {
     ) external payable returns (uint256);
 }
 
-contract PeanutBatcher {
+contract PeanutBatcherV4 {
     using SafeERC20 for IERC20;
+
     IPeanut public peanut;
 
     // arbitrary but samesy deposit. Assumes all deposits are the same. Gas efficient

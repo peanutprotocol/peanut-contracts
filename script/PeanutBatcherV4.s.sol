@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.15;
+pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import "../src/archive/V3/PeanutV3.sol";
+import "../src/V4/PeanutBatcher.sol";
 
 contract DeployScript is Script {
     function run() external {
@@ -10,11 +10,11 @@ contract DeployScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Create new peanut contract (with broadcast enabled this will send the tx to mempool)
-        PeanutV3 peanutV3 = new PeanutV3();
+        PeanutBatcher peanutBatcher = new PeanutBatcher();
 
         vm.stopBroadcast();
 
         // do something for no unused variable warning (log contract address)
-        console.log("2222contract address: %s", address(peanutV3));
+        console.log("contract address: %s", address(peanutBatcher));
     }
 }

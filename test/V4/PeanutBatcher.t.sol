@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "@forge-std/Test.sol";
-import "../../src/V4/PeanutBatcher.sol";
+import "../../src/V4/PeanutBatcherV4.sol";
 import "../../src/V4/PeanutV4.sol";
 import "../../src/util/ERC20Mock.sol";
 import "../../src/util/ERC721Mock.sol";
@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
-    PeanutBatcher public batcher;
+    PeanutBatcherV4 public batcher;
     PeanutV4 public peanutV4;
     ERC20Mock public testToken;
     ERC721Mock public testToken721;
@@ -19,7 +19,7 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
     address public PUBKEY20 = address(0xaBC5211D86a01c2dD50797ba7B5b32e3C1167F9f);
 
     function setUp() public {
-        batcher = new PeanutBatcher();
+        batcher = new PeanutBatcherV4();
         peanutV4 = new PeanutV4();
         testToken = new ERC20Mock();
         testToken721 = new ERC721Mock();
@@ -158,7 +158,7 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             // mint a token to the caller
             testToken721.mint(msg.sender, tokenId);
             // Do NOT approve the PeanutV4 contract to spend the tokens
-            // testToken721.approve(address(peanutV4), tokenId);
+            // testToken721.approve(address(peanutV4), g);
         }
         // make the batch deposit
         uint256[] memory depositIndexes =

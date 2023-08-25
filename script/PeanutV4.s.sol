@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-// deploy Peanut Contract
-// forge script script/PeanutV4.s.sol:DeployScript --fork-url http://localhost:8545 --broadcast
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
 import "../src/V4/PeanutV4.sol";
@@ -16,7 +14,7 @@ contract DeployScript is Script {
 
         vm.stopBroadcast();
 
-        // do something for no unused variable warning
-        peanutV4;
+        // do something for no unused variable warning (log contract address)
+        console.log("2222contract address: %s", address(peanutV4));
     }
 }
