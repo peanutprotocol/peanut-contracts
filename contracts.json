@@ -1,120 +1,123 @@
 {
     "1": {
-      "ethereum-mainnet": ".json files need comment support :(",
-      "v3": "0xdB60C736A30C41D9df0081057Eae73C3eb119895"
+        "ethereum-mainnet": ".json files need comment support :(",
+        "v3": "0xdB60C736A30C41D9df0081057Eae73C3eb119895"
     },
     "5": {
-      "ethereum-goerli": "",
-      "v1": "0x616d197A29E50EBD08a4287b26e47041286F171D",
-      "v2": "0xd4964Df4dc2eb6B2fD4157DFda264AA9dd720C92",
-      "v3": "0xd068b1F6F0623CbCC7ADC7545290f8991C9B8Ec9",
-      "v4": "0x891021b34fedc18e36c015bffaa64a2421738906",
-      "v4b": "0xa0f2a8c7b7e3b9b4a1d9d6d8f2f8a8a7b9b9b9b9"
+        "ethereum-goerli": "",
+        "v1": "0x616d197A29E50EBD08a4287b26e47041286F171D",
+        "v2": "0xd4964Df4dc2eb6B2fD4157DFda264AA9dd720C92",
+        "v3": "0xd068b1F6F0623CbCC7ADC7545290f8991C9B8Ec9",
+        "v4": "0x891021b34fedc18e36c015bffaa64a2421738906",
+        "Bv4": "0xa0f2a8c7b7e3b9b4a1d9d6d8f2f8a8a7b9b9b9b9"
     },
     "42": {
-      "ethereum-kovan": ""
+        "ethereum-kovan": ""
     },
     "4": {
-      "ethereum-rinkeby": ""
+        "ethereum-rinkeby": ""
     },
     "137": {
-      "polygon-mainnet": "",
-      "v1": "0xB184b7D19d747Db9084C355b5B6a093d7063B710",
-      "v2": "0x45fd48f58c47d929E9D181837fBB7Cda1974a773",
-      "v3": "0xCEd763C2Ff8d5B726b8a5D480c17C24B6686837F",
-      "v4": "0x86e2ab83ac9d91c618a3258653063beba0ff9461"
+        "polygon-mainnet": "",
+        "v1": "0xB184b7D19d747Db9084C355b5B6a093d7063B710",
+        "v2": "0x45fd48f58c47d929E9D181837fBB7Cda1974a773",
+        "v3": "0xCEd763C2Ff8d5B726b8a5D480c17C24B6686837F",
+        "v4": "0x86e2ab83ac9d91c618a3258653063beba0ff9461",
+        "Bv4": "0xc38B832bE8b5193c6103F19608c436D5064eE76C"
     },
     "80001": {
-      "polygon-mumbai": "",
-      "v3": "0x1da738d367dd369cf95f53a51b213a9cc9146afb",
-      "v4": "0x86e2ab83ac9d91c618a3258653063beba0ff9461"
+        "polygon-mumbai": "",
+        "v3": "0x1da738d367dd369cf95f53a51b213a9cc9146afb",
+        "v4": "0x86e2ab83ac9d91c618a3258653063beba0ff9461",
+        "Bv4": "0x51b1275692925Ee00B0Ddb66D4eDDDF965D570C3"
     },
-    "84531":{
-      "base-goerli": "",
-      "v4": "0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5"
+    "84531": {
+        "base-goerli": "",
+        "v4": "0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5"
     },
     "8453": {
-      "base": ""
+        "base": ""
     },
     "10": {
-      "optimism-mainnet": "",
-      "v1": "0x9B0817fA08b46670B92300B58AA1f4AB155701ea",
-      "v3": "0x1aBe03DC4706aE47c4F2ae04EEBe5c8607c74e17"
+        "optimism-mainnet": "",
+        "v1": "0x9B0817fA08b46670B92300B58AA1f4AB155701ea",
+        "v3": "0x1aBe03DC4706aE47c4F2ae04EEBe5c8607c74e17"
     },
-    "420":{
-      "optimism-goerli": "",
-      "v3": "0xDC608f2Bc4f0AFf02D12d51Ca8b543B343525c8a",
-      "v4": "0xD3fBCb1AF168e985c5Ab20B0D2dbe39840043291"
+    "420": {
+        "optimism-goerli": "",
+        "v3": "0xDC608f2Bc4f0AFf02D12d51Ca8b543B343525c8a",
+        "v4": "0xD3fBCb1AF168e985c5Ab20B0D2dbe39840043291"
     },
     "42161": {
-      "arbitrum-mainnet": "",
-      "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
-      "v3": "0x9B0817fA08b46670B92300B58AA1f4AB155701ea"
+        "arbitrum-mainnet": "",
+        "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
+        "v3": "0x9B0817fA08b46670B92300B58AA1f4AB155701ea"
     },
     "100": {
-      "xdai-mainnet": "",
-      "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
-      "v3": "0x897F8EDdB345F0d16081615823F76055Ad60A00c"
+        "xdai-mainnet": "",
+        "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7",
+        "v3": "0x897F8EDdB345F0d16081615823F76055Ad60A00c"
     },
     "200101": {
-      "milkomeda-c1-testnet": "",
-      "v3": "0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5",
-      "v4": "0x897F8EDdB345F0d16081615823F76055Ad60A00c"
+        "milkomeda-c1-testnet": "",
+        "v3": "0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5",
+        "v4": "0x897F8EDdB345F0d16081615823F76055Ad60A00c"
     },
     "2001": {
-      "milkomeda-c1": "",
-      "v3": "0x897F8EDdB345F0d16081615823F76055Ad60A00c",
-      "v4": "0x1851359AB8B002217cf4D108d7F027B63563754C"
+        "milkomeda-c1": "",
+        "v3": "0x897F8EDdB345F0d16081615823F76055Ad60A00c",
+        "v4": "0x1851359AB8B002217cf4D108d7F027B63563754C"
     },
     "bsctestnet": {},
     "56": {
-      "bsc-mainnet": "",
-      "v3": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
+        "bsc-mainnet": "",
+        "v3": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
     },
     "97": {
-      "bsc-testnet": ""
+        "bsc-testnet": ""
     },
     "moonbeam": {
-      "mainnet": {
-        "v1": "0xF5D83DF662f58255D9E9d5fe9a59ac7Cd1eF85BC"
-      },
-      "moonbase": {}
+        "mainnet": {
+            "v1": "0xF5D83DF662f58255D9E9d5fe9a59ac7Cd1eF85BC"
+        },
+        "moonbase": {}
     },
     "43114": {
-      "avalanche-mainnet": "",
-      "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
+        "avalanche-mainnet": "",
+        "v1": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
     },
     "43113": {
-      "avalanche-fuji": ""
+        "avalanche-fuji": ""
     },
     "314159": {
-      "comment": "filecoin testnet",
-      "v4": "0x1851359AB8B002217cf4D108d7F027B63563754C"
+        "comment": "filecoin testnet",
+        "v4": "0x1851359AB8B002217cf4D108d7F027B63563754C"
     },
     "1442": {
-      "comment": "polygon zkevm testnet",
-      "v4": "0x60d5db92eca3ee10ccf60517f910d8154ff62231"
+        "comment": "polygon zkevm testnet",
+        "v4": "0x60d5db92eca3ee10ccf60517f910d8154ff62231"
     },
     "7001": {
-      "comment": "zetachain testnet",
-      "v4": "0xABCf92BD1c01f2eFe63FfcEaa73F19ec72F0Eba5"
+        "comment": "zetachain testnet",
+        "v4": "0xABCf92BD1c01f2eFe63FfcEaa73F19ec72F0Eba5"
     },
     "245022926": {
-      "comment": "neon devnet",
-      "v4": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
+        "comment": "neon devnet",
+        "v4": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
     },
     "5001": {
-      "comment": "mantle testnet",
-      "v4": "0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5"
+        "comment": "mantle testnet",
+        "v4": "0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5"
     },
     "44787": {
-      "comment": "celo alfajores testnet",
-      "v4": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
+        "comment": "celo alfajores testnet",
+        "v4": "0x8d1a17A3A4504aEB17515645BA8098f1D75237f7"
     },
     "10200": {
-      "comment": "gnosis chiado testnet",
-      "v4": "0xABCf92BD1c01f2eFe63FfcEaa73F19ec72F0Eba5"
+        "comment": "gnosis chiado testnet",
+        "v4": "0xABCf92BD1c01f2eFe63FfcEaa73F19ec72F0Eba5"
+    },
+    "polygon-mumbai": {
+        "Bv4": "0x51b1275692925Ee00B0Ddb66D4eDDDF965D570C3"
     }
-  }
-     
-  
+}
