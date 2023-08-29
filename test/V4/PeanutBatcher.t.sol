@@ -73,13 +73,13 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             uint64 tokenId = uint64(i);
             pubKeys20[i] = PUBKEY20;
             // mint a token to the caller
-            testToken721.mint(msg.sender, tokenId);
+            testToken721.mint(address(this), tokenId);
             // approve the PeanutV4 contract to spend the tokens
             testToken721.approve(address(batcher), tokenId);
         }
         // make the batch deposit
         uint256[] memory depositIndexes =
-            batcher.batchMakeDeposit(address(peanutV4), address(testToken721), 2, 1, numDeposits, pubKeys20);
+            batcher.batchMakeDeposit(address(peanutV4), address(testToken721), 2, 1, 1, pubKeys20);
         // check that the correct number of deposits were made
         assertEq(depositIndexes.length, numDeposits);
     }
@@ -90,16 +90,15 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
         address[] memory pubKeys20 = new address[](numDeposits);
 
         for (uint256 i = 0; i < numDeposits; i++) {
-            uint64 tokenId = uint64(i);
             pubKeys20[i] = PUBKEY20;
             // mint a token to the caller
-            testToken1155.mint(msg.sender, tokenId, 1, "");
+            testToken1155.mint(address(this), 1, 100, "");
             // approve the PeanutV4 contract to spend the tokens
             testToken1155.setApprovalForAll(address(batcher), true);
         }
         // make the batch deposit
         uint256[] memory depositIndexes =
-            batcher.batchMakeDeposit(address(peanutV4), address(testToken1155), 3, 1, numDeposits, pubKeys20);
+            batcher.batchMakeDeposit(address(peanutV4), address(testToken1155), 3, 1, 1, pubKeys20);
         // check that the correct number of deposits were made
         assertEq(depositIndexes.length, numDeposits);
     }
@@ -113,7 +112,7 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             pubKeys20[i] = PUBKEY20;
         }
         // mint tokens to the caller
-        testToken.mint(msg.sender, amount * numDeposits);
+        testToken.mint(address(this), amount * numDeposits);
         // Do NOT approve the PeanutV4 contract to spend the tokens
         // testToken.approve(address(peanutV4), amount * numDeposits);
         // make the batch deposit
@@ -130,7 +129,7 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             uint64 tokenId = uint64(i);
             pubKeys20[i] = PUBKEY20;
             // mint a token to the caller
-            testToken721.mint(msg.sender, tokenId);
+            testToken721.mint(address(this), tokenId);
             // Do NOT approve the PeanutV4 contract to spend the tokens
             // testToken721.approve(address(peanutV4), g);
         }
@@ -148,7 +147,8 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             uint64 tokenId = uint64(i);
             pubKeys20[i] = PUBKEY20;
             // mint a token to the caller
-            testToken1155.mint(msg.sender, tokenId, 1, "");
+            testToken1155.mint(address(this), tokenId, 1, "");
+
             // Do NOT approve the PeanutV4 contract to spend the tokens
             // testToken1155.setApprovalForAll(address(peanutV4), true);
         }
@@ -156,5 +156,32 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
         uint256[] memory depositIndexes =
             batcher.batchMakeDeposit(address(peanutV4), address(testToken1155), 3, 1, numDeposits, pubKeys20);
         depositIndexes;
+    }
+
+    // Test making multiple batch deposits of ERC20 tokens in a row
+    function testMultipleBatchERC20DepositsInRow() public {
+        uint64 amount = 100;
+        uint64 numDeposits = 10;
+        uint64 numberOfBatches = 3; // number of times you want to batch deposit in a row
+        address[] memory pubKeys20 = new address[](numDeposits);
+
+        // Set up the pubKeys20 array
+        for (uint256 i = 0; i < numDeposits; i++) {
+            pubKeys20[i] = PUBKEY20;
+        }
+
+        // Iterate over the number of batches you want to create
+        for (uint256 batch = 0; batch < numberOfBatches; batch++) {
+            // Mint tokens to the caller for this batch
+            testToken.mint(address(this), amount * numDeposits);
+            testToken.approve(address(batcher), amount * numDeposits);
+
+            // Make the batch deposit
+            uint256[] memory depositIndexes =
+                batcher.batchMakeDeposit(address(peanutV4), address(testToken), 1, amount, 0, pubKeys20);
+
+            // Check that the correct number of deposits were made
+            assertEq(depositIndexes.length, numDeposits);
+        }
     }
 }
