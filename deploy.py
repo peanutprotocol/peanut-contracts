@@ -125,6 +125,8 @@ def deploy_to_chain(chain: str, contracts: List[str]):
             return
 
         # Check if the contract already exists
+        if chain_id not in contracts_json:
+            contracts_json[chain_id] = {}
         existing_address = contracts_json[chain_id].get(short_contract_name)
         if existing_address:
             # Show a warning
