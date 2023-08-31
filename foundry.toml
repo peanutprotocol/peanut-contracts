@@ -64,6 +64,8 @@ polygon = true
 polygon-mumbai = true
 milkomeda-c1 = true
 arbitrum = true
+mantle = true
+mantle-testnet = true
 ############################################################
 
 [etherscan]
@@ -79,6 +81,8 @@ polygon-zkevm-testnet = { key = "${POLYGONSCAN_ZKEVM_TOKEN}" }
 base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org" }
 base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org" }
 taiko-grimsvotn = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.test.taiko.xyz/api" }
+mantle = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.mantle.xyz/api" }
+mantle-testnet = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.testnet.mantle.xyz/api" }
 
 ############################################################
 
