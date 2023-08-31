@@ -59,6 +59,7 @@ milkomeda-c1-testnet = "200101"
 polygon = true
 polygon-mumbai = true
 milkomeda-c1 = true
+arbitrum = true
 ############################################################
 
 [etherscan]

@@ -53,6 +53,7 @@ def extract_contract_address(contract_name: str, chain_id: str) -> str:
         data = json.load(file)
 
     if data.get("transactions") and len(data["transactions"]) > 0:
+        assert data["receipts"] and len(data["receipts"]) > 0 # check that receipts exist
         return data["transactions"][0].get("contractAddress")
     else:
         print(
