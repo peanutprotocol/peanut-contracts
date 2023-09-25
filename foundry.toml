@@ -12,6 +12,7 @@ sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
 optimism = "https://optimism-mainnet.infura.io/v3/${INFURA_API_KEY}"
 optimism-goerli = "https://optimism-goerli.infura.io/v3/${INFURA_API_KEY}"
 arbitrum = "https://arbitrum-mainnet.infura.io/v3/${INFURA_API_KEY}"
+bnb = "https://bsc-dataseed1.binance.org"
 polygon = "https://polygon-mainnet.infura.io/v3/${INFURA_API_KEY}" # 137 # legacy
 polygon-mumbai = "https://polygon-mumbai.infura.io/v3/${INFURA_API_KEY}" # 80001 # legacy
 polygon-zkevm = "https://zkevm-rpc.com"
@@ -58,6 +59,7 @@ base-testnet = "84531"
 milkomeda-c1 = "2001"
 milkomeda-c1-testnet = "200101"
 taiko-grimsvotn = "167005"
+bnb = "56"
 
 [profile.legacy]
 polygon = true
@@ -66,6 +68,7 @@ milkomeda-c1 = true
 arbitrum = true
 mantle = true
 mantle-testnet = true
+bnb = true
 ############################################################
 
 [etherscan]
@@ -83,6 +86,7 @@ base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.o
 taiko-grimsvotn = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.test.taiko.xyz/api" }
 mantle = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.mantle.xyz/api" }
 mantle-testnet = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.testnet.mantle.xyz/api" }
+bnb = { key = "${BSCSCAN_TOKEN}", url = "https://api.bscscan.com" }
 
 ############################################################
 
