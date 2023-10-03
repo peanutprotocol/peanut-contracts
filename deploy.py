@@ -53,7 +53,9 @@ def extract_contract_address(contract_name: str, chain_id: str) -> str:
         data = json.load(file)
 
     if data.get("transactions") and len(data["transactions"]) > 0:
-        assert data["receipts"] and len(data["receipts"]) > 0 # check that receipts exist
+        assert (
+            data["receipts"] and len(data["receipts"]) > 0
+        )  # check that receipts exist
         return data["transactions"][0].get("contractAddress")
     else:
         print(
@@ -89,7 +91,9 @@ def deploy_contract(command: str) -> str:
         while "Etherscan could not detect the deployment." in output and attempts > 0:
             print("Etherscan verification failed. Retrying without --broadcast flag...")
             time.sleep(retry_interval)
-            command_without_broadcast = command.replace("--broadcast", "", 1)  # replace only the first occurrence
+            command_without_broadcast = command.replace(
+                "--broadcast", "", 1
+            )  # replace only the first occurrence
             output = run_command(command_without_broadcast)
             attempts -= 1
 
@@ -98,7 +102,6 @@ def deploy_contract(command: str) -> str:
     except subprocess.CalledProcessError as e:
         print(f"Command failed with error: {e}")
         return str(e)
-
 
 
 def deploy_to_chain(chain: str, contracts: List[str]):
@@ -135,7 +138,9 @@ def deploy_to_chain(chain: str, contracts: List[str]):
             )
             overwrite = input("Do you want to overwrite? (y/n) ")
             if overwrite.lower() != "y":
-                print(f"Skipped deploying & overwriting {contract} ({short_contract_name}) for {chain}.")
+                print(
+                    f"Skipped deploying & overwriting {contract} ({short_contract_name}) for {chain}."
+                )
                 continue  # Skip the rest of the loop and move to the next contract
 
         command = f"forge script script/{contract}.s.sol:DeployScript --rpc-url {config['rpc_endpoints'][chain]} --broadcast --verify -vvvv"
@@ -176,7 +181,6 @@ def deploy_to_specific_chains(chains: List[str], contracts: List[str]):
         deploy_to_chain(chain, contracts)
 
 
-
 def main():
     epilog_text = """
 Examples of using this script:
@@ -212,12 +216,12 @@ Notice: you have to update CONTRACTS_MAPPING and foundry.toml for this script to
         help="Specify which contracts to deploy.",
     )
     parser.add_argument(
-    "-ch",
-    "--chain",
-    nargs="+",
-    type=str,
-    help="Specify specific chains to deploy to. If not provided, will ask for all chains.",
-)
+        "-ch",
+        "--chain",
+        nargs="+",
+        type=str,
+        help="Specify specific chains to deploy to. If not provided, will ask for all chains.",
+    )
 
     args = parser.parse_args()
 

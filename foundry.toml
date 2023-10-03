@@ -9,6 +9,7 @@ optimizer_runs = 2000
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
 goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
+holesky = "https://ethereum-holesky.publicnode.com"
 optimism = "https://optimism-mainnet.infura.io/v3/${INFURA_API_KEY}"
 optimism-goerli = "https://optimism-goerli.infura.io/v3/${INFURA_API_KEY}"
 arbitrum = "https://arbitrum-mainnet.infura.io/v3/${INFURA_API_KEY}"
@@ -19,7 +20,7 @@ polygon-zkevm = "https://zkevm-rpc.com"
 polygon-zkevm-testnet = "https://rpc.public.zkevm-test.net"
 mantle = "https://rpc.mantle.xyz/"
 mantle-testnet = "https://rpc.testnet.mantle.xyz/"
-gnosis = "https://rpc.gnosis.pm"
+gnosis = "https://gnosis.drpc.org"
 gnosis-testnet = "https://rpc.chiadochain.net"
 filecoin = "https://rpc.ankr.com/filecoin"
 filecoin-testnet = "https://filecoin-calibration.chainstacklabs.com/rpc/v1"
@@ -30,6 +31,7 @@ base-testnet = "https://goerli.base.org"
 milkomeda-c1 = "https://rpc-mainnet-cardano-evm.c1.milkomeda.com"
 milkomeda-c1-testnet = "https://rpc-devnet-cardano-evm.c1.milkomeda.com"
 taiko-grimsvotn = "https://rpc.test.taiko.xyz"
+avalanche = "https://avalanche-mainnet.infura.io/v3/${INFURA_API_KEY}"
 
 
 ############################################################
@@ -39,6 +41,7 @@ taiko-grimsvotn = "https://rpc.test.taiko.xyz"
 mainnet = "1"
 goerli = "5"
 sepolia = "11155111"
+holesky = "17000"
 optimism = "10"
 optimism-goerli = "420"
 arbitrum = "42161"
@@ -60,6 +63,7 @@ milkomeda-c1 = "2001"
 milkomeda-c1-testnet = "200101"
 taiko-grimsvotn = "167005"
 bnb = "56"
+avalanche = "43114"
 
 [profile.legacy]
 polygon = true
@@ -69,30 +73,34 @@ arbitrum = true
 mantle = true
 mantle-testnet = true
 bnb = true
+avalanche = true
 ############################################################
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_TOKEN}" }
 goerli = { key = "${ETHERSCAN_TOKEN}" }
 sepolia = { key = "${ETHERSCAN_TOKEN}" }
+holesky = { key = "${ETHERSCAN_TOKEN}", url = "https://holesky.etherscan.io/api" }
 polygon = { key = "${POLYGONSCAN_TOKEN}" }
 polygon-mumbai = { key = "${POLYGONSCAN_TOKEN}" }
 optimism = { key = "${OPTISCAN_TOKEN}" }
 optimism-goerli = { key = "${OPTISCAN_TOKEN}" }
 arbitrum = { key = "${ARBISCAN_TOKEN}" }
 polygon-zkevm-testnet = { key = "${POLYGONSCAN_ZKEVM_TOKEN}" }
+gnosis = { key = "${GNOSISSCAN_TOKEN}" , url="https://api.gnosisscan.io/api"}
+gnosis-testnet = { key = "${GNOSISSCAN_TOKEN}" , url="https://gnosis-chiado.blockscout.com/api"}
 base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org" }
 base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org" }
 taiko-grimsvotn = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.test.taiko.xyz/api" }
 mantle = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.mantle.xyz/api" }
 mantle-testnet = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.testnet.mantle.xyz/api" }
+avalanche = { key = "${SNOWTRACE_TOKEN}", url = "https://api.snowtrace.io/api" }
 bnb = { key = "${BSCSCAN_TOKEN}", url = "https://api.bscscan.com" }
 
 ############################################################
 
 # palm = "https://palm-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # palm-testnet = "https://palm-testnet.infura.io/v3/${INFURA_API_KEY}"
-# avalanche = "https://avalanche-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # near = "https://near-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # aurora = "https://aurora-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # starknet = "https://starknet-mainnet.infura.io/v3/${INFURA_API_KEY}"
