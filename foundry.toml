@@ -4,6 +4,7 @@ out = "out"
 libs = ["lib"]
 optimizer = true
 optimizer_runs = 2000
+solc = "0.8.20"
 
 [rpc_endpoints]
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
@@ -32,6 +33,8 @@ milkomeda-c1 = "https://rpc-mainnet-cardano-evm.c1.milkomeda.com"
 milkomeda-c1-testnet = "https://rpc-devnet-cardano-evm.c1.milkomeda.com"
 taiko-grimsvotn = "https://rpc.test.taiko.xyz"
 avalanche = "https://avalanche-mainnet.infura.io/v3/${INFURA_API_KEY}"
+linea = "https://rpc.linea.build"
+linea-goerli = "https://rpc.goerli.linea.build"
 
 
 ############################################################
@@ -64,7 +67,10 @@ milkomeda-c1-testnet = "200101"
 taiko-grimsvotn = "167005"
 bnb = "56"
 avalanche = "43114"
+linea = "59144"
+linea-goerli = "59140"
 
+## for chains that only support legacy transactions
 [profile.legacy]
 polygon = true
 polygon-mumbai = true
@@ -74,7 +80,6 @@ mantle = true
 mantle-testnet = true
 bnb = true
 avalanche = true
-############################################################
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_TOKEN}" }
@@ -89,13 +94,26 @@ arbitrum = { key = "${ARBISCAN_TOKEN}" }
 polygon-zkevm-testnet = { key = "${POLYGONSCAN_ZKEVM_TOKEN}" }
 gnosis = { key = "${GNOSISSCAN_TOKEN}" , url="https://api.gnosisscan.io/api"}
 gnosis-testnet = { key = "${GNOSISSCAN_TOKEN}" , url="https://gnosis-chiado.blockscout.com/api"}
-base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org" }
-base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org" }
+base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org/api" }
+base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org/api" }
 taiko-grimsvotn = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.test.taiko.xyz/api" }
 mantle = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.mantle.xyz/api" }
 mantle-testnet = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.testnet.mantle.xyz/api" }
 avalanche = { key = "${SNOWTRACE_TOKEN}", url = "https://api.snowtrace.io/api" }
 bnb = { key = "${BSCSCAN_TOKEN}", url = "https://api.bscscan.com" }
+linea = { key = "${LINEASCAN_TOKEN}", url = "https://api.lineascan.build/api" }
+linea-goerli = { key = "${LINEASCAN_TOKEN}", url = "https://api-goerli.lineascan.build/api" }
+############################################################
+# For some reason, some of these verifications didn't work. Below the commands
+# Linea
+# forge verify-contract --etherscan-api-key ${LINEASCAN_TOKEN}" --verifier-url https://api.lineascan.build/api 0x8d1a17A3A4504aEB17515645BA8098f1D75237f7 src/V4/PeanutV4.sol:PeanutV4 --watch
+# forge verify-contract --etherscan-api-key ${LINEASCAN_TOKEN}" --verifier-url https://api.lineascan.build/api 0x7b36e10aa3ff44576eff4b1afb80587b9b3ba3a5 src/V4/PeanutBatcherV4.sol:PeanutBatcherV4 --watch
+# forge verify-contract --etherscan-api-key ${LINEASCAN_TOKEN}" --verifier-url https://api-testnet.lineascan.build/api 0x897F8EDdB345F0d16081615823F76055Ad60A00c src/V4/PeanutV4.sol:PeanutV4 --watch
+# forge verify-contract --etherscan-api-key ${LINEASCAN_TOKEN}" --verifier-url https://api-testnet.lineascan.build/api 0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5 src/V4/PeanutBatcherV4.sol:PeanutBatcherV4 --watch
+
+# Base Goerli
+# forge verify-contract --etherscan-api-key ${BASESCAN_TOKEN} --verifier-url https://api-goerli.basescan.org/api 0x1851359AB8B002217cf4D108d7F027B63563754C src/V4/PeanutBatcherV4.sol:PeanutBatcherV4 --watch
+# forge verify-contract --etherscan-api-key ${BASESCAN_TOKEN} --verifier-url https://api-goerli.basescan.org/api 0x897F8EDdB345F0d16081615823F76055Ad60A00c src/V4/PeanutV4.sol:PeanutV4 --watch
 
 ############################################################
 
