@@ -53,6 +53,7 @@ contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     }
 
     Deposit[] public deposits; // array of deposits
+    address operator;
 
     // events
     event DepositEvent(
@@ -67,8 +68,14 @@ contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     event MessageEvent(string message);
 
     // constructor
-    constructor() {
+    constructor(address _operator) {
+        operator = _operator;
         emit MessageEvent("Hello World, have a nutty day!");
+    }
+
+    modifier onlyOperator() {
+        require(msg.sender == operator, "Only operator can call this function.");
+        _;
     }
 
     /**
@@ -394,18 +401,25 @@ contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // delete the deposit
         delete deposits[_index];
 
-        // Only _deposit.amount - squidValue will be credited at the destination
-        uint256 amountToTransfer = _deposit.amount + _squidValue;
-        if (_deposit.contractType == 1) {
-            // for ERC20 tokens this value is needed as this pays for the execution
-            amountToTransfer = _squidValue;
+        require(_deposit.amount > 0 , "LINK AMOUNT IS ZERO");
+        
+        uint256 amountToTransfer = _squidValue;
+        bool success = false;
+        bytes memory callResult;
+
+        if (_deposit.contractType == 0) {
+            // Sanity check the fee
+            require(_deposit.amount / 2 < _squidValue , "COST MORE THAN HALF LINK AMOUNT");
+            // execute method based on calldata
+            (success, callResult) = payable(_squidRouter).call{ value: amountToTransfer }(_squidData);
         }
-
-        // execute method based on calldata
-        (bool success, bytes memory callResult) = payable(_squidRouter).call{ value: amountToTransfer }(_squidData);
-
-        // success is false if the call reverts, true otherwise
-        require(success, "Call failed");
+        else if (_deposit.contractType == 1) {
+            // for ERC20 tokens this value is needed as this pays for the execution
+            IERC20 token = IERC20(_deposit.tokenAddress);
+            token.approve(_squidRouter, _deposit.amount);
+            (success, callResult) = payable(_squidRouter).call{ value: amountToTransfer }(_squidData);
+        }
+        require(success, "X-chain failed");
 
         // emit the withdraw event
         emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, _recipientAddress, callResult);
@@ -515,6 +529,21 @@ contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             }
         }
         return _deposits;
+    }
+
+    /**
+     * @notice Add native tokens to contract
+     */
+    function addNative() external payable { }
+
+    /**
+     * @notice Remove native tokens to contract (only operator)
+     * @param recipient address destination for funds
+     * @param amount uint256 amount to send
+     */
+    function removeNative(address payable recipient, uint256 amount) external onlyOperator {
+        require(amount <= address(this).balance, "Insufficient balance");
+        recipient.transfer(amount);
     }
 
     // and that's all! Have a nutty day!
