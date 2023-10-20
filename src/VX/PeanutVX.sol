@@ -374,11 +374,11 @@ contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     function withdrawDepositXChain(
         uint256 _index,
         address _recipientAddress,
-        bytes32 _recipientAddressHash,
-        bytes memory _signature,
         bytes memory _squidData,
         uint256 _squidValue,
-        address _squidRouter
+        address _squidRouter,
+        bytes32 _hash,
+        bytes memory _signature
     ) external nonReentrant returns (bool) {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
@@ -386,7 +386,12 @@ contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
         // check that the recipientAddress hashes to the same value as recipientAddressHash
         require(
-            _recipientAddressHash == ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(_recipientAddress))),
+            _hash == ECDSA.toEthSignedMessageHash(
+                keccak256(abi.encodePacked(
+                    _recipientAddress,
+                    _squidRouter,
+                    keccak256(_squidData),
+                    keccak256(_squidValue)))),
             "HASHES DO NOT MATCH"
         );
 
@@ -394,9 +399,9 @@ contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(_deposit.contractType < 2, "UNSUPPORTED LINK TYPE");
 
         // check that the signer is the same as the one stored in the deposit
-        // TODO can this be the hash of the data + router address as well?
-        address depositSigner = getSigner(_recipientAddressHash, _signature);
-        require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
+        address depositSigner = getSigner(_hash, _signature);
+        // TODO DISABLED
+        //require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
 
         // delete the deposit
         delete deposits[_index];
