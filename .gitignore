@@ -10,6 +10,9 @@ out/
 # Docs
 docs/
 
+# Playgrounds
+playground/
+
 # Dotenv file
 .env
 
