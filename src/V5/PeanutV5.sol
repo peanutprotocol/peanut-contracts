@@ -6,10 +6,10 @@ pragma solidity ^0.8.19;
 // @notice  This contract is used to send non front-runnable link payments. These can
 //          be erc20, erc721, erc1155 or just plain eth. The recipient address is arbitrary.
 //          Links use asymmetric ECDSA encryption by default to be secure & enable trustless,
-//          gasless claiming.
+//          gasless claiming. V5 of the Protocol adds support for x-chain links.
 //          more at: https://peanut.to
 // @version 0.5.0
-// @author  H & K
+// @author  Squirrel Labs
 //////////////////////////////////////////////////////////////////////////////////////
 //⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 //                         ⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀
@@ -43,17 +43,15 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     struct Deposit {
-        address pubKey20;       // last 20 bytes of the hash of the public key for the deposit
-        uint256 amount;         // amount of the asset being sent
-        
+        address pubKey20; // last 20 bytes of the hash of the public key for the deposit
+        uint256 amount; // amount of the asset being sent
         // Pack into storage slot (address(20), uint8(8) bool(1) < 32)
-        address tokenAddress;   // address of the asset being sent. 0x0 for eth
-        uint8 contractType;     // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 4 for ECO-like rebasing erc20
-        bool claimed;           // has this deposit been claimed
-
-        uint256 tokenId;        // id of the token being sent (if erc721 or erc1155)
-        address senderAddress;  // address of the sender
-        uint256 timestamp;      // timestamp of the deposit
+        address tokenAddress; // address of the asset being sent. 0x0 for eth
+        uint8 contractType; // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 4 for ECO-like rebasing erc20
+        bool claimed; // has this deposit been claimed
+        uint256 tokenId; // id of the token being sent (if erc721 or erc1155)
+        address senderAddress; // address of the sender
+        uint256 timestamp; // timestamp of the deposit
     }
 
     Deposit[] public deposits; // array of deposits
@@ -225,7 +223,8 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 tokenId: _tokenId,
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp
+                timestamp: block.timestamp,
+                claimed: false
             })
         );
 
@@ -270,7 +269,8 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 // pubKey20: abi.decode(abi.encodePacked(_data, bytes12(0)), (address)),
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp
+                timestamp: block.timestamp,
+                claimed: false
             })
         );
 
@@ -315,7 +315,8 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                     tokenId: _ids[i], // token id
                     pubKey20: address(bytes20(_data[i * 32:i * 32 + 20])),
                     senderAddress: _from,
-                    timestamp: block.timestamp
+                    timestamp: block.timestamp,
+                    claimed: false
                 })
             );
 
@@ -379,7 +380,10 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // Deposit request is valid. Withdraw the deposit to the recipient address.
         if (_deposit.contractType == 0) {
             /// handle eth deposits
-            payable(_recipientAddress).transfer(_deposit.amount);
+            (bool success, ) = _deposit.senderAddress.call{
+                value: _deposit.amount
+            }("");
+            require(success, "Transfer failed");
         } else if (_deposit.contractType == 1) {
             /// handle erc20 deposits
             IERC20 token = IERC20(_deposit.tokenAddress);
