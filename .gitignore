@@ -2,6 +2,9 @@
 cache/
 out/
 
+playground/
+**/node_modules/
+
 # Ignores development broadcast logs
 !/broadcast
 /broadcast/*/31337/

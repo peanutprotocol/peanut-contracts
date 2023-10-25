@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.19;
+
 // partial topup/withdraw
 // V5
 // event TopUpEvent(uint256 indexed _index, uint256 _additionalAmount, address indexed _senderAddress);

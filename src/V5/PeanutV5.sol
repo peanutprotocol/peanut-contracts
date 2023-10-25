@@ -6,10 +6,10 @@ pragma solidity ^0.8.19;
 // @notice  This contract is used to send non front-runnable link payments. These can
 //          be erc20, erc721, erc1155 or just plain eth. The recipient address is arbitrary.
 //          Links use asymmetric ECDSA encryption by default to be secure & enable trustless,
-//          gasless claiming.
+//          gasless claiming. V5 of the Protocol adds support for x-chain links.
 //          more at: https://peanut.to
-// @version 0.4.1
-// @author  H & K
+// @version 0.5.0
+// @author  Squirrel Labs
 //////////////////////////////////////////////////////////////////////////////////////
 //⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 //                         ⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀
@@ -39,14 +39,16 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
+contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     struct Deposit {
         address pubKey20; // last 20 bytes of the hash of the public key for the deposit
         uint256 amount; // amount of the asset being sent
+        // Pack into storage slot (address(20), uint8(8) bool(1) < 32)
         address tokenAddress; // address of the asset being sent. 0x0 for eth
         uint8 contractType; // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 4 for ECO-like rebasing erc20
+        bool claimed; // has this deposit been claimed
         uint256 tokenId; // id of the token being sent (if erc721 or erc1155)
         address senderAddress; // address of the sender
         uint256 timestamp; // timestamp of the deposit
@@ -147,6 +149,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 contractType: _contractType,
                 amount: _amount,
                 tokenId: _tokenId,
+                claimed: false,
                 pubKey20: _pubKey20,
                 senderAddress: msg.sender,
                 timestamp: block.timestamp
@@ -192,7 +195,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 tokenId: _tokenId,
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp
+                timestamp: block.timestamp,
+                claimed: false
             })
         );
 
@@ -235,7 +239,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 // pubKey20: abi.decode(abi.encodePacked(_data, bytes12(0)), (address)),
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp
+                timestamp: block.timestamp,
+                claimed: false
             })
         );
 
@@ -280,7 +285,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                     tokenId: _ids[i], // token id
                     pubKey20: address(bytes20(_data[i * 32:i * 32 + 20])),
                     senderAddress: _from,
-                    timestamp: block.timestamp
+                    timestamp: block.timestamp,
+                    claimed: false
                 })
             );
 
@@ -317,7 +323,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
-        require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
+        require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // check that the recipientAddress hashes to the same value as recipientAddressHash
         require(
             _recipientAddressHash == ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(_recipientAddress))),
@@ -330,13 +336,14 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _recipientAddress);
 
-        // delete the deposit
-        delete deposits[_index];
+        // mark as claimed
+        deposits[_index].claimed = true;
 
         // Deposit request is valid. Withdraw the deposit to the recipient address.
         if (_deposit.contractType == 0) {
             /// handle eth deposits
-            payable(_recipientAddress).transfer(_deposit.amount);
+            (bool success,) = _deposit.senderAddress.call{value: _deposit.amount}("");
+            require(success, "Transfer failed");
         } else if (_deposit.contractType == 1) {
             /// handle erc20 deposits
             IERC20 token = IERC20(_deposit.tokenAddress);
@@ -368,6 +375,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // check that the deposit exists
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
+        require(_deposit.claimed == false, "ALREADY CLAIMED");
         // check that the sender is the one who made the deposit
         require(_deposit.senderAddress == msg.sender, "NOT THE SENDER");
         // check that 24 hours have passed since the deposit
@@ -377,7 +385,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _deposit.senderAddress);
 
         // Delete the deposit
-        delete deposits[_index];
+        deposits[_index].claimed = true;
 
         if (_deposit.contractType == 0) {
             /// handle eth deposits
