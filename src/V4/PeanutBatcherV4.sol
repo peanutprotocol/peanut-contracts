@@ -21,14 +21,8 @@ contract PeanutBatcherV4 {
 
     IPeanut public peanut;
 
-    function _setAllowanceIfZero(
-        address tokenAddress,
-        address spender
-    ) internal {
-        uint256 currentAllowance = IERC20(tokenAddress).allowance(
-            address(this),
-            spender
-        );
+    function _setAllowanceIfZero(address tokenAddress, address spender) internal {
+        uint256 currentAllowance = IERC20(tokenAddress).allowance(address(this), spender);
         if (currentAllowance == 0) {
             IERC20(tokenAddress).safeApprove(spender, type(uint256).max);
         }
@@ -50,24 +44,14 @@ contract PeanutBatcherV4 {
             require(msg.value == totalAmount, "INVALID TOTAL ETHER SENT");
             etherAmount = _amount;
         } else if (_contractType == 1) {
-            IERC20(_tokenAddress).safeTransferFrom(
-                msg.sender,
-                address(this),
-                totalAmount
-            );
+            IERC20(_tokenAddress).safeTransferFrom(msg.sender, address(this), totalAmount);
             _setAllowanceIfZero(_tokenAddress, address(peanut));
             etherAmount = 0;
         } else if (_contractType == 2) {
             // revert not implemented
             revert("ERC721 batch not implemented");
         } else if (_contractType == 3) {
-            IERC1155(_tokenAddress).safeTransferFrom(
-                msg.sender,
-                address(this),
-                _tokenId,
-                totalAmount,
-                ""
-            );
+            IERC1155(_tokenAddress).safeTransferFrom(msg.sender, address(this), _tokenId, totalAmount, "");
             IERC1155(_tokenAddress).setApprovalForAll(address(peanut), true);
             etherAmount = 0;
         }
@@ -75,13 +59,8 @@ contract PeanutBatcherV4 {
         uint256[] memory depositIndexes = new uint256[](_pubKeys20.length);
 
         for (uint256 i = 0; i < _pubKeys20.length; i++) {
-            depositIndexes[i] = peanut.makeDeposit{value: etherAmount}(
-                _tokenAddress,
-                _contractType,
-                _amount,
-                _tokenId,
-                _pubKeys20[i]
-            );
+            depositIndexes[i] =
+                peanut.makeDeposit{value: etherAmount}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i]);
         }
 
         return depositIndexes;
@@ -99,13 +78,7 @@ contract PeanutBatcherV4 {
         peanut = IPeanut(_peanutAddress);
 
         for (uint256 i = 0; i < _pubKeys20.length; i++) {
-            peanut.makeDeposit{value: msg.value}(
-                _tokenAddress,
-                _contractType,
-                _amount,
-                _tokenId,
-                _pubKeys20[i]
-            );
+            peanut.makeDeposit{value: msg.value}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i]);
         }
     }
 
@@ -119,10 +92,8 @@ contract PeanutBatcherV4 {
         address[] calldata _pubKeys20
     ) external payable returns (uint256[] memory) {
         require(
-            _tokenAddresses.length == _pubKeys20.length &&
-                _contractTypes.length == _pubKeys20.length &&
-                _amounts.length == _pubKeys20.length &&
-                _tokenIds.length == _pubKeys20.length,
+            _tokenAddresses.length == _pubKeys20.length && _contractTypes.length == _pubKeys20.length
+                && _amounts.length == _pubKeys20.length && _tokenIds.length == _pubKeys20.length,
             "PARAMETERS LENGTH MISMATCH"
         );
         peanut = IPeanut(_peanutAddress);
@@ -131,11 +102,7 @@ contract PeanutBatcherV4 {
 
         for (uint256 i = 0; i < _amounts.length; i++) {
             depositIndexes[i] = peanut.makeDeposit{value: msg.value}(
-                _tokenAddresses[i],
-                _contractTypes[i],
-                _amounts[i],
-                _tokenIds[i],
-                _pubKeys20[i]
+                _tokenAddresses[i], _contractTypes[i], _amounts[i], _tokenIds[i], _pubKeys20[i]
             );
         }
 
