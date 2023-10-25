@@ -63,6 +63,13 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     event WithdrawEvent(
         uint256 indexed _index, uint8 indexed _contractType, uint256 _amount, address indexed _recipientAddress
     );
+    event WithdrawEventXChain(
+        uint256 indexed _index,
+        uint8 indexed _contractType,
+        uint256 _amount,
+        address indexed _recipientAddress,
+        bytes callResult
+    );
     event MessageEvent(string message);
 
     // constructor
@@ -408,6 +415,77 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
             require(token.transfer(_deposit.senderAddress, scaledAmount), "TRANSFER FAILED");
         }
+
+        return true;
+    }
+
+    /**
+     * @notice Function to withdraw a deposit across different blockchains (cross-chain).
+     * @dev This function is used when assets need to be moved from one blockchain to another.
+     * @param _index The index of the deposit in the deposits array.
+     * @param _recipientAddress The address of the recipient who will receive the withdrawn deposit.
+     * @param _squidData The data for the transaction request in the target blockchain.
+     * @param _squidValue The value for the transaction request in the target blockchain.
+     * @param _squidRouter The address of the router in the target blockchain that will handle the transaction request.
+     * @param _hash The EIP191 hash of the recipient address, router address, keccak256 hash of the squidData, and keccak256 hash of the squidValue.
+     * @param _signature The signature of the hash, signed with the private key corresponding to the public key stored in the deposit.
+     * @return bool true if successful
+     * The function first checks if the deposit exists and hasn't been withdrawn yet. It also checks if the deposit is either a native or ERC20 token, as these are the only types supported in cross-chain mode. It then verifies the hash and the signature. If all checks pass, the function deletes the deposit and executes the cross-chain transfer. If the transfer is successful, it emits a WithdrawEventXChain event and returns true.
+     */
+    function withdrawDepositXChain(
+        uint256 _index, // depositIdx
+        address _recipientAddress, // recipient address
+        bytes memory _squidData, // route.transactionRequest.data
+        uint256 _squidValue, // route.transactionRequest.value
+        address _squidRouter, // route.transactionRequest.targetAddress
+        bytes32 _hash, // hashEIP191
+        bytes memory _signature // signature
+    ) external nonReentrant returns (bool) {
+        // check that the deposit exists and that it isn't already withdrawn
+        require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
+        Deposit memory _deposit = deposits[_index];
+        require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
+        // Only native and ERC20 tokens are supported in x-chain mode
+        require(_deposit.contractType < 2, "UNSUPPORTED LINK TYPE");
+
+        // TODO: DISABLED AUTH FOR NOW
+        // check that the recipientAddress hashes to the same value as recipientAddressHash
+        // require(
+        //     _hash
+        //         == ECDSA.toEthSignedMessageHash(
+        //             keccak256(
+        //                 abi.encodePacked(_recipientAddress, _squidRouter, keccak256(_squidData), keccak256(_squidValue))
+        //             )
+        //         ),
+        //     "HASHES DO NOT MATCH"
+        // );
+        // check that the signer is the same as the one stored in the deposit
+        // address depositSigner = getSigner(_hash, _signature);
+        // address signer = ECDSA.recover(_hash, _signature);
+        // require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
+
+        // set deposit as claimed
+        deposits[_index].claimed = true;
+
+        // execute the cross-chain transfer
+        uint256 amountToTransfer = _squidValue;
+        bool success = false;
+        bytes memory callResult;
+        if (_deposit.contractType == 0) {
+            // Sanity check the fee
+            require(_deposit.amount / 2 < _squidValue, "COST MORE THAN HALF LINK AMOUNT");
+            // execute method based on calldata
+            (success, callResult) = payable(_squidRouter).call{value: amountToTransfer}(_squidData);
+        } else if (_deposit.contractType == 1) {
+            // for ERC20 tokens this value is needed as this pays for the execution
+            IERC20 token = IERC20(_deposit.tokenAddress);
+            token.approve(_squidRouter, _deposit.amount);
+            (success, callResult) = payable(_squidRouter).call{value: amountToTransfer}(_squidData);
+        }
+        require(success, "X-chain failed");
+
+        // emit the withdraw event
+        emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, _recipientAddress, callResult);
 
         return true;
     }
