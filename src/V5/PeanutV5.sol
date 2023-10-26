@@ -383,7 +383,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // check that the deposit exists
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
-        require(_deposit.claimed == false, "ALREADY CLAIMED");
+        require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // check that the sender is the one who made the deposit
         require(_deposit.senderAddress == msg.sender, "NOT THE SENDER");
         // check that 24 hours have passed since the deposit
@@ -445,9 +445,9 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
-        require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
+        require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // Only native and ERC20 tokens are supported in x-chain mode
-        require(_deposit.contractType < 2, "UNSUPPORTED LINK TYPE");
+        require(_deposit.contractType < 2, "ONLY NATIVE AND ERC20 TOKENS SUPPORTED FOR X-CHAIN WITHDRAWALS");
 
         // TODO: DISABLED AUTH FOR NOW
         // check that the recipientAddress hashes to the same value as recipientAddressHash
@@ -473,14 +473,9 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         bool success = false;
         bytes memory callResult;
         if (_deposit.contractType == 0) {
-            // Sanity check the fee
-            require(_deposit.amount / 2 < _squidValue, "COST MORE THAN HALF LINK AMOUNT");
             // For native token the fee is the difference between the total amount and the deposit amount
             uint256 feeAmount = _squidValue - _deposit.amount;
             require(msg.value >= feeAmount, "INSUFFICIENT PAYMENT");
-            // Sanity check that the caller didn't just send the whole value, this is an overpayment
-            // as most(?) should come from the deposit
-            require(msg.value < _squidValue, "EXCESSIVE PAYMENT AMOUNT");
             // execute method based on calldata
             (success, callResult) = payable(_squidRouter).call{value: amountToTransfer}(_squidData);
 
