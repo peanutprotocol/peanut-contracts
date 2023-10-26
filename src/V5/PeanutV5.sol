@@ -67,6 +67,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         uint256 indexed _index,
         uint8 indexed _contractType,
         uint256 _amount,
+        uint256 _fee,
         address indexed _recipientAddress,
         bytes callResult
     );
@@ -440,7 +441,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address _squidRouter, // route.transactionRequest.targetAddress
         bytes32 _hash, // hashEIP191
         bytes memory _signature // signature
-    ) external nonReentrant returns (bool) {
+    ) payable external nonReentrant returns (bool) {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
@@ -474,18 +475,26 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         if (_deposit.contractType == 0) {
             // Sanity check the fee
             require(_deposit.amount / 2 < _squidValue, "COST MORE THAN HALF LINK AMOUNT");
+            // For native token the fee is the difference between the total amount and the deposit amount
+            uint256 feeAmount = _squidValue - _deposit.amount;
+            require(msg.value >= feeAmount, "INSUFFICIENT PAYMENT");
+            // Sanity check that the caller didn't just send the whole value, this is an overpayment
+            // as most(?) should come from the deposit
+            require(msg.value < _squidValue, "EXCESSIVE PAYMENT AMOUNT");
             // execute method based on calldata
             (success, callResult) = payable(_squidRouter).call{value: amountToTransfer}(_squidData);
+
+            emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, feeAmount, _recipientAddress, callResult);
         } else if (_deposit.contractType == 1) {
+            require(msg.value >= _squidValue, "INSUFFICIENT PAYMENT");
             // for ERC20 tokens this value is needed as this pays for the execution
             IERC20 token = IERC20(_deposit.tokenAddress);
             token.approve(_squidRouter, _deposit.amount);
             (success, callResult) = payable(_squidRouter).call{value: amountToTransfer}(_squidData);
+
+            emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, amountToTransfer, _recipientAddress, callResult);
         }
         require(success, "X-chain failed");
-
-        // emit the withdraw event
-        emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, _recipientAddress, callResult);
 
         return true;
     }
