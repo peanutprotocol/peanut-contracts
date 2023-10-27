@@ -469,15 +469,23 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         deposits[_index].claimed = true;
 
         // execute the cross-chain transfer
-        uint256 amountToTransfer = _squidValue;
         bool success = false;
         bytes memory callResult;
         if (_deposit.contractType == 0) {
             // For native token the fee is the difference between the total amount and the deposit amount
             uint256 feeAmount = _squidValue - _deposit.amount;
-            require(msg.value >= feeAmount, "INSUFFICIENT PAYMENT");
+            // At a minimum we need to send enough to cover the execution fee
+            require(msg.value >= feeAmount, "INSUFFICIENT FEE SENT");
+            // The amount sent will be the amount held in the Peanut link and the funds sent with this
+            // transaction to pay for the gas fees. In the event of overpayment when calling this function
+            // extra gas will be forwarded to the Squid router whether either it will be credited on the 
+            // destination chain or refunded as a gas overpayment
+            uint256 amountToSend = _deposit.amount + msg.value;
+            // Sanity check that the total is greater than the expected / quoted amount from Squid
+            // This should always be true - however this check is here for explicit docs / checking
+            require(amountToSend >= _squidValue, "INSUFFICIENT PAYMENT");
             // execute method based on calldata
-            (success, callResult) = payable(_squidRouter).call{value: amountToTransfer}(_squidData);
+            (success, callResult) = payable(_squidRouter).call{value: amountToSend}(_squidData);
 
             emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, feeAmount, _recipientAddress, callResult);
         } else if (_deposit.contractType == 1) {
@@ -485,11 +493,11 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             // for ERC20 tokens this value is needed as this pays for the execution
             IERC20 token = IERC20(_deposit.tokenAddress);
             token.approve(_squidRouter, _deposit.amount);
-            (success, callResult) = payable(_squidRouter).call{value: amountToTransfer}(_squidData);
+            (success, callResult) = payable(_squidRouter).call{value: _squidValue}(_squidData);
 
-            emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, amountToTransfer, _recipientAddress, callResult);
+            emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, _squidValue, _recipientAddress, callResult);
         }
-        require(success, "X-chain failed");
+        require(success, "X-CHAIN EXECUTE FAILED");
 
         return true;
     }
