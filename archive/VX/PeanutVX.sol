@@ -1,15 +1,15 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity ^0.8.17;
 
 //////////////////////////////////////////////////////////////////////////////////////
 // @title   Peanut Protocol
 // @notice  This contract is used to send non front-runnable link payments. These can
 //          be erc20, erc721, erc1155 or just plain eth. The recipient address is arbitrary.
 //          Links use asymmetric ECDSA encryption by default to be secure & enable trustless,
-//          gasless claiming. V5 of the Protocol adds support for x-chain links.
+//          gasless claiming.
 //          more at: https://peanut.to
-// @version 0.5.0
-// @author  Squirrel Labs
+// @version 0.4.1
+// @author  H & K
 //////////////////////////////////////////////////////////////////////////////////////
 //⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 //                         ⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀
@@ -39,16 +39,14 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
+contract PeanutVX is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     struct Deposit {
         address pubKey20; // last 20 bytes of the hash of the public key for the deposit
         uint256 amount; // amount of the asset being sent
-        // Pack into storage slot (address(20), uint8(8) bool(1) < 32)
         address tokenAddress; // address of the asset being sent. 0x0 for eth
         uint8 contractType; // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 4 for ECO-like rebasing erc20
-        bool claimed; // has this deposit been claimed
         uint256 tokenId; // id of the token being sent (if erc721 or erc1155)
         address senderAddress; // address of the sender
         uint256 timestamp; // timestamp of the deposit
@@ -62,14 +60,6 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     );
     event WithdrawEvent(
         uint256 indexed _index, uint8 indexed _contractType, uint256 _amount, address indexed _recipientAddress
-    );
-    event WithdrawEventXChain(
-        uint256 indexed _index,
-        uint8 indexed _contractType,
-        uint256 _amount,
-        uint256 _fee,
-        address indexed _recipientAddress,
-        bytes callResult
     );
     event MessageEvent(string message);
 
@@ -157,7 +147,6 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 contractType: _contractType,
                 amount: _amount,
                 tokenId: _tokenId,
-                claimed: false,
                 pubKey20: _pubKey20,
                 senderAddress: msg.sender,
                 timestamp: block.timestamp
@@ -203,8 +192,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 tokenId: _tokenId,
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp,
-                claimed: false
+                timestamp: block.timestamp
             })
         );
 
@@ -247,8 +235,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 // pubKey20: abi.decode(abi.encodePacked(_data, bytes12(0)), (address)),
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp,
-                claimed: false
+                timestamp: block.timestamp
             })
         );
 
@@ -293,8 +280,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                     tokenId: _ids[i], // token id
                     pubKey20: address(bytes20(_data[i * 32:i * 32 + 20])),
                     senderAddress: _from,
-                    timestamp: block.timestamp,
-                    claimed: false
+                    timestamp: block.timestamp
                 })
             );
 
@@ -331,7 +317,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
-        require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
+        require(_deposit.amount > 0, "DEPOSIT ALREADY WITHDRAWN");
         // check that the recipientAddress hashes to the same value as recipientAddressHash
         require(
             _recipientAddressHash == ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(_recipientAddress))),
@@ -344,14 +330,13 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _recipientAddress);
 
-        // mark as claimed
-        deposits[_index].claimed = true;
+        // delete the deposit
+        delete deposits[_index];
 
         // Deposit request is valid. Withdraw the deposit to the recipient address.
         if (_deposit.contractType == 0) {
             /// handle eth deposits
-            (bool success,) = _deposit.senderAddress.call{value: _deposit.amount}("");
-            require(success, "Transfer failed");
+            payable(_recipientAddress).transfer(_deposit.amount);
         } else if (_deposit.contractType == 1) {
             /// handle erc20 deposits
             IERC20 token = IERC20(_deposit.tokenAddress);
@@ -383,7 +368,6 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // check that the deposit exists
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
-        require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // check that the sender is the one who made the deposit
         require(_deposit.senderAddress == msg.sender, "NOT THE SENDER");
         // check that 24 hours have passed since the deposit
@@ -393,7 +377,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _deposit.senderAddress);
 
         // Delete the deposit
-        deposits[_index].claimed = true;
+        delete deposits[_index];
 
         if (_deposit.contractType == 0) {
             /// handle eth deposits
@@ -416,92 +400,6 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
             require(token.transfer(_deposit.senderAddress, scaledAmount), "TRANSFER FAILED");
         }
-
-        return true;
-    }
-
-    /**
-     * @notice Function to withdraw a deposit across different blockchains (cross-chain).
-     * @dev This function is used when assets need to be moved from one blockchain to another.
-     * @param _index The index of the deposit in the deposits array.
-     * @param _recipientAddress The address of the recipient who will receive the withdrawn deposit.
-     * @param _squidData The data for the transaction request in the target blockchain.
-     * @param _squidValue The value for the transaction request in the target blockchain.
-     * @param _squidRouter The address of the router in the target blockchain that will handle the transaction request.
-     * @param _hash The EIP191 hash of the recipient address, router address, keccak256 hash of the squidData, and keccak256 hash of the squidValue.
-     * @param _signature The signature of the hash, signed with the private key corresponding to the public key stored in the deposit.
-     * @return bool true if successful
-     * The function first checks if the deposit exists and hasn't been withdrawn yet. It also checks if the deposit is either a native or ERC20 token, as these are the only types supported in cross-chain mode. It then verifies the hash and the signature. If all checks pass, the function deletes the deposit and executes the cross-chain transfer. If the transfer is successful, it emits a WithdrawEventXChain event and returns true.
-     */
-    function withdrawDepositXChain(
-        uint256 _index, // depositIdx
-        address _recipientAddress, // recipient address
-        bytes memory _squidData, // route.transactionRequest.data
-        uint256 _squidValue, // route.transactionRequest.value
-        address _squidRouter, // route.transactionRequest.targetAddress
-        bytes32 _hash, // hashEIP191
-        bytes memory _signature // signature
-    ) external payable nonReentrant returns (bool) {
-        // check that the deposit exists and that it isn't already withdrawn
-        require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
-        Deposit memory _deposit = deposits[_index];
-        require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
-        // Only native and ERC20 tokens are supported in x-chain mode
-        require(_deposit.contractType < 2, "ONLY NATIVE AND ERC20 TOKENS SUPPORTED FOR X-CHAIN WITHDRAWALS");
-
-        // TODO: DISABLED AUTH FOR NOW
-        // check that the recipientAddress hashes to the same value as recipientAddressHash
-        // require(
-        //     _hash
-        //         == ECDSA.toEthSignedMessageHash(
-        //             keccak256(
-        //                 abi.encodePacked(_recipientAddress, _squidRouter, keccak256(_squidData), keccak256(_squidValue))
-        //             )
-        //         ),
-        //     "HASHES DO NOT MATCH"
-        // );
-        // check that the signer is the same as the one stored in the deposit
-        // address depositSigner = getSigner(_hash, _signature);
-        // address signer = ECDSA.recover(_hash, _signature);
-        // require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
-
-        // set deposit as claimed
-        deposits[_index].claimed = true;
-
-        // execute the cross-chain transfer
-        bool success = false;
-        bytes memory callResult;
-        if (_deposit.contractType == 0) {
-            // For native token the fee is the difference between the total amount and the deposit amount
-            uint256 feeAmount = _squidValue - _deposit.amount;
-            // At a minimum we need to send enough to cover the execution fee
-            require(msg.value >= feeAmount, "INSUFFICIENT FEE SENT");
-            // The amount sent will be the amount held in the Peanut link and the funds sent with this
-            // transaction to pay for the gas fees. In the event of overpayment when calling this function
-            // extra gas will be forwarded to the Squid router whether either it will be credited on the
-            // destination chain or refunded as a gas overpayment
-            uint256 amountToSend = _deposit.amount + msg.value;
-            // Sanity check that the total is greater than the expected / quoted amount from Squid
-            // This should always be true - however this check is here for explicit docs / checking
-            require(amountToSend >= _squidValue, "INSUFFICIENT PAYMENT");
-            // execute method based on calldata
-            (success, callResult) = payable(_squidRouter).call{value: amountToSend}(_squidData);
-
-            emit WithdrawEventXChain(
-                _index, _deposit.contractType, _deposit.amount, feeAmount, _recipientAddress, callResult
-            );
-        } else if (_deposit.contractType == 1) {
-            require(msg.value >= _squidValue, "INSUFFICIENT PAYMENT");
-            // for ERC20 tokens this value is needed as this pays for the execution
-            IERC20 token = IERC20(_deposit.tokenAddress);
-            token.approve(_squidRouter, _deposit.amount);
-            (success, callResult) = payable(_squidRouter).call{value: _squidValue}(_squidData);
-
-            emit WithdrawEventXChain(
-                _index, _deposit.contractType, _deposit.amount, _squidValue, _recipientAddress, callResult
-            );
-        }
-        require(success, "X-CHAIN EXECUTE FAILED");
 
         return true;
     }

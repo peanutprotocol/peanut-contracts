@@ -13,6 +13,9 @@ playground/
 # Docs
 docs/
 
+# Playgrounds
+playground/
+
 # Dotenv file
 .env
 
