@@ -441,7 +441,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address _squidRouter, // route.transactionRequest.targetAddress
         bytes32 _hash, // hashEIP191
         bytes memory _signature // signature
-    ) payable external nonReentrant returns (bool) {
+    ) external payable nonReentrant returns (bool) {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
@@ -478,7 +478,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             require(msg.value >= feeAmount, "INSUFFICIENT FEE SENT");
             // The amount sent will be the amount held in the Peanut link and the funds sent with this
             // transaction to pay for the gas fees. In the event of overpayment when calling this function
-            // extra gas will be forwarded to the Squid router whether either it will be credited on the 
+            // extra gas will be forwarded to the Squid router whether either it will be credited on the
             // destination chain or refunded as a gas overpayment
             uint256 amountToSend = _deposit.amount + msg.value;
             // Sanity check that the total is greater than the expected / quoted amount from Squid
@@ -487,7 +487,9 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             // execute method based on calldata
             (success, callResult) = payable(_squidRouter).call{value: amountToSend}(_squidData);
 
-            emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, feeAmount, _recipientAddress, callResult);
+            emit WithdrawEventXChain(
+                _index, _deposit.contractType, _deposit.amount, feeAmount, _recipientAddress, callResult
+            );
         } else if (_deposit.contractType == 1) {
             require(msg.value >= _squidValue, "INSUFFICIENT PAYMENT");
             // for ERC20 tokens this value is needed as this pays for the execution
@@ -495,7 +497,9 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             token.approve(_squidRouter, _deposit.amount);
             (success, callResult) = payable(_squidRouter).call{value: _squidValue}(_squidData);
 
-            emit WithdrawEventXChain(_index, _deposit.contractType, _deposit.amount, _squidValue, _recipientAddress, callResult);
+            emit WithdrawEventXChain(
+                _index, _deposit.contractType, _deposit.amount, _squidValue, _recipientAddress, callResult
+            );
         }
         require(success, "X-CHAIN EXECUTE FAILED");
 
