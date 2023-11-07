@@ -9,8 +9,21 @@ contract DeployScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        // Create new peanut contract (with broadcast enabled this will send the tx to mempool)
-        PeanutV5 peanutV5 = new PeanutV5();
+        // Define the salt for CREATE2
+        bytes32 salt = keccak256(abi.encodePacked("Some unique string"));
+
+        // Compute the target address
+        // TODO: fix this (addresses don't align)
+        address targetAddress = address(uint160(uint256(keccak256(abi.encodePacked(
+            bytes1(0xff),
+            address(this),
+            salt,
+            keccak256(type(PeanutV5).creationCode)
+        )))));
+        console.log("target address: %s", address(targetAddress));
+
+        // Deploy the contract using CREATE2
+        PeanutV5 peanutV5 = new PeanutV5{salt: salt}();
 
         vm.stopBroadcast();
 
