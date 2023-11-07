@@ -7,7 +7,7 @@ Foundry reference: https://book.getfoundry.sh/getting-started/first-steps
 ## Deployments
 
 See list of deployed contracts on `contracts.json`
-See `multideploy.sh` for deploying more
+See `deploy.py` for deploying more
 
 ## Install
 
