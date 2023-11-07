@@ -43,15 +43,15 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     struct Deposit {
-        address pubKey20; // last 20 bytes of the hash of the public key for the deposit
-        uint256 amount; // amount of the asset being sent
-        // Pack into storage slot (address(20), uint8(8) bool(1) < 32)
-        address tokenAddress; // address of the asset being sent. 0x0 for eth
-        uint8 contractType; // 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 4 for ECO-like rebasing erc20
-        bool claimed; // has this deposit been claimed
-        uint256 tokenId; // id of the token being sent (if erc721 or erc1155)
-        address senderAddress; // address of the sender
-        uint256 timestamp; // timestamp of the deposit
+        address pubKey20; // (20 bytes) last 20 bytes of the hash of the public key for the deposit
+        uint256 amount; // (32 bytes) amount of the asset being sent
+        // tokenAddress, contractType, tokenId, claimed & timestamp are stored in a single 32 byte word
+        address tokenAddress; // (20 bytes) address of the asset being sent. 0x0 for eth
+        uint8 contractType; // (1 byte) 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 4 for ECO-like rebasing erc20
+        bool claimed; // (1 byte) has this deposit been claimed
+        uint40 timestamp; // ( 5 bytes) timestamp of the deposit
+        uint256 tokenId; // (32 bytes) id of the token being sent (if erc721 or erc1155)
+        address senderAddress; // (20 bytes) address of the sender
     }
 
     Deposit[] public deposits; // array of deposits
@@ -160,7 +160,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 claimed: false,
                 pubKey20: _pubKey20,
                 senderAddress: msg.sender,
-                timestamp: block.timestamp
+                timestamp: uint40(block.timestamp)
             })
         );
 
@@ -203,7 +203,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 tokenId: _tokenId,
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp,
+                timestamp: uint40(block.timestamp),
                 claimed: false
             })
         );
@@ -247,7 +247,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 // pubKey20: abi.decode(abi.encodePacked(_data, bytes12(0)), (address)),
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
-                timestamp: block.timestamp,
+                timestamp: uint40(block.timestamp),
                 claimed: false
             })
         );
@@ -293,7 +293,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                     tokenId: _ids[i], // token id
                     pubKey20: address(bytes20(_data[i * 32:i * 32 + 20])),
                     senderAddress: _from,
-                    timestamp: block.timestamp,
+                    timestamp: uint40(block.timestamp),
                     claimed: false
                 })
             );
