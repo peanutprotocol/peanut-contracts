@@ -449,20 +449,14 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // Only native and ERC20 tokens are supported in x-chain mode
         require(_deposit.contractType < 2, "ONLY NATIVE AND ERC20 TOKENS SUPPORTED FOR X-CHAIN WITHDRAWALS");
 
-        // TODO: DISABLED AUTH FOR NOW
-        // check that the recipientAddress hashes to the same value as recipientAddressHash
-        // require(
-        //     _hash
-        //         == ECDSA.toEthSignedMessageHash(
-        //             keccak256(
-        //                 abi.encodePacked(_recipientAddress, _squidRouter, keccak256(_squidData), keccak256(_squidValue))
-        //             )
-        //         ),
-        //     "HASHES DO NOT MATCH"
-        // );
-        // check that the signer is the same as the one stored in the deposit
+        // Hash verification
+        require(
+            keccak256(abi.encodePacked(_recipientAddress, _squidRouter, _squidData, _squidValue)) == _hash,
+            "HASHES DO NOT MATCH"
+        );
+
+        // Signature verification (TEMP DISABLED)
         // address depositSigner = getSigner(_hash, _signature);
-        // address signer = ECDSA.recover(_hash, _signature);
         // require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
 
         // set deposit as claimed
@@ -562,6 +556,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 count++;
             }
         }
+        // TODO: should also return deposit idx
         return _deposits;
     }
 

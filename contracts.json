@@ -14,7 +14,7 @@
         "v3": "0xd068b1F6F0623CbCC7ADC7545290f8991C9B8Ec9",
         "v4": "0x891021b34fedc18e36c015bffaa64a2421738906",
         "Bv4": "0xD605357aBbAF57d118c8DeDf6F2d71aEFa3ba9c5",
-        "v5": "0x955e60e59d6648F9c815EA8D19efE280E73Cd605"
+        "v5": "0x545CF0B176573A9fC334ff5b358A834559a72a70"
     },
     "17000": {
         "name": "ethereum holesky testnet",
@@ -35,7 +35,8 @@
         "v2": "0x45fd48f58c47d929E9D181837fBB7Cda1974a773",
         "v3": "0xCEd763C2Ff8d5B726b8a5D480c17C24B6686837F",
         "v4": "0x86e2ab83ac9d91c618a3258653063beba0ff9461",
-        "Bv4": "0x3f3166f35dCb5F397bd16d7e40918c1c4A52BDb5"
+        "Bv4": "0x3f3166f35dCb5F397bd16d7e40918c1c4A52BDb5",
+        "v5": "0x84D277A6B167E179A041dC1C77D26e54763aBc8B"
     },
     "80001": {
         "name": "polygon-mumbai",

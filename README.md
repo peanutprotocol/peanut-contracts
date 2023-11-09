@@ -21,6 +21,16 @@ forge install
 forge test
 ```
 
+Single test:
+```bash
+ forge test --match-path test/V5/testX** -vvvv
+```
+
+Test on Fork:
+```bash
+ forge test --fork-url "https://ethereum-goerli.publicnode.com" --match-path test/V5/testWithdrawDepositXChain** -vvvv
+```
+
 ## Deploy
 
 Use `deploy.py` for simplicity.

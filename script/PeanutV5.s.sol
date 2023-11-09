@@ -14,12 +14,15 @@ contract DeployScript is Script {
 
         // Compute the target address
         // TODO: fix this (addresses don't align)
-        address targetAddress = address(uint160(uint256(keccak256(abi.encodePacked(
-            bytes1(0xff),
-            address(this),
-            salt,
-            keccak256(type(PeanutV5).creationCode)
-        )))));
+        address targetAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(bytes1(0xff), address(this), salt, keccak256(type(PeanutV5).creationCode))
+                    )
+                )
+            )
+        );
         console.log("target address: %s", address(targetAddress));
 
         // Deploy the contract using CREATE2
