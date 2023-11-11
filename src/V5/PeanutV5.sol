@@ -455,9 +455,8 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             "HASHES DO NOT MATCH"
         );
 
-        // Signature verification (TEMP DISABLED)
-        // address depositSigner = getSigner(_hash, _signature);
-        // require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
+        // Signature verification
+        require(_verifySignature(_hash, _signature, _deposit.pubKey20), "WRONG SIGNATURE");
 
         // set deposit as claimed
         deposits[_index].claimed = true;
@@ -513,6 +512,12 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     function getSigner(bytes32 messageHash, bytes memory signature) public pure returns (address) {
         address signer = ECDSA.recover(messageHash, signature);
         return signer;
+    }
+    
+    // TODO: comment & deprecate getSigner
+    function _verifySignature(bytes32 data, bytes memory signature, address signer) public pure returns (bool) {
+        bytes32 dataHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", data));
+        return ECDSA.recover(dataHash, signature) == signer;
     }
 
     /**

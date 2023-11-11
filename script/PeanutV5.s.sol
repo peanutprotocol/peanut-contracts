@@ -27,6 +27,7 @@ contract DeployScript is Script {
 
         // Deploy the contract using CREATE2
         PeanutV5 peanutV5 = new PeanutV5{salt: salt}();
+        // PeanutV5 peanutV5 = new PeanutV5();
 
         vm.stopBroadcast();
 

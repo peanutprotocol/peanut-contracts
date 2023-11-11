@@ -86,8 +86,8 @@ mainnet = { key = "${ETHERSCAN_TOKEN}" }
 goerli = { key = "${ETHERSCAN_TOKEN}" }
 sepolia = { key = "${ETHERSCAN_TOKEN}" }
 holesky = { key = "${ETHERSCAN_TOKEN}", url = "https://holesky.etherscan.io/api" }
-polygon = { key = "${POLYGONSCAN_TOKEN}" }
-polygon-mumbai = { key = "${POLYGONSCAN_TOKEN}" }
+polygon = { key = "${POLYGONSCAN_TOKEN}", url = "https://api.polygonscan.com/api" }
+polygon-mumbai = { key = "${POLYGONSCAN_TOKEN}", url = "https://api-testnet.polygonscan.com/api" }
 optimism = { key = "${OPTISCAN_TOKEN}" }
 optimism-goerli = { key = "${OPTISCAN_TOKEN}" }
 arbitrum = { key = "${ARBISCAN_TOKEN}" }
