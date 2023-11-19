@@ -43,3 +43,11 @@ e.g. (optional params)
 ```bash
 forge script script/DeployEthRome.s.sol:DeployEthRome --rpc-url optimism-goerli --broadcast --verify -vvvv --legacy
 ```
+
+## Other useful commands
+
+e.g. verify contract:
+    
+```bash
+    forge verify-contract 0x690481ce72b1080bd928a35a0ecf329be902cd6a src/V5/PeanutV5.sol:PeanutV5 --watch --chain base
+```

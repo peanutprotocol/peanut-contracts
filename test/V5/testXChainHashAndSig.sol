@@ -32,7 +32,6 @@ contract testXChainHashAndSig {
         return signer;
     }
 
-
     function _verify(bytes32 data, bytes memory signature, address signer) public pure returns (bool) {
         bytes32 dataHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", data));
         return ECDSA.recover(dataHash, signature) == signer;
@@ -84,7 +83,6 @@ contract testXChainHashAndSig {
         // getSigner(_hash, _sig5);
         // getSigner(_hash, _sig6);
 
-
         // console.log("Sig0 valid: ", _verify(_hash, _sig0, _depositSigner));
         // console.log("Sig1 valid: ", _verify(_hash, _sig1, _depositSigner));
         // console.log("Sig2 valid: ", _verify(_hash, _sig2, _depositSigner));
@@ -94,7 +92,6 @@ contract testXChainHashAndSig {
         // console.log("Sig6 valid: ", _verify(_hash, _sig6, _depositSigner));
 
         // require(getSigner(_hash, _sig0) == _depositSigner, "Signer does not match");
-        
     }
 
     function testHash() public view {
