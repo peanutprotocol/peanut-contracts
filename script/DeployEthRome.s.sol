@@ -14,8 +14,8 @@ contract DeployEthRome is Script {
         PeanutETHRome peanutETHRome = new PeanutETHRome();
 
         // Mint 250 tokens to the owner's address
-        string[] memory uris = new string[](250);
-        peanutETHRome.batchMint(deployerAddress, uris);
+        uint256 numTokens = 250;
+        peanutETHRome.batchMint(deployerAddress, numTokens);
 
         vm.stopBroadcast();
 

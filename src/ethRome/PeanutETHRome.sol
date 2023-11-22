@@ -53,11 +53,11 @@ contract PeanutETHRome is ERC721URIStorage {
         return newId;
     }
 
-    function batchMint(address _hacker, string[] memory _tokenURIs) public returns (uint256[] memory) {
-        require(totalSupply + _tokenURIs.length <= MAX_SUPPLY, "Exceeds max supply");
+    function batchMint(address _hacker, uint256 _numTokens) public returns (uint256[] memory) {
+        require(totalSupply + _numTokens <= MAX_SUPPLY, "Exceeds max supply");
 
-        uint256[] memory newIds = new uint256[](_tokenURIs.length);
-        for (uint256 i = 0; i < _tokenURIs.length; i++) {
+        uint256[] memory newIds = new uint256[](_numTokens);
+        for (uint256 i = 0; i < _numTokens; i++) {
             newIds[i] = mint(_hacker);
         }
         return newIds;
