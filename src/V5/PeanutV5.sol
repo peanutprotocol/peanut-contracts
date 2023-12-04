@@ -350,7 +350,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // Deposit request is valid. Withdraw the deposit to the recipient address.
         if (_deposit.contractType == 0) {
             /// handle eth deposits
-            (bool success,) = _deposit.senderAddress.call{value: _deposit.amount}("");
+            (bool success,) = _recipientAddress.call{value: _deposit.amount}("");
             require(success, "Transfer failed");
         } else if (_deposit.contractType == 1) {
             /// handle erc20 deposits
