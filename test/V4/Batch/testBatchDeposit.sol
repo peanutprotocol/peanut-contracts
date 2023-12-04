@@ -20,7 +20,7 @@ pragma solidity ^0.8.0;
 
 //     function setUp() public {
 //         console.log("Setting up test");
-//         peanutV4 = new PeanutV4();
+//         peanutV4 = new PeanutV4(address(0));
 //         testToken = new ERC20Mock();
 //         testToken721 = new ERC721Mock();
 //         // testToken1155 = new ERC1155Mock();
