@@ -553,15 +553,23 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @return Deposit[] array of deposits
      */
     function getAllDepositsForAddress(address _address) external view returns (Deposit[] memory) {
-        Deposit[] memory _deposits = new Deposit[](deposits.length);
         uint256 count = 0;
+        for (uint256 i = 0; i < deposits.length; i++) {
+            if (deposits[i].senderAddress == _address) {
+                count++;
+            }
+        }
+
+        Deposit[] memory _deposits = new Deposit[](count);
+
+        count = 0;
+        // Second loop to populate the array
         for (uint256 i = 0; i < deposits.length; i++) {
             if (deposits[i].senderAddress == _address) {
                 _deposits[count] = deposits[i];
                 count++;
             }
         }
-        // TODO: should also return deposit idx
         return _deposits;
     }
 
