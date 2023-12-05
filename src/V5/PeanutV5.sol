@@ -57,6 +57,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     }
 
     Deposit[] public deposits; // array of deposits
+    address public ecoAddress; // address of the ECO token
 
     // events
     event DepositEvent(
@@ -75,9 +76,11 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     );
     event MessageEvent(string message);
 
-    // constructor
-    constructor() {
+    // constructor. Accepts ECO token address to prohibit ECO usage in normal
+    // ERC20 deposits.
+    constructor(address _ecoAddress) {
         emit MessageEvent("Hello World, have a nutty day!");
+        ecoAddress = _ecoAddress;
     }
 
     /**
@@ -121,6 +124,10 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             // REMINDER: User must approve this contract to spend the tokens before calling this function
             // Unfortunately there's no way of doing this in just one transaction.
             // Wallet abstraction pls
+
+            // If ECO is deposited as a normal ERC20 and then inflation is increased,
+            // the recipient would get more tokens than what was deposited.
+            require(_tokenAddress != ecoAddress, "ECO DEPOSITS MUST USE _contractType 4");
 
             IERC20 token = IERC20(_tokenAddress);
 
@@ -589,15 +596,23 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @return Deposit[] array of deposits
      */
     function getAllDepositsForAddress(address _address) external view returns (Deposit[] memory) {
-        Deposit[] memory _deposits = new Deposit[](deposits.length);
         uint256 count = 0;
+        for (uint256 i = 0; i < deposits.length; i++) {
+            if (deposits[i].senderAddress == _address) {
+                count++;
+            }
+        }
+
+        Deposit[] memory _deposits = new Deposit[](count);
+
+        count = 0;
+        // Second loop to populate the array
         for (uint256 i = 0; i < deposits.length; i++) {
             if (deposits[i].senderAddress == _address) {
                 _deposits[count] = deposits[i];
                 count++;
             }
         }
-        // TODO: should also return deposit idx
         return _deposits;
     }
 

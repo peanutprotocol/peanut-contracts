@@ -19,7 +19,7 @@ contract PeanutV5Test is Test {
 
     function setUp() public {
         console.log("Setting up test");
-        peanutV5 = new PeanutV5();
+        peanutV5 = new PeanutV5(address(0));
         testToken = new ERC20Mock();
         testToken721 = new ERC721Mock();
         testToken1155 = new ERC1155Mock();
@@ -47,6 +47,20 @@ contract PeanutV5Test is Test {
 
         assertEq(depositIndex, 0, "Deposit failed");
         assertEq(peanutV5.getDepositCount(), 1, "Deposit count mismatch");
+    }
+
+    // If we attempt to deposit ECO tokens as pure ERC20s (i.e. with _contractType = 1),
+    // makeDeposit function must revert.
+    function testECOMaliciousDeposit() public {
+        // pretent that testToken is ECO
+        PeanutV5 peanutV5ECO = new PeanutV5(address(testToken));
+
+        // approve tokens to be spent by the new peanut instance
+        testToken.approve(address(peanutV5), 1000);
+
+        // Test!!!!!!!!
+        vm.expectRevert("ECO DEPOSITS MUST USE _contractType 4");
+        peanutV5ECO.makeDeposit(address(testToken), 1, 100, 0, address(0));
     }
 
     function testMakeDepositERC721() public {

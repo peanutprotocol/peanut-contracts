@@ -8,7 +8,7 @@ pragma solidity ^0.8.19;
 //          Links use asymmetric ECDSA encryption by default to be secure & enable trustless,
 //          gasless claiming.
 //          more at: https://peanut.to
-// @version 0.4.1
+// @version 0.4.2
 // @author  H & K
 //////////////////////////////////////////////////////////////////////////////////////
 //⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -53,6 +53,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     }
 
     Deposit[] public deposits; // array of deposits
+    address public ecoAddress; // address of the ECO token
 
     // events
     event DepositEvent(
@@ -63,9 +64,11 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     );
     event MessageEvent(string message);
 
-    // constructor
-    constructor() {
+    // constructor. Accepts ECO token address to prohibit ECO usage in normal
+    // ERC20 deposits.
+    constructor(address _ecoAddress) {
         emit MessageEvent("Hello World, have a nutty day!");
+        ecoAddress = _ecoAddress;
     }
 
     /**
@@ -109,6 +112,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             // REMINDER: User must approve this contract to spend the tokens before calling this function
             // Unfortunately there's no way of doing this in just one transaction.
             // Wallet abstraction pls
+
+            // If ECO is deposited as a normal ERC20 and then inflation is increased,
+            // the recipient would get more tokens than what was deposited.
+            require(_tokenAddress != ecoAddress, "ECO DEPOSITS MUST USE _contractType 4");
 
             IERC20 token = IERC20(_tokenAddress);
 

@@ -19,7 +19,7 @@ contract TestSenderWithdrawEther is Test {
 
     function setUp() public {
         console.log("Setting up test");
-        peanutV5 = new PeanutV5();
+        peanutV5 = new PeanutV5(address(0));
     }
 
     // test sender withdrawal of ERC20
@@ -67,7 +67,7 @@ contract TestSenderWithdrawErc20 is Test {
     // apparently not possible to fuzz test in setUp() function?
     function setUp() public {
         console.log("Setting up test");
-        peanutV5 = new PeanutV5();
+        peanutV5 = new PeanutV5(address(0));
         testToken = new ERC20Mock(); // contractype 1
 
         // Mint tokens for test accounts (larger than uint128)
@@ -118,7 +118,7 @@ contract TestSenderWithdrawErc721 is Test, ERC721Holder {
     // apparently not possible to fuzz test in setUp() function?
     function setUp() public {
         console.log("Setting up test");
-        peanutV5 = new PeanutV5();
+        peanutV5 = new PeanutV5(address(0));
         testToken = new ERC721Mock(); // contractype 2
 
         // Mint token for test
@@ -169,7 +169,7 @@ contract TestSenderWithdrawErc1155 is Test, ERC1155Holder {
     // apparently not possible to fuzz test in setUp() function?
     function setUp() public {
         console.log("Setting up test");
-        peanutV5 = new PeanutV5();
+        peanutV5 = new PeanutV5(address(0));
         testToken = new ERC1155Mock(); // contractype 3
 
         // Mint tokens for test

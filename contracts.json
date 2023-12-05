@@ -14,7 +14,8 @@
         "v3": "0xd068b1F6F0623CbCC7ADC7545290f8991C9B8Ec9",
         "v4": "0x891021b34fedc18e36c015bffaa64a2421738906",
         "Bv4": "0xD605357aBbAF57d118c8DeDf6F2d71aEFa3ba9c5",
-        "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a"
+        "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a",
+        "v4.2": "0xb9FE57efA135A5feC7bfeB5fdf2B3910E6f5703A"
     },
     "17000": {
         "name": "ethereum holesky testnet",
@@ -28,7 +29,8 @@
         "mainnet": "false",
         "v4": "0x897F8EDdB345F0d16081615823F76055Ad60A00c",
         "Bv4": "0x1851359AB8B002217cf4D108d7F027B63563754C",
-        "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a"
+        "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a",
+        "v4.2": "0x661c60E5f5104C43AF764176B0B0a70616F79C6b"
     },
     "137": {
         "name": "polygon-mainnet",

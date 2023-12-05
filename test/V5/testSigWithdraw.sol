@@ -25,7 +25,7 @@ contract TestSigWithdrawEther is Test {
 
     function setUp() public {
         console.log("Setting up test");
-        peanutV5 = new PeanutV5();
+        peanutV5 = new PeanutV5(address(0));
     }
 
     // test sender withdrawal of ERC20
