@@ -3,8 +3,9 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
 import "../src/V5/PeanutV5.sol";
+import "./DeploymentGlobals.sol";
 
-contract DeployScript is Script {
+contract DeployScript is Script, DeploymentGlobals {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
@@ -25,8 +26,10 @@ contract DeployScript is Script {
         );
         console.log("target address: %s", address(targetAddress));
 
+        address ecoAddress = ecoAddressByChain[block.chainid];
+
         // Deploy the contract using CREATE2
-        PeanutV5 peanutV5 = new PeanutV5{salt: salt}();
+        PeanutV5 peanutV5 = new PeanutV5{salt: salt}(ecoAddress);
         // PeanutV5 peanutV5 = new PeanutV5();
 
         vm.stopBroadcast();

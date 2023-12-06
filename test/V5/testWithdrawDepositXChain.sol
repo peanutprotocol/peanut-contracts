@@ -66,7 +66,7 @@ contract TestClaimXChainNonForked is Test {
 
     function setUp() public {
         console.log("Setting up test TestClaimXChainNonForked");
-        peanutV5 = new PeanutV5();
+        peanutV5 = new PeanutV5(address(0));
 
         peanutV5.makeDeposit{value: DEPOSIT_AMOUNT}(SENDER_ADDRESS, 0, DEPOSIT_AMOUNT, 0, PUBKEY20);
     }

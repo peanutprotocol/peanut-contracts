@@ -20,7 +20,7 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
 
     function setUp() public {
         batcher = new PeanutBatcherV4();
-        peanutV4 = new PeanutV4();
+        peanutV4 = new PeanutV4(address(0));
         testToken = new ERC20Mock();
         testToken721 = new ERC721Mock();
         testToken1155 = new ERC1155Mock();

@@ -13,7 +13,13 @@ dotenv.load_dotenv()
 config = toml.load("foundry.toml")
 
 # Definitions
-CONTRACTS_MAPPING = {"PeanutV3": "v3", "PeanutV4": "v4", "PeanutBatcherV4": "Bv4", "PeanutV5": "v5"}
+CONTRACTS_MAPPING = {
+    "PeanutV3": "v3",
+    "PeanutV4": "v4",
+    "PeanutV4.2": "v4.2",
+    "PeanutBatcherV4": "Bv4",
+    "PeanutV5": "v5",
+}
 CONTRACTS = list(CONTRACTS_MAPPING.keys())
 CONTRACTS_JSON_PATH = "contracts.json"
 
