@@ -252,7 +252,6 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 contractType: 3,
                 amount: _value,
                 tokenId: _tokenId,
-                // pubKey20: abi.decode(abi.encodePacked(_data, bytes12(0)), (address)),
                 pubKey20: address(abi.decode(_data, (bytes20))),
                 senderAddress: _from,
                 timestamp: uint40(block.timestamp),
@@ -464,7 +463,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         );
 
         // Signature verification
-        require(_verifySignature(_hash, _signature, _deposit.pubKey20), "WRONG SIGNATURE");
+        require(verifySignature(_hash, _signature, _deposit.pubKey20), "WRONG SIGNATURE");
 
         // set deposit as claimed
         deposits[_index].claimed = true;
@@ -523,7 +522,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     }
 
     // TODO: comment & deprecate getSigner
-    function _verifySignature(bytes32 data, bytes memory signature, address signer) public pure returns (bool) {
+    function verifySignature(bytes32 data, bytes memory signature, address signer) public pure returns (bool) {
         bytes32 dataHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", data));
         return ECDSA.recover(dataHash, signature) == signer;
     }
@@ -540,8 +539,6 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @notice Simple way to get single deposit
      * @param _index uint256 index of the deposit
      * @return Deposit struct
-     *     // TODO: Can also potentially add link time expiry here. Future approach.
-     * }
      */
     function getDeposit(uint256 _index) external view returns (Deposit memory) {
         return deposits[_index];
