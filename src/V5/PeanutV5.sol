@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -32,13 +32,11 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@helix-foundation/contracts/currency/IECO.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
 import {IL2ECO} from "../util/IL2ECO.sol";
 
 contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
@@ -47,17 +45,18 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     struct Deposit {
         address pubKey20; // (20 bytes) last 20 bytes of the hash of the public key for the deposit
         uint256 amount; // (32 bytes) amount of the asset being sent
-        // tokenAddress, contractType, tokenId, claimed & timestamp are stored in a single 32 byte word
+        ///// tokenAddress, contractType, tokenId, claimed & timestamp are stored in a single 32 byte word
         address tokenAddress; // (20 bytes) address of the asset being sent. 0x0 for eth
         uint8 contractType; // (1 byte) 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155 4 for ECO-like rebasing erc20
         bool claimed; // (1 byte) has this deposit been claimed
         uint40 timestamp; // ( 5 bytes) timestamp of the deposit
+        /////
         uint256 tokenId; // (32 bytes) id of the token being sent (if erc721 or erc1155)
         address senderAddress; // (20 bytes) address of the sender
     }
 
     Deposit[] public deposits; // array of deposits
-    address public ecoAddress; // address of the ECO token
+    address public ecoAddress; // address of the ECO token (needs special handling)
 
     // events
     event DepositEvent(
@@ -112,7 +111,7 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address _pubKey20
     ) public payable nonReentrant returns (uint256) {
         // check that the contract type is valid
-        require(_contractType < 6, "INVALID CONTRACT TYPE");
+        require(_contractType < 5, "INVALID CONTRACT TYPE");
 
         // handle deposit types
         if (_contractType == 0) {
@@ -148,35 +147,11 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             token.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "Internal transfer");
         } else if (_contractType == 4) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function
-            IECO token = IECO(_tokenAddress);
+            IL2ECO token = IL2ECO(_tokenAddress);
 
             // transfer the tokens to the contract
             require(
                 token.transferFrom(msg.sender, address(this), _amount), "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
-            );
-
-            // calculate the rebase invariant amount to store in the deposits array
-            _amount *= token.getPastLinearInflation(block.number);
-        } else if (_contractType == 5) {
-            // REMINDER: User must approve this contract to spend the tokens before calling this function
-            IL2ECO token = IL2ECO(_tokenAddress);
-
-            // require users token balance to be greater than or equal to the amount being deposited
-            require(
-                token.balanceOf(msg.sender) >= _amount,
-                "INSUFFICIENT TOKEN BALANCE"
-            );
-
-            // require allowance to be at least the amount being deposited
-            require(
-                token.allowance(msg.sender, address(this)) >= _amount,
-                "INSUFFICIENT ALLOWANCE"
-            );
-
-            // transfer the tokens to the contract
-            require(
-                token.transferFrom(msg.sender, address(this), _amount),
-                "TRANSFER FAILED. CHECK ALLOWANCE & BALANCE"
             );
 
             // calculate the rebase invariant amount to store in the deposits array
@@ -398,15 +373,10 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             IERC1155 token = IERC1155(_deposit.tokenAddress);
             token.safeTransferFrom(address(this), _recipientAddress, _deposit.tokenId, _deposit.amount, "");
         } else if (_deposit.contractType == 4) {
-            /// handle rebasing erc20 deposits
-            IECO token = IECO(_deposit.tokenAddress);
-            uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
-            require(token.transfer(_recipientAddress, scaledAmount), "TRANSFER FAILED");
-        } else if (_deposit.contractType == 5) {
             /// handle rebasing erc20 deposits on l2
             IL2ECO token = IL2ECO(_deposit.tokenAddress);
             uint256 scaledAmount = _deposit.amount / token.linearInflationMultiplier();
-            require(token.transfer(_recipientAddress, scaledAmount), "TRANSFER FAILED");
+            require(token.transfer(_deposit.senderAddress, scaledAmount), "TRANSFER FAILED");
         }
 
         return true;
@@ -449,11 +419,6 @@ contract PeanutV5 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             IERC1155 token = IERC1155(_deposit.tokenAddress);
             token.safeTransferFrom(address(this), _deposit.senderAddress, _deposit.tokenId, _deposit.amount, "");
         } else if (_deposit.contractType == 4) {
-            /// handle rebasing erc20 deposits
-            IECO token = IECO(_deposit.tokenAddress);
-            uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
-            require(token.transfer(_deposit.senderAddress, scaledAmount), "TRANSFER FAILED");
-        } else if (_deposit.contractType == 5) {
             /// handle rebasing erc20 deposits on l2
             IL2ECO token = IL2ECO(_deposit.tokenAddress);
             uint256 scaledAmount = _deposit.amount / token.linearInflationMultiplier();

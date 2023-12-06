@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.19;
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -9,7 +9,7 @@ pragma solidity ^0.8.19;
 //          gasless claiming.
 //          more at: https://peanut.to
 // @version 0.4.2
-// @author  H & K
+// @author  Squirrel Labs
 //////////////////////////////////////////////////////////////////////////////////////
 //⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 //                         ⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀
@@ -32,12 +32,12 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@helix-foundation/contracts/currency/IECO.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {IL2ECO} from "../util/IL2ECO.sol";
 
 contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -136,7 +136,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             token.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "Internal transfer");
         } else if (_contractType == 4) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function
-            IECO token = IECO(_tokenAddress);
+            IL2ECO token = IL2ECO(_tokenAddress);
 
             // transfer the tokens to the contract
             require(
@@ -144,7 +144,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             );
 
             // calculate the rebase invariant amount to store in the deposits array
-            _amount *= token.getPastLinearInflation(block.number);
+            _amount *= token.linearInflationMultiplier();
         }
 
         // create deposit
@@ -357,10 +357,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             IERC1155 token = IERC1155(_deposit.tokenAddress);
             token.safeTransferFrom(address(this), _recipientAddress, _deposit.tokenId, _deposit.amount, "");
         } else if (_deposit.contractType == 4) {
-            /// handle rebasing erc20 deposits
-            IECO token = IECO(_deposit.tokenAddress);
-            uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
-            require(token.transfer(_recipientAddress, scaledAmount), "TRANSFER FAILED");
+            /// handle rebasing erc20 deposits on l2
+            IL2ECO token = IL2ECO(_deposit.tokenAddress);
+            uint256 scaledAmount = _deposit.amount / token.linearInflationMultiplier();
+            require(token.transfer(_deposit.senderAddress, scaledAmount), "TRANSFER FAILED");
         }
 
         return true;
@@ -402,9 +402,9 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             IERC1155 token = IERC1155(_deposit.tokenAddress);
             token.safeTransferFrom(address(this), _deposit.senderAddress, _deposit.tokenId, _deposit.amount, "");
         } else if (_deposit.contractType == 4) {
-            /// handle rebasing erc20 deposits
-            IECO token = IECO(_deposit.tokenAddress);
-            uint256 scaledAmount = _deposit.amount / token.getPastLinearInflation(block.number);
+            /// handle rebasing erc20 deposits on l2
+            IL2ECO token = IL2ECO(_deposit.tokenAddress);
+            uint256 scaledAmount = _deposit.amount / token.linearInflationMultiplier();
             require(token.transfer(_deposit.senderAddress, scaledAmount), "TRANSFER FAILED");
         }
 
