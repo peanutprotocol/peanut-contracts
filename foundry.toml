@@ -3,8 +3,8 @@ src = "src"
 out = "out"
 libs = ["lib"]
 optimizer = true
-optimizer_runs = 2000
-solc = "0.8.20"
+optimizer_runs = 99999
+solc = "0.8.23"
 
 [rpc_endpoints]
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
