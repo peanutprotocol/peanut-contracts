@@ -524,8 +524,6 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // check that the sender is the one who made the deposit
         require(_deposit.senderAddress == _senderAddress, "NOT THE SENDER");
-        // check that 24 hours have passed since the deposit
-        require(block.timestamp >= _deposit.timestamp + 24 hours, "NOT 24 HOURS YET");
 
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _deposit.senderAddress);
