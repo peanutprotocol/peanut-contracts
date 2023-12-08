@@ -38,6 +38,7 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IL2ECO} from "../util/IL2ECO.sol";
+import {IEIP3009} from "../util/IEIP3009.sol";
 
 contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -166,6 +167,75 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
         // emit the deposit event
         emit DepositEvent(deposits.length - 1, _contractType, _amount, msg.sender);
+
+        // return id of new deposit
+        return deposits.length - 1;
+    }
+
+     /**
+     * @notice Function to make a deposit with EIP-3009 authorization
+     * @dev No need to pre-approve tokens!
+     * @param _tokenAddress address of the token being sent
+     * @param _from the depositor of the tokens
+     * @param _amount uint256 of the amount of tokens being sent
+     * @param _pubKey20 last 20 bytes of the public key of the deposit signer
+     * @param _nonce a unique value
+     * @param _validAfter deposit is valid only after this timestamp (in seconds)
+     * @param _validBefore deposit is valid only before this timestamp (in seconds)
+     * @param _v v of the signature
+     * @param _r r of the signature
+     * @param _s s of the signature
+     * @return uint256 index of the deposit
+     */
+    function makeDepositWithAuthorization(
+        address _tokenAddress,
+        address _from,
+        uint256 _amount,
+        address _pubKey20,
+        bytes32 _nonce,
+        uint256 _validAfter,
+        uint256 _validBefore,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) public nonReentrant returns (uint256) {
+        // If ECO is deposited as a normal ERC20 and then inflation is increased,
+        // the recipient would get more tokens than what was deposited.
+        require(_tokenAddress != ecoAddress, "ECO must be be deposited via makeDeposit with tokenType 4");
+
+        // Recalculate the nonce.
+        // If we don't include pubKey20 in the nonce, the link will be front-runnable
+        bytes32 nonce = keccak256(abi.encodePacked(_pubKey20, _nonce));
+
+        IEIP3009 token = IEIP3009(_tokenAddress);
+        token.receiveWithAuthorization(
+            _from,
+            address(this), // to
+            _amount,
+            _validAfter,
+            _validBefore,
+            nonce,
+            _v,
+            _r,
+            _s
+        );
+
+        // create deposit
+        deposits.push(
+            Deposit({
+                tokenAddress: _tokenAddress,
+                contractType: 1,  // always ERC20
+                amount: _amount,
+                tokenId: 0,  // not used for ERC20
+                claimed: false,
+                pubKey20: _pubKey20,
+                senderAddress: _from,
+                timestamp: uint40(block.timestamp)
+            })
+        );
+
+        // emit the deposit event
+        emit DepositEvent(deposits.length - 1, 1, _amount, _from);
 
         // return id of new deposit
         return deposits.length - 1;

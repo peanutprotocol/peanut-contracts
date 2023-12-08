@@ -3,8 +3,10 @@ pragma solidity >=0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {EIP3009Implementation} from "./EIP3009Implementation.sol";
 
-contract ERC20Mock is ERC20 {
+// A simple ERC20 mock that also implements EIP-3009 and allows gasless transfers
+contract ERC20Mock is EIP3009Implementation {
     constructor() ERC20("ERC20Mock", "20MOCK") {
         this;
     }
