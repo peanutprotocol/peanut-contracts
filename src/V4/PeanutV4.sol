@@ -86,6 +86,41 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             || _interfaceId == type(IERC1155Receiver).interfaceId;
     }
 
+    function makeDeposit(
+        address _tokenAddress,
+        uint8 _contractType,
+        uint256 _amount,
+        uint256 _tokenId,
+        address _pubKey20
+    ) public payable nonReentrant returns (uint256) {
+        return _makeDeposit(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId,
+            _pubKey20,
+            msg.sender
+        );
+    }
+
+    function makeSelflessDeposit(
+        address _tokenAddress,
+        uint8 _contractType,
+        uint256 _amount,
+        uint256 _tokenId,
+        address _pubKey20,
+        address _onBehalfOf
+    ) public payable nonReentrant returns (uint256) {
+        return _makeDeposit(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId,
+            _pubKey20,
+            _onBehalfOf
+        );
+    }
+
     /**
      * @notice Function to make a deposit
      * @dev For token deposits, allowance must be set before calling this function
@@ -94,15 +129,17 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @param _amount uint256 of the amount of tokens being sent (if erc20)
      * @param _tokenId uint256 of the id of the token being sent if erc721 or erc1155
      * @param _pubKey20 last 20 bytes of the public key of the deposit signer
+     * @param _onBehalfOf who will be able to reclaim the link if the private key is lost
      * @return uint256 index of the deposit
      */
-    function makeDeposit(
+    function _makeDeposit(
         address _tokenAddress,
         uint8 _contractType,
         uint256 _amount,
         uint256 _tokenId,
-        address _pubKey20
-    ) public payable nonReentrant returns (uint256) {
+        address _pubKey20,
+        address _onBehalfOf
+    ) internal returns (uint256) {
         // check that the contract type is valid
         require(_contractType < 5, "INVALID CONTRACT TYPE");
 
@@ -160,13 +197,13 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 tokenId: _tokenId,
                 claimed: false,
                 pubKey20: _pubKey20,
-                senderAddress: msg.sender,
+                senderAddress: _onBehalfOf,
                 timestamp: uint40(block.timestamp)
             })
         );
 
         // emit the deposit event
-        emit DepositEvent(deposits.length - 1, _contractType, _amount, msg.sender);
+        emit DepositEvent(deposits.length - 1, _contractType, _amount, _onBehalfOf);
 
         // return id of new deposit
         return deposits.length - 1;

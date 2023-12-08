@@ -56,6 +56,20 @@ contract PeanutV4Test is Test {
         assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
     }
 
+    function testMakeSelflessDepositERC20() public {
+        uint256 amount = 100;
+
+        // Make a deposit on behalf of SAMPLE_ADDRESS
+        uint256 depositIndex = peanutV4.makeSelflessDeposit(address(testToken), 1, amount, 0, PUBKEY20, SAMPLE_ADDRESS);
+
+        // Deposit was made on behalf of other address, so we can't withdraw :(((
+        vm.expectRevert("NOT THE SENDER");
+        peanutV4.withdrawDepositSender(depositIndex);
+
+        vm.prank(SAMPLE_ADDRESS); // Now we talkin'!
+        peanutV4.withdrawDepositSender(depositIndex);
+    }
+
     // If we attempt to deposit ECO tokens as pure ERC20s (i.e. with _contractType = 1),
     // makeDeposit function must revert.
     function testECOMaliciousDeposit() public {
