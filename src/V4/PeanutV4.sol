@@ -57,6 +57,13 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address senderAddress; // (20 bytes) address of the sender
     }
 
+    // We may include this hash in peanut-specific signatures to make sure
+    // that the message signed by the user has effects only in peanut contracts.
+    bytes32 PEANUT_UNIQUE_HASH = 0x70adbbeba9d4f0c82e28dd574f15466f75df0543b65f24460fc445813b5d94e0; // keccak256("Konrad makes tokens go woosh tadam");
+
+    bytes32 ANYONE_WITHDRAWAL_MODE = 0x0000000000000000000000000000000000000000000000000000000000000000; // default. Any address can trigger the withdrawal function
+    bytes32 RECIPIENT_WITHDRAWAL_MODE = 0x2bb5bef2b248d3edba501ad918c3ab524cce2aea54d4c914414e1c4401dc4ff4; // keccak256("only recipient") - only the signed recipient can trigger the withdrawal function
+
     bytes32 public DOMAIN_SEPARATOR; // initialized in the constructor
 
     bytes32 public EIP712DOMAIN_TYPEHASH =
@@ -460,6 +467,42 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         return this.onERC1155BatchReceived.selector;
     }
 
+     /**
+     * @notice Function to withdraw tokens. Can be called by anyone.
+     * @return bool true if successful
+     */
+    function withdrawDeposit(
+        uint256 _index,
+        address _recipientAddress,
+        bytes memory _signature
+    ) external nonReentrant returns (bool) {
+        return _withdrawDeposit(
+            _index,
+            _recipientAddress,
+            ANYONE_WITHDRAWAL_MODE,
+            _signature
+        );
+    }
+
+    /**
+     * @notice Function to withdraw tokens. Must be called by the recipient.
+     * @return bool true if successful
+     */
+    function receiveWithdrawDeposit(
+        uint256 _index,
+        address _recipientAddress,
+        bytes memory _signature
+    ) external nonReentrant returns (bool) {
+        require(_recipientAddress == msg.sender, "NOT THE RECIPIENT");
+
+        return _withdrawDeposit(
+            _index,
+            _recipientAddress,
+            RECIPIENT_WITHDRAWAL_MODE,
+            _signature
+        );
+    }
+
     /**
      * @notice Function to withdraw a deposit. Withdraws the deposit to the recipient address.
      * @dev _recipientAddressHash is hash("\x19Ethereum Signed Message:\n32" + hash(_recipientAddress))
@@ -467,24 +510,33 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @dev We don't check the unhashed address for security reasons. It's preferable to sign a hash of the address.
      * @param _index uint256 index of the deposit
      * @param _recipientAddress address of the recipient
-     * @param _recipientAddressHash bytes32 hash of the recipient address (prefixed with "\x19Ethereum Signed Message:\n32")
+     * @param _extraData extra data that has to be signed by the user
      * @param _signature bytes signature of the recipient address (65 bytes)
      * @return bool true if successful
      */
-    function withdrawDeposit(
+    function _withdrawDeposit(
         uint256 _index,
         address _recipientAddress,
-        bytes32 _recipientAddressHash,
+        bytes32 _extraData,
         bytes memory _signature
-    ) external nonReentrant returns (bool) {
+    ) internal returns (bool) {
         // check that the deposit exists and that it isn't already withdrawn
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
         require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
-        // check that the recipientAddress hashes to the same value as recipientAddressHash
-        require(
-            _recipientAddressHash == ECDSA.toEthSignedMessageHash(keccak256(abi.encodePacked(_recipientAddress))),
-            "HASHES DO NOT MATCH"
+
+        // Compute the hash of the withdrawal message
+        bytes32 _recipientAddressHash = ECDSA.toEthSignedMessageHash(
+            keccak256(
+                abi.encodePacked(
+                    PEANUT_UNIQUE_HASH,
+                    block.chainid,
+                    address(this),
+                    _index,
+                    _recipientAddress,
+                    _extraData
+                )
+            )
         );
         // check that the signer is the same as the one stored in the deposit
         address depositSigner = getSigner(_recipientAddressHash, _signature);

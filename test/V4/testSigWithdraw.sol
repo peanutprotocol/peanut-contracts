@@ -14,12 +14,11 @@ contract TestSigWithdrawEther is Test {
     PeanutV4 public peanutV4;
 
     // sample inputs
-    address _pubkey20 = 0xa693Ce8915c050E8fB6a91097de8f4C96D13192A;
+    address _pubkey20 = 0x8fd379246834eac74B8419FfdA202CF8051F7A03;
     address _recipientAddress = 0x6B3751c5b04Aa818EA90115AA06a4D9A36A16f02;
-    // bytes32 _recipientAddressHash = 0x43fcd47dd82c4fd18ae2f2d674b46273c645331bdfdf312badfe3592d43e58cd;
-    bytes32 _recipientAddressHashEip191 = 0x9192b2026401b2d52667b8458bb54cc7847746441d70cd1bc63fc875a5b4f54a;
-    bytes public signature =
-        hex"997928768fcdb48faa1af08cdd9bb5e694d51a8d1495ec9b464ea1b10d20501119f1eb0cca20bc684c5d6b9663191181b68e159e08a06dfc29d17693ed4d8b981b";
+    bytes public signatureAnybody =
+        hex"02a37d0548c14c6b07eba4ef1438eb946cdada4f481164755129eb3725f7e8c13d7c052308e73314338f4d484a5f4aef20c7519a1dbc283e4826253b742817241c";
+    bytes public signatureRecipient = hex"364c17bca8823977b29b7646c954353996f363549f08ce3943969171c050f0d74006eabb597df680e9e4229631f473bfbedf995336a03d2fd3be7f1fff22d2511b";
 
     receive() external payable {} // necessary to receive ether
 
@@ -28,10 +27,32 @@ contract TestSigWithdrawEther is Test {
         peanutV4 = new PeanutV4(address(0));
     }
 
-    // test sender withdrawal of ERC20
+    // test sender withdrawal of ETH
     function testSigWithdrawEther(uint64 amount) public {
         vm.assume(amount > 0);
         uint256 depositIdx = peanutV4.makeDeposit{value: amount}(address(0), 0, amount, 0, _pubkey20);
-        peanutV4.withdrawDeposit(depositIdx, _recipientAddress, _recipientAddressHashEip191, signature);
+
+        // Can't use receiveWithdrawDeposit
+        vm.expectRevert("NOT THE RECIPIENT");
+        peanutV4.receiveWithdrawDeposit(depositIdx, _recipientAddress, signatureAnybody);
+
+        // Anybody can withdraw
+        peanutV4.withdrawDeposit(depositIdx, _recipientAddress, signatureAnybody);
+    }
+
+    function testReceiveWithdrawDeposit(uint64 amount) public {
+        vm.assume(amount > 0);
+        uint256 depositIdx = peanutV4.makeDeposit{value: amount}(address(0), 0, amount, 0, _pubkey20);
+
+        // Can't use pure withdrawDeposit
+        vm.expectRevert("WRONG SIGNATURE");
+        peanutV4.withdrawDeposit(depositIdx, _recipientAddress, signatureRecipient);
+        
+        // Only the recipient is able to withdraw via receiveWithdrawDeposit
+        vm.expectRevert("NOT THE RECIPIENT");
+        peanutV4.receiveWithdrawDeposit(depositIdx, _recipientAddress, signatureRecipient);
+
+        vm.prank(_recipientAddress);  // Withdraw!
+        peanutV4.receiveWithdrawDeposit(depositIdx, _recipientAddress, signatureRecipient);
     }
 }
