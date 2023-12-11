@@ -37,6 +37,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import {IL2ECO} from "../util/IL2ECO.sol";
 import {IEIP3009} from "../util/IEIP3009.sol";
 
@@ -56,6 +57,27 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address senderAddress; // (20 bytes) address of the sender
     }
 
+    bytes32 public DOMAIN_SEPARATOR;  // initialized in the constructor
+
+    bytes32 public EIP712DOMAIN_TYPEHASH = keccak256(
+        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+    );
+
+    struct EIP712Domain {
+        string name;
+        string version;
+        uint256 chainId;
+        address verifyingContract;
+    }
+
+    bytes32 public GASLESS_RECLAIM_TYPEHASH = keccak256(
+        "GaslessReclaim(uint256 depositIndex)"
+    );
+
+    struct GaslessReclaim {
+        uint256 depositIndex;
+    }
+
     Deposit[] public deposits; // array of deposits
     address public ecoAddress; // address of the ECO token
 
@@ -70,9 +92,55 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
     // constructor. Accepts ECO token address to prohibit ECO usage in normal
     // ERC20 deposits.
+    // Initializes DOMAIN_SEPARATOR.
+    // Wishes you a nutty day.
     constructor(address _ecoAddress) {
         emit MessageEvent("Hello World, have a nutty day!");
         ecoAddress = _ecoAddress;
+        DOMAIN_SEPARATOR = hash(EIP712Domain({
+            name: "Peanut",
+            version: '4.2',
+            chainId: block.chainid,
+            verifyingContract: address(this)
+        }));
+    }
+
+    function hash(EIP712Domain memory eip712Domain) internal view returns (bytes32) {
+        return keccak256(abi.encode(
+                EIP712DOMAIN_TYPEHASH,
+                keccak256(bytes(eip712Domain.name)),
+                keccak256(bytes(eip712Domain.version)),
+                eip712Domain.chainId,
+                eip712Domain.verifyingContract
+        ));
+    }
+
+    function hash(GaslessReclaim memory reclaim) internal view returns (bytes32) {
+        return keccak256(abi.encode(
+            GASLESS_RECLAIM_TYPEHASH,
+            reclaim.depositIndex
+        ));
+    }
+
+    /**
+     * @notice Recover a EIP-712 signed gasless reclaim message
+     * @param reclaim the reclaim request
+     * @param signer the expected signer of the reclaim request
+     * @param signature r-s-v if the signer is an EOA or any random bytes if the signer is a smart contract
+     */
+    function verifyGaslessReclaim(GaslessReclaim memory reclaim, address signer, bytes memory signature)
+        internal
+        view
+    {
+        // Note: we need to use `encodePacked` here instead of `encode`.
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR,
+            hash(reclaim)
+        ));
+        // By using SignatureChecker we support both EOAs and smart contract wallets
+        bool valid = SignatureChecker.isValidSignatureNow(signer, digest, signature);
+        require(valid, "INVALID SIGNATURE");
     }
 
     /**
@@ -446,17 +514,16 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     /**
      * @notice Function to allow a sender to withdraw their deposit after 24 hours
      * @param _index uint256 index of the deposit
+     * @param _senderAddress the address of the depositor
      * @return bool true if successful
      */
-    function withdrawDepositSender(uint256 _index) external nonReentrant returns (bool) {
+    function _withdrawDepositSender(uint256 _index, address _senderAddress) internal returns (bool) {
         // check that the deposit exists
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
         require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // check that the sender is the one who made the deposit
-        require(_deposit.senderAddress == msg.sender, "NOT THE SENDER");
-        // check that 24 hours have passed since the deposit
-        require(block.timestamp >= _deposit.timestamp + 24 hours, "NOT 24 HOURS YET");
+        require(_deposit.senderAddress == _senderAddress, "NOT THE SENDER");
 
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _deposit.senderAddress);
@@ -487,6 +554,15 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         }
 
         return true;
+    }
+
+    function withdrawDepositSender(uint256 _index) external nonReentrant returns (bool) {
+        return _withdrawDepositSender(_index, msg.sender);
+    }
+
+    function withdrawDepositSenderGasless(GaslessReclaim calldata reclaim, address signer, bytes calldata signature) external nonReentrant returns (bool) {
+        verifyGaslessReclaim(reclaim, signer, signature);
+        return _withdrawDepositSender(reclaim.depositIndex, signer);
     }
 
     //// Some utility functions ////
