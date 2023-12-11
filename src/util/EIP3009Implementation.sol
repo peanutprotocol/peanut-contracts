@@ -8,7 +8,7 @@ import {IEIP3009} from "./IEIP3009.sol";
 
 // Basic implementation of EIP3009 for testing purposes ONLY.
 abstract contract EIP3009Implementation is EIP3009Internals, IEIP3009 {
-   /**
+    /**
      * @notice Execute a transfer with a signed authorization
      * @param from          Payer's address (Authorizer)
      * @param to            Payee's address
@@ -31,17 +31,7 @@ abstract contract EIP3009Implementation is EIP3009Internals, IEIP3009 {
         bytes32 r,
         bytes32 s
     ) external {
-        _transferWithAuthorization(
-            from,
-            to,
-            value,
-            validAfter,
-            validBefore,
-            nonce,
-            v,
-            r,
-            s
-        );
+        _transferWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s);
     }
 
     /**
@@ -69,17 +59,7 @@ abstract contract EIP3009Implementation is EIP3009Internals, IEIP3009 {
         bytes32 r,
         bytes32 s
     ) external {
-        _receiveWithAuthorization(
-            from,
-            to,
-            value,
-            validAfter,
-            validBefore,
-            nonce,
-            v,
-            r,
-            s
-        );
+        _receiveWithAuthorization(from, to, value, validAfter, validBefore, nonce, v, r, s);
     }
 
     /**
@@ -91,13 +71,7 @@ abstract contract EIP3009Implementation is EIP3009Internals, IEIP3009 {
      * @param r             r of the signature
      * @param s             s of the signature
      */
-    function cancelAuthorization(
-        address authorizer,
-        bytes32 nonce,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external {
+    function cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) external {
         _cancelAuthorization(authorizer, nonce, v, r, s);
     }
 }

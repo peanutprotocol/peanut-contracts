@@ -57,11 +57,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address senderAddress; // (20 bytes) address of the sender
     }
 
-    bytes32 public DOMAIN_SEPARATOR;  // initialized in the constructor
+    bytes32 public DOMAIN_SEPARATOR; // initialized in the constructor
 
-    bytes32 public EIP712DOMAIN_TYPEHASH = keccak256(
-        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-    );
+    bytes32 public EIP712DOMAIN_TYPEHASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
     struct EIP712Domain {
         string name;
@@ -70,9 +69,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address verifyingContract;
     }
 
-    bytes32 public GASLESS_RECLAIM_TYPEHASH = keccak256(
-        "GaslessReclaim(uint256 depositIndex)"
-    );
+    bytes32 public GASLESS_RECLAIM_TYPEHASH = keccak256("GaslessReclaim(uint256 depositIndex)");
 
     struct GaslessReclaim {
         uint256 depositIndex;
@@ -97,29 +94,25 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     constructor(address _ecoAddress) {
         emit MessageEvent("Hello World, have a nutty day!");
         ecoAddress = _ecoAddress;
-        DOMAIN_SEPARATOR = hash(EIP712Domain({
-            name: "Peanut",
-            version: '4.2',
-            chainId: block.chainid,
-            verifyingContract: address(this)
-        }));
+        DOMAIN_SEPARATOR = hash(
+            EIP712Domain({name: "Peanut", version: "4.2", chainId: block.chainid, verifyingContract: address(this)})
+        );
     }
 
     function hash(EIP712Domain memory eip712Domain) internal view returns (bytes32) {
-        return keccak256(abi.encode(
+        return keccak256(
+            abi.encode(
                 EIP712DOMAIN_TYPEHASH,
                 keccak256(bytes(eip712Domain.name)),
                 keccak256(bytes(eip712Domain.version)),
                 eip712Domain.chainId,
                 eip712Domain.verifyingContract
-        ));
+            )
+        );
     }
 
     function hash(GaslessReclaim memory reclaim) internal view returns (bytes32) {
-        return keccak256(abi.encode(
-            GASLESS_RECLAIM_TYPEHASH,
-            reclaim.depositIndex
-        ));
+        return keccak256(abi.encode(GASLESS_RECLAIM_TYPEHASH, reclaim.depositIndex));
     }
 
     /**
@@ -133,11 +126,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         view
     {
         // Note: we need to use `encodePacked` here instead of `encode`.
-        bytes32 digest = keccak256(abi.encodePacked(
-            "\x19\x01",
-            DOMAIN_SEPARATOR,
-            hash(reclaim)
-        ));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hash(reclaim)));
         // By using SignatureChecker we support both EOAs and smart contract wallets
         bool valid = SignatureChecker.isValidSignatureNow(signer, digest, signature);
         require(valid, "INVALID SIGNATURE");
@@ -161,14 +150,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         uint256 _tokenId,
         address _pubKey20
     ) public payable nonReentrant returns (uint256) {
-        return _makeDeposit(
-            _tokenAddress,
-            _contractType,
-            _amount,
-            _tokenId,
-            _pubKey20,
-            msg.sender
-        );
+        return _makeDeposit(_tokenAddress, _contractType, _amount, _tokenId, _pubKey20, msg.sender);
     }
 
     function makeSelflessDeposit(
@@ -179,14 +161,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address _pubKey20,
         address _onBehalfOf
     ) public payable nonReentrant returns (uint256) {
-        return _makeDeposit(
-            _tokenAddress,
-            _contractType,
-            _amount,
-            _tokenId,
-            _pubKey20,
-            _onBehalfOf
-        );
+        return _makeDeposit(_tokenAddress, _contractType, _amount, _tokenId, _pubKey20, _onBehalfOf);
     }
 
     /**
@@ -277,7 +252,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         return deposits.length - 1;
     }
 
-     /**
+    /**
      * @notice Function to make a deposit with EIP-3009 authorization
      * @dev No need to pre-approve tokens!
      * @param _tokenAddress address of the token being sent
@@ -329,9 +304,9 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         deposits.push(
             Deposit({
                 tokenAddress: _tokenAddress,
-                contractType: 1,  // always ERC20
+                contractType: 1, // always ERC20
                 amount: _amount,
-                tokenId: 0,  // not used for ERC20
+                tokenId: 0, // not used for ERC20
                 claimed: false,
                 pubKey20: _pubKey20,
                 senderAddress: _from,
@@ -597,7 +572,11 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         return _withdrawDepositSender(_index, msg.sender);
     }
 
-    function withdrawDepositSenderGasless(GaslessReclaim calldata reclaim, address signer, bytes calldata signature) external nonReentrant returns (bool) {
+    function withdrawDepositSenderGasless(GaslessReclaim calldata reclaim, address signer, bytes calldata signature)
+        external
+        nonReentrant
+        returns (bool)
+    {
         verifyGaslessReclaim(reclaim, signer, signature);
         return _withdrawDepositSender(reclaim.depositIndex, signer);
     }

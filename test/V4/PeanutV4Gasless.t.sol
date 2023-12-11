@@ -22,8 +22,7 @@ contract PeanutV4Test is Test {
     // keccak256("ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
     bytes32 public constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH =
         0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8;
-    bytes32 public DOMAIN_SEPARATOR =
-        0xcaa2ce1a5703ccbe253a34eb3166df60a705c561b44b192061e28f2a985be2ca;
+    bytes32 public DOMAIN_SEPARATOR = 0xcaa2ce1a5703ccbe253a34eb3166df60a705c561b44b192061e28f2a985be2ca;
 
     function setUp() public {
         console.log("Setting up test");
@@ -36,9 +35,7 @@ contract PeanutV4Test is Test {
 
         uint256 amount = 1000;
         bytes32 _nonce = bytes32(0); // any random value
-        bytes32 authorizationNonce = keccak256(
-            abi.encodePacked(PUBKEY20, _nonce)
-        );
+        bytes32 authorizationNonce = keccak256(abi.encodePacked(PUBKEY20, _nonce));
 
         bytes memory typeHashAndData = abi.encode(
             RECEIVE_WITH_AUTHORIZATION_TYPEHASH,
@@ -50,18 +47,9 @@ contract PeanutV4Test is Test {
             authorizationNonce
         );
 
-        bytes32 digest = keccak256(
-            abi.encodePacked(
-                "\x19\x01",
-                DOMAIN_SEPARATOR,
-                keccak256(typeHashAndData)
-            )
-        );
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, keccak256(typeHashAndData)));
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            uint256(SAMPLE_PRIVKEY),
-            digest
-        );
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(uint256(SAMPLE_PRIVKEY), digest);
 
         uint256 depositIndex = peanutV4.makeDepositWithAuthorization(
             address(testToken),
