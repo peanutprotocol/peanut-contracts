@@ -59,7 +59,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
     // We may include this hash in peanut-specific signatures to make sure
     // that the message signed by the user has effects only in peanut contracts.
-    bytes32 PEANUT_UNIQUE_HASH = 0x70adbbeba9d4f0c82e28dd574f15466f75df0543b65f24460fc445813b5d94e0; // keccak256("Konrad makes tokens go woosh tadam");
+    bytes32 PEANUT_SALT = 0x70adbbeba9d4f0c82e28dd574f15466f75df0543b65f24460fc445813b5d94e0; // keccak256("Konrad makes tokens go woosh tadam");
 
     bytes32 ANYONE_WITHDRAWAL_MODE = 0x0000000000000000000000000000000000000000000000000000000000000000; // default. Any address can trigger the withdrawal function
     bytes32 RECIPIENT_WITHDRAWAL_MODE = 0x2bb5bef2b248d3edba501ad918c3ab524cce2aea54d4c914414e1c4401dc4ff4; // keccak256("only recipient") - only the signed recipient can trigger the withdrawal function
@@ -486,9 +486,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
     /**
      * @notice Function to withdraw tokens. Must be called by the recipient.
+     *         This is useful for 
      * @return bool true if successful
      */
-    function receiveWithdrawDeposit(
+    function withdrawDepositAsRecipient(
         uint256 _index,
         address _recipientAddress,
         bytes memory _signature
@@ -529,7 +530,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         bytes32 _recipientAddressHash = ECDSA.toEthSignedMessageHash(
             keccak256(
                 abi.encodePacked(
-                    PEANUT_UNIQUE_HASH,
+                    PEANUT_SALT,
                     block.chainid,
                     address(this),
                     _index,
