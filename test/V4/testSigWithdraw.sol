@@ -32,15 +32,15 @@ contract TestSigWithdrawEther is Test {
         vm.assume(amount > 0);
         uint256 depositIdx = peanutV4.makeDeposit{value: amount}(address(0), 0, amount, 0, _pubkey20);
 
-        // Can't use receiveWithdrawDeposit
+        // Can't use withdrawDepositAsRecipient
         vm.expectRevert("NOT THE RECIPIENT");
-        peanutV4.receiveWithdrawDeposit(depositIdx, _recipientAddress, signatureAnybody);
+        peanutV4.withdrawDepositAsRecipient(depositIdx, _recipientAddress, signatureAnybody);
 
         // Anybody can withdraw
         peanutV4.withdrawDeposit(depositIdx, _recipientAddress, signatureAnybody);
     }
 
-    function testReceiveWithdrawDeposit(uint64 amount) public {
+    function testwithdrawDepositAsRecipient(uint64 amount) public {
         vm.assume(amount > 0);
         uint256 depositIdx = peanutV4.makeDeposit{value: amount}(address(0), 0, amount, 0, _pubkey20);
 
@@ -48,11 +48,11 @@ contract TestSigWithdrawEther is Test {
         vm.expectRevert("WRONG SIGNATURE");
         peanutV4.withdrawDeposit(depositIdx, _recipientAddress, signatureRecipient);
         
-        // Only the recipient is able to withdraw via receiveWithdrawDeposit
+        // Only the recipient is able to withdraw via withdrawDepositAsRecipient
         vm.expectRevert("NOT THE RECIPIENT");
-        peanutV4.receiveWithdrawDeposit(depositIdx, _recipientAddress, signatureRecipient);
+        peanutV4.withdrawDepositAsRecipient(depositIdx, _recipientAddress, signatureRecipient);
 
         vm.prank(_recipientAddress);  // Withdraw!
-        peanutV4.receiveWithdrawDeposit(depositIdx, _recipientAddress, signatureRecipient);
+        peanutV4.withdrawDepositAsRecipient(depositIdx, _recipientAddress, signatureRecipient);
     }
 }

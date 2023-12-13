@@ -18,6 +18,6 @@ contract DeployScript is Script, DeploymentGlobals {
         vm.stopBroadcast();
 
         // do something for no unused variable warning (log contract address)
-        console.log("2222contract address: %s", address(peanutV4));
+        console.log("contract address: %s", address(peanutV4));
     }
 }
