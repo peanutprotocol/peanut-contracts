@@ -1,7 +1,7 @@
 import os
 import json
 import subprocess
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 import argparse
 import toml
 import dotenv
@@ -109,6 +109,20 @@ def deploy_contract(command: str) -> str:
     except subprocess.CalledProcessError as e:
         print(f"Command failed with error: {e}")
         return str(e)
+    
+def make_command(contract: str, chain: str, contracts_json: dict, broadcast: bool) -> str:
+    # Existence of `contract` in CONTRACTS_MAPPING must be validated by the caller
+    _, legacy = get_chain_info(chain)
+    command = f"forge script script/{contract}.s.sol:DeployScript --rpc-url {config['rpc_endpoints'][chain]} --verify -vvvv"
+    if legacy:
+        command += " --legacy"
+        print(f"Using legacy mode for {chain}")
+    
+    if broadcast:
+        command += " --broadcast"
+        print("Will broadcast transactions to the chain")
+
+    return command
 
 
 def deploy_to_chain(chain: str, contracts: List[str]):
@@ -145,7 +159,12 @@ def deploy_to_chain(chain: str, contracts: List[str]):
             )
             action = input("The contract is already deployed. Enter Y to redeploy, v to verify, and anything else to cancel: ")
             if action.lower() == "v":
-                command = f"forge script script/{contract}.s.sol:DeployScript --rpc-url {config['rpc_endpoints'][chain]} --verify -vvvv"
+                command = make_command(
+                    contract=contract,
+                    chain=chain,
+                    contracts_json=contracts_json,
+                    broadcast=False,
+                )
                 print(f"Verifying {contract} on {chain}")
                 output = run_command(command)
                 print(output)
@@ -154,12 +173,14 @@ def deploy_to_chain(chain: str, contracts: List[str]):
                 print(
                     f"Skipped deploying & overwriting {contract} ({short_contract_name}) for {chain}."
                 )
-                continue  # Skip the rest of the loop and move to the next contract
-
-        command = f"forge script script/{contract}.s.sol:DeployScript --rpc-url {config['rpc_endpoints'][chain]} --broadcast --verify -vvvv"
-        if legacy:
-            command += " --legacy"
-            print(f"Using legacy mode for {chain}")
+                continue  # Skip the rest of the loop and move to the next contract        
+        
+        command = make_command(
+            contract=contract,
+            chain=chain,
+            contracts_json=contracts_json,
+            broadcast=True,
+        )
 
         print(f"Deploying {contract} to {chain}")
         output = deploy_contract(command)  # use the new deploy_contract function
@@ -183,7 +204,10 @@ def deploy_to_all_chains(contracts: List[str]):
     for chain in config["rpc_endpoints"].keys():
         user_input = input(f"Deploy to {chain}? (y/n) ")
         if user_input == "y":
-            deploy_to_chain(chain, contracts)
+            try:
+                deploy_to_chain(chain, contracts)
+            except Exception as e:
+                print(f"Error!!! {str(e)}")
 
 
 def deploy_to_specific_chains(chains: List[str], contracts: List[str]):
@@ -191,7 +215,10 @@ def deploy_to_specific_chains(chains: List[str], contracts: List[str]):
         if chain not in config["rpc_endpoints"]:
             print(f"Error: Unknown chain {chain}")
             continue
-        deploy_to_chain(chain, contracts)
+        try:
+            deploy_to_chain(chain, contracts)
+        except Exception as e:
+            print(f"Error!!! {str(e)}")
 
 
 def run_script_on_chain(chain: str, script: str):
