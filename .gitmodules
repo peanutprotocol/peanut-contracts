@@ -7,6 +7,3 @@
 [submodule "lib/currency"]
 	path = lib/currency
 	url = https://github.com/helix-foundation/currency
-[submodule "lib/create3-factory"]
-	path = lib/create3-factory
-	url = https://github.com/zeframlou/create3-factory

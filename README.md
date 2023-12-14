@@ -50,4 +50,5 @@ e.g. verify contract:
     
 ```bash
     forge verify-contract 0x690481ce72b1080bd928a35a0ecf329be902cd6a src/V5/PeanutV5.sol:PeanutV5 --watch --chain base
+    forge verify-contract 0xBF9688FF5302Ad722343140cEd16EBE30db86c25 src/V4/PeanutRouter.sol:PeanutV4Router --watch --chain polygon
 ```
