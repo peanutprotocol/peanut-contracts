@@ -40,7 +40,7 @@ contract TestSigWithdrawEther is Test {
         peanutV4.withdrawDeposit(depositIdx, _recipientAddress, signatureAnybody);
     }
 
-    function testwithdrawDepositAsRecipient(uint64 amount) public {
+    function testWithdrawDepositAsRecipient(uint64 amount) public {
         vm.assume(amount > 0);
         uint256 depositIdx = peanutV4.makeDeposit{value: amount}(address(0), 0, amount, 0, _pubkey20);
 
