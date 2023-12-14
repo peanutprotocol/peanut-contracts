@@ -6,8 +6,14 @@ import "../src/V4/PeanutV4.sol";
 
 contract DeploymentGlobals {
     mapping(uint256 => address) public ecoAddressByChain;
+    address public squidAddress;
 
     constructor() {
+        // SET SQUID
+        squidAddress = 0xce16F69375520ab01377ce7B88f5BA8C48F8D666;
+
+        // SET ECO
+
         // Mainnet and its testnets
         ecoAddressByChain[1] = 0x8dBF9A4c99580fC7Fd4024ee08f3994420035727;
         ecoAddressByChain[5] = 0x8dBF9A4c99580fC7Fd4024ee08f3994420035727;

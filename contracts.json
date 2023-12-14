@@ -31,7 +31,8 @@
         "v4": "0x897F8EDdB345F0d16081615823F76055Ad60A00c",
         "Bv4": "0x1851359AB8B002217cf4D108d7F027B63563754C",
         "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a",
-        "v4.2": "0x220dFaac5348Eb2187F982A40845c7e93be4c672"
+        "v4.2": "0x220dFaac5348Eb2187F982A40845c7e93be4c672",
+        "Rv4.2": "0x8230697B79C2F1b0b64629F67cE30B2cAa354e3d"
     },
     "137": {
         "name": "polygon-mainnet",
@@ -42,7 +43,8 @@
         "v4": "0x86e2ab83ac9d91c618a3258653063beba0ff9461",
         "Bv4": "0x3f3166f35dCb5F397bd16d7e40918c1c4A52BDb5",
         "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a",
-        "v4.2": "0xb600a2B1bD58781e91B3bad3622EdF630089F13C"
+        "v4.2": "0xb600a2B1bD58781e91B3bad3622EdF630089F13C",
+        "Rv4.2": "0xB0CfC5EFa3a7E4DF77c2FC2F6AA71B23D299d2B4"
     },
     "80001": {
         "name": "polygon-mumbai",
@@ -50,7 +52,9 @@
         "v3": "0x1da738d367dd369cf95f53a51b213a9cc9146afb",
         "v4": "0xec8f9a7f47dd6031e27ff9cef9d0f33e81fcece9",
         "Bv4": "0x1CcD80448cD0Eb21b2912c54B4E61dafD01Ab3C5",
-        "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a"
+        "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a",
+        "v4.2": "0x8230697B79C2F1b0b64629F67cE30B2cAa354e3d",
+        "Rv4.2": "0xd7a425dc8D50bF8A8c69BfE8c892D9B2CFA2Dd22"
     },
     "8453": {
         "name": "base",
