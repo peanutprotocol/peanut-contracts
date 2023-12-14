@@ -3,7 +3,7 @@ pragma solidity ^0.8.23;
 
 //////////////////////////////////////////////////////////////////////////////////////
 // @title   Peanut Router
-// @notice  This contract is used on top of Peanut V4.2 to send links cross-chain.
+// @notice  This contract is used on top of Peanut V4.2 to add cross-chain functionality to links.
 //          more at: https://peanut.to
 // @version 0.1.0
 // @author  Squirrel Labs
@@ -54,7 +54,7 @@ contract PeanutV4Router is Ownable {
      * @param _withdrawalSignature signature to withdraw from peanut.
      * @param _squidFee squid router fee.
      * @param _peanutFee fee amount taken by peanut (this contract) for routing.
-     * @param _squidData calldata fro the squid router
+     * @param _squidData calldata for the squid router
      * @param _routingSignature signed _squidFee, _peanutFee and _squidData
      */
     function withdrawAndBridge(
