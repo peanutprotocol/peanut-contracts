@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "forge-std/Script.sol";
-import "../src/V4/PeanutV4.sol";
+import "../src/V4/PeanutV4.2.sol";
 
 contract DeployScript is Script {
     function run() external {
