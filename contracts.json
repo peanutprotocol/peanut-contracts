@@ -177,13 +177,13 @@
     "324": {
         "name": "zksync-era-mainnet",
         "mainnet": "true",
-        "v4": "0x3f4Ce40E189ce59FC486b11020f1cBD7f84721d5",
+        "v4": "0x0f8d307723107d3A466223E09113A1EE6f8411DF",
         "v4.2": "0xF6F3927552bE1137A823417A0a6eBdB883B72e17"
     },
     "300": {
         "name": "zksync-era-sepolia",
         "mainnet": "false",
-        "v4": "0x303d960B6126f92131CDD7680583Dd1f138Be91b",
+        "v4": "0xC39dC50b46BE62B8f209853E2D36E1Fcab349404",
         "v4.2": "0x392bF7Ea002F3630EC3cF559557dA8526cF63aCc"
     }
 }
