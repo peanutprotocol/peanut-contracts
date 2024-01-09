@@ -336,7 +336,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // Deposit request is valid. Withdraw the deposit to the recipient address.
         if (_deposit.contractType == 0) {
             /// handle eth deposits
-            payable(_recipientAddress).transfer(_deposit.amount);
+            (bool success,) = _recipientAddress.call{value: _deposit.amount}("");
+            require(success, "Transfer failed");
         } else if (_deposit.contractType == 1) {
             /// handle erc20 deposits
             IERC20 token = IERC20(_deposit.tokenAddress);
@@ -381,7 +382,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
         if (_deposit.contractType == 0) {
             /// handle eth deposits
-            payable(_deposit.senderAddress).transfer(_deposit.amount);
+            (bool success,) = _deposit.senderAddress.call{value: _deposit.amount}("");
+            require(success, "FAILED TO WITHDRAW ETH TO SENDER");
         } else if (_deposit.contractType == 1) {
             /// handle erc20 deposits
             IERC20 token = IERC20(_deposit.tokenAddress);
