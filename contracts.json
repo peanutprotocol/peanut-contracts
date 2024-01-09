@@ -173,5 +173,15 @@
         "name": "mantle-testnet",
         "mainnet": "false",
         "v5": "0x690481Ce72b1080Bd928A35A0ECF329BE902cD6a"
+    },
+    "324": {
+        "name": "zksync-era-mainnet",
+        "mainnet": "true",
+        "v4.2": "0xF6F3927552bE1137A823417A0a6eBdB883B72e17"
+    },
+    "300": {
+        "name": "zksync-era-sepolia",
+        "mainnet": "false",
+        "v4.2": "0x392bF7Ea002F3630EC3cF559557dA8526cF63aCc"
     }
 }
