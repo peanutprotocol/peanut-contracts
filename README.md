@@ -23,12 +23,12 @@ forge test
 
 Single test:
 ```bash
- forge test --match-path test/V5/testX** -vvvv
+ forge test --match-path test/V4/testX** -vvvv
 ```
 
 Test on Fork:
 ```bash
- forge test --fork-url "https://ethereum-goerli.publicnode.com" --match-path test/V5/testWithdrawDepositXChain** -vvvv
+ forge test --fork-url "https://ethereum-goerli.publicnode.com" --match-path test/V4/testWithdrawDepositXChain** -vvvv
 ```
 
 ## Deploy
@@ -49,6 +49,6 @@ forge script script/DeployEthRome.s.sol:DeployEthRome --rpc-url optimism-goerli 
 e.g. verify contract:
     
 ```bash
-    forge verify-contract 0x690481ce72b1080bd928a35a0ecf329be902cd6a src/V5/PeanutV5.sol:PeanutV5 --watch --chain base
+    forge verify-contract 0x690481ce72b1080bd928a35a0ecf329be902cd6a src/V4/PeanutV4.2.sol:PeanutV4 --watch --chain base
     forge verify-contract 0xBF9688FF5302Ad722343140cEd16EBE30db86c25 src/V4/PeanutRouter.sol:PeanutV4Router --watch --chain polygon
 ```
