@@ -53,7 +53,6 @@ contract PeanutV4Test is Test, ERC1155Holder, ERC721Holder {
         uint16 amount;
     }
 
-    // V5
     function testDirectTransferBatchERC1155(TokenData[] memory tokens) public {
         // assume TokenData array is not empty
         vm.assume(tokens.length > 0);
