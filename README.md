@@ -2,12 +2,14 @@
 
 Repo for peanut smart contracts
 
-Foundry reference: https://book.getfoundry.sh/getting-started/first-steps
+If you find any vulnerabilities, please report them to us asap. We have a bug bounty program and a history of payouts! More info here: https://docs.peanut.to/other/bug-bounties
 
 ## Deployments
 
 See list of deployed contracts on `contracts.json`
 See `deploy.py` for deploying more
+
+For zksync, see subfolder `zksync-era`
 
 ## Install
 
