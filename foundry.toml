@@ -35,6 +35,8 @@ taiko-grimsvotn = "https://rpc.test.taiko.xyz"
 avalanche = "https://avalanche-mainnet.infura.io/v3/${INFURA_API_KEY}"
 linea = "https://rpc.linea.build"
 linea-goerli = "https://rpc.goerli.linea.build"
+scroll = "https://rpc.scroll.io"
+scroll-sepolia = "https://sepolia-rpc.scroll.io"
 
 
 ############################################################
@@ -103,6 +105,9 @@ avalanche = { key = "${SNOWTRACE_TOKEN}", url = "https://api.snowtrace.io/api" }
 bnb = { key = "${BSCSCAN_TOKEN}", url = "https://api.bscscan.com" }
 linea = { key = "${LINEASCAN_TOKEN}", url = "https://api.lineascan.build/api" }
 linea-goerli = { key = "${LINEASCAN_TOKEN}", url = "https://api-goerli.lineascan.build/api" }
+scroll = { key = "${SCROLLSCAN_TOKEN}" }
+scroll-sepolia = { key = "${SCROLLSCAN_TOKEN}" }
+
 ############################################################
 # For some reason, some of these verifications didn't work. Below the commands
 # Linea
