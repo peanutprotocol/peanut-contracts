@@ -51,7 +51,7 @@ contract PeanutBatcherV4 {
 
         for (uint256 i = 0; i < _pubKeys20.length; i++) {
             depositIndexes[i] =
-                peanut.makeDeposit{value: etherAmount}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i]);
+                peanut.makeSelflessDeposit{value: etherAmount}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i], msg.sender);
         }
 
         return depositIndexes;
@@ -69,7 +69,7 @@ contract PeanutBatcherV4 {
         peanut = PeanutV4(_peanutAddress);
 
         for (uint256 i = 0; i < _pubKeys20.length; i++) {
-            peanut.makeDeposit{value: msg.value}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i]);
+            peanut.makeSelflessDeposit{value: msg.value}(_tokenAddress, _contractType, _amount, _tokenId, _pubKeys20[i], msg.sender);
         }
     }
 
@@ -109,8 +109,8 @@ contract PeanutBatcherV4 {
                 etherAmount = 0;
             }
 
-            depositIndexes[i] = peanut.makeDeposit{value: etherAmount}(
-                _tokenAddresses[i], _contractTypes[i], _amounts[i], _tokenIds[i], _pubKeys20[i]
+            depositIndexes[i] = peanut.makeSelflessDeposit{value: etherAmount}(
+                _tokenAddresses[i], _contractTypes[i], _amounts[i], _tokenIds[i], _pubKeys20[i], msg.sender
             );
         }
 
