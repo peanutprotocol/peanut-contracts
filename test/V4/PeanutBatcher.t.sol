@@ -184,4 +184,63 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             assertEq(depositIndexes.length, numDeposits);
         }
     }
+
+    function testRaffleETHDeposit() public {
+        uint256[] memory amounts = new uint256[](4);
+
+        amounts[0] = 10;
+        amounts[1] = 20;
+        amounts[2] = 30;
+        amounts[3] = 40;
+        
+        uint256[] memory depositIndices = batcher.batchMakeDepositRaffle{value: 100}(
+            address(peanutV4),
+            address(testToken),
+            0,
+            amounts,
+            PUBKEY20
+        );
+
+        for(uint256 i = 0; i < amounts.length; i++) {
+            PeanutV4.Deposit memory deposit = peanutV4.getDeposit(depositIndices[i]);
+            assert(deposit.amount == amounts[i]);  // main assertion
+
+            // a few sanity checks
+            assert(deposit.contractType == 0);
+            assert(deposit.pubKey20 == PUBKEY20);
+            // check that the sender is this contract and not the address of the batcher
+            assert(deposit.senderAddress == address(this));
+        }
+    }
+
+    function testRaffleERC20Deposit() public {
+        uint256[] memory amounts = new uint256[](4);
+
+        amounts[0] = 10;
+        amounts[1] = 20;
+        amounts[2] = 30;
+        amounts[3] = 40;
+
+        testToken.mint(address(this), 100);
+        testToken.approve(address(batcher), 100);
+        
+        uint256[] memory depositIndices = batcher.batchMakeDepositRaffle(
+            address(peanutV4),
+            address(testToken),
+            1,
+            amounts,
+            PUBKEY20
+        );
+
+        for(uint256 i = 0; i < amounts.length; i++) {
+            PeanutV4.Deposit memory deposit = peanutV4.getDeposit(depositIndices[i]);
+            assert(deposit.amount == amounts[i]);  // main assertion
+
+            // a few sanity checks
+            assert(deposit.contractType == 1);
+            assert(deposit.pubKey20 == PUBKEY20);
+            // check that the sender is this contract and not the address of the batcher
+            assert(deposit.senderAddress == address(this));
+        }
+    }
 }
