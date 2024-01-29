@@ -85,8 +85,8 @@ contract PeanutBatcherV4 {
     // arbitrary deposits
     function batchMakeDepositArbitrary(
         address _peanutAddress,
-        address[] calldata _tokenAddresses,
-        uint8[] calldata _contractTypes,
+        address[] memory _tokenAddresses,
+        uint8[] memory _contractTypes,
         uint256[] calldata _amounts,
         uint256[] calldata _tokenIds,
         address[] calldata _pubKeys20
@@ -101,11 +101,30 @@ contract PeanutBatcherV4 {
         uint256[] memory depositIndexes = new uint256[](_amounts.length);
 
         for (uint256 i = 0; i < _amounts.length; i++) {
-            depositIndexes[i] = peanut.makeDeposit{value: msg.value}(
+            uint256 etherAmount;
+
+            if (_contractTypes[i] == 0) {
+                etherAmount = _amounts[i];
+            } else if (_contractTypes[i] == 1) {
+                IERC20(_tokenAddresses[i]).safeTransferFrom(msg.sender, address(this), _amounts[i]);
+                _setAllowanceIfZero(_tokenAddresses[i], _peanutAddress);
+                etherAmount = 0;
+            } else if (_contractTypes[i] == 2) {
+                // revert not implemented
+                revert("ERC721 batch not implemented");
+            } else if (_contractTypes[i] == 3) {
+                IERC1155(_tokenAddresses[i]).safeTransferFrom(msg.sender, address(this), _tokenIds[i], _amounts[i], "");
+                IERC1155(_tokenAddresses[i]).setApprovalForAll(_peanutAddress, true);
+                etherAmount = 0;
+            }
+
+            depositIndexes[i] = peanut.makeDeposit{value: etherAmount}(
                 _tokenAddresses[i], _contractTypes[i], _amounts[i], _tokenIds[i], _pubKeys20[i]
             );
         }
 
+        return depositIndexes;
+    }
         return depositIndexes;
     }
 }
