@@ -8,6 +8,7 @@ lib/
 
 playground/
 **/node_modules/
+__pycache__/
 
 # Ignores development broadcast logs
 !/broadcast

@@ -37,6 +37,7 @@ linea = "https://rpc.linea.build"
 linea-goerli = "https://rpc.goerli.linea.build"
 scroll = "https://rpc.scroll.io"
 scroll-sepolia = "https://sepolia-rpc.scroll.io"
+moonbeam = "https://rpc.api.moonbeam.network"
 
 
 ############################################################
@@ -71,6 +72,9 @@ bnb = "56"
 avalanche = "43114"
 linea = "59144"
 linea-goerli = "59140"
+moonbeam = "1284"
+scroll = "534352"
+# scroll-sepolia = "534351"
 
 ## for chains that only support legacy transactions
 [profile.legacy]
@@ -82,6 +86,7 @@ mantle = true
 mantle-testnet = true
 bnb = true
 avalanche = true
+goerli = true
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_TOKEN}" }
@@ -105,8 +110,11 @@ avalanche = { key = "${SNOWTRACE_TOKEN}", url = "https://api.snowtrace.io/api" }
 bnb = { key = "${BSCSCAN_TOKEN}", url = "https://api.bscscan.com" }
 linea = { key = "${LINEASCAN_TOKEN}", url = "https://api.lineascan.build/api" }
 linea-goerli = { key = "${LINEASCAN_TOKEN}", url = "https://api-goerli.lineascan.build/api" }
-scroll = { key = "${SCROLLSCAN_TOKEN}" }
-scroll-sepolia = { key = "${SCROLLSCAN_TOKEN}" }
+scroll = { key = "${SCROLLSCAN_TOKEN}", url = "https://api.scrollscan.com/api"}
+# scroll-sepolia = { key = "${SCROLLSCAN_TOKEN}" , url = "https://api.scrollscan.com/api"}
+moonbeam = { key = "${MOONSCAN_TOKEN}", url = "https://api-moonbeam.moonscan.io/api" }
+milkomeda-c1 = { key = "", url = " https://explorer-mainnet-cardano-evm.c1.milkomeda.com/api"}
+
 
 ############################################################
 # For some reason, some of these verifications didn't work. Below the commands
@@ -131,7 +139,6 @@ scroll-sepolia = { key = "${SCROLLSCAN_TOKEN}" }
 # celo = "https://celo-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # celo-alfajores = "https://celo-alfajores.infura.io/v3/${INFURA_API_KEY}" # 44787
 # moonbase = "https://rpc.api.moonbase.moonbeam.network"
-# moonbeam = "https://rpc.api.moobeam.network"
 # zetachain-testnet = "https://zetachain-athens-evm.blockpi.network/v1/rpc/public" # 7001
 # zetachain = "https://api.mainnet.zetachain.com/evm" # 7000
 # neon = "https://neon-mainnet.everstake.one" # 245022934 # legacy

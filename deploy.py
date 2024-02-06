@@ -159,8 +159,8 @@ def deploy_to_chain(chain: str, contracts: List[str]):
             print(
                 f"Warning: Contract {short_contract_name} already exists for {chain} at address {existing_address}."
             )
-            action = input("The contract is already deployed. Enter Y to redeploy, v to verify, and anything else to cancel: ")
-            if action.lower() == "v":
+            action = input("The contract is already deployed. Enter Y to redeploy, v to verify, and anything else to cancel: ").lower().strip()
+            if action == "v":
                 command = make_command(
                     contract=contract,
                     chain=chain,
@@ -171,7 +171,7 @@ def deploy_to_chain(chain: str, contracts: List[str]):
                 output = run_command(command)
                 print(output)
                 continue
-            elif action.lower() != "y":
+            elif action != "y":
                 print(
                     f"Skipped deploying & overwriting {contract} ({short_contract_name}) for {chain}."
                 )
