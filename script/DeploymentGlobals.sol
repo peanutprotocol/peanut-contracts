@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
-import "../src/V4/PeanutV4.2.sol";
 
 contract DeploymentGlobals {
     mapping(uint256 => address) public ecoAddressByChain;

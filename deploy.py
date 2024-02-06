@@ -17,6 +17,7 @@ CONTRACTS_MAPPING = {
     "PeanutV3": "v3",
     "PeanutV4.1": "v4",
     "PeanutV4.2": "v4.2",
+    "PeanutV4.3": "v4.3",
     "PeanutBatcherV4": "Bv4",
     "PeanutBatcherV4.2": "Bv4.2",
     "PeanutV4Router": "Rv4.2"
