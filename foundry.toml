@@ -38,6 +38,7 @@ linea-goerli = "https://rpc.goerli.linea.build"
 scroll = "https://rpc.scroll.io"
 scroll-sepolia = "https://sepolia-rpc.scroll.io"
 moonbeam = "https://rpc.api.moonbeam.network"
+manta-pacific = "https://pacific-rpc.manta.network/http"
 
 
 ############################################################
@@ -75,6 +76,7 @@ linea-goerli = "59140"
 moonbeam = "1284"
 scroll = "534352"
 # scroll-sepolia = "534351"
+manta-pacific = "169"
 
 ## for chains that only support legacy transactions
 [profile.legacy]
@@ -87,6 +89,7 @@ mantle-testnet = true
 bnb = true
 avalanche = true
 goerli = true
+manta-pacific = true
 
 [etherscan]
 mainnet = { key = "${ETHERSCAN_TOKEN}" }
@@ -114,6 +117,7 @@ scroll = { key = "${SCROLLSCAN_TOKEN}", url = "https://api.scrollscan.com/api"}
 # scroll-sepolia = { key = "${SCROLLSCAN_TOKEN}" , url = "https://api.scrollscan.com/api"}
 moonbeam = { key = "${MOONSCAN_TOKEN}", url = "https://api-moonbeam.moonscan.io/api" }
 milkomeda-c1 = { key = "", url = " https://explorer-mainnet-cardano-evm.c1.milkomeda.com/api"}
+manta-pacific = { key = "", url = "https://manta-pacific.calderaexplorer.xyz/api" }
 
 
 ############################################################
@@ -128,6 +132,7 @@ milkomeda-c1 = { key = "", url = " https://explorer-mainnet-cardano-evm.c1.milko
 # forge verify-contract --etherscan-api-key ${BASESCAN_TOKEN} --verifier-url https://api-goerli.basescan.org/api 0x1851359AB8B002217cf4D108d7F027B63563754C src/V4/PeanutBatcherV4.sol:PeanutBatcherV4 --watch
 # forge verify-contract --etherscan-api-key ${BASESCAN_TOKEN} --verifier-url https://api-goerli.basescan.org/api 0x897F8EDdB345F0d16081615823F76055Ad60A00c src/V4/PeanutV4.sol:PeanutV4 --watch
 
+# forge verify-contract  --verifier-url https://manta-pacific.calderaexplorer.xyz/api 0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5 src/V4/PeanutBatcherV4.3.sol:PeanutBatcherV4 --watch
 ############################################################
 
 # palm = "https://palm-mainnet.infura.io/v3/${INFURA_API_KEY}"
