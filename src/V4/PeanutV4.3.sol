@@ -56,7 +56,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         /////
         uint256 tokenId; // (32 bytes) id of the token being sent (if erc721 or erc1155)
         address senderAddress; // (20 bytes) address of the sender
-    }
+    } // 5 storage slots (32 byte each)
 
     // We may include this hash in peanut-specific signatures to make sure
     // that the message signed by the user has effects only in peanut contracts.

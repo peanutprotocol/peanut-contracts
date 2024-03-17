@@ -39,6 +39,9 @@ scroll = "https://rpc.scroll.io"
 scroll-sepolia = "https://sepolia-rpc.scroll.io"
 moonbeam = "https://rpc.api.moonbeam.network"
 manta-pacific = "https://pacific-rpc.manta.network/http"
+celo = "https://celo-mainnet.infura.io/v3/${INFURA_API_KEY}"
+celo-alfajores = "https://alfajores-forno.celo-testnet.org"
+
 
 
 ############################################################
@@ -77,6 +80,8 @@ moonbeam = "1284"
 scroll = "534352"
 # scroll-sepolia = "534351"
 manta-pacific = "169"
+celo = "42220"
+celo-alfajores = "44787"
 
 ## for chains that only support legacy transactions
 [profile.legacy]
@@ -118,6 +123,9 @@ scroll = { key = "${SCROLLSCAN_TOKEN}", url = "https://api.scrollscan.com/api"}
 moonbeam = { key = "${MOONSCAN_TOKEN}", url = "https://api-moonbeam.moonscan.io/api" }
 milkomeda-c1 = { key = "", url = " https://explorer-mainnet-cardano-evm.c1.milkomeda.com/api"}
 manta-pacific = { key = "", url = "https://manta-pacific.calderaexplorer.xyz/api" }
+celo = { key = "", url = " https://explorer.celo.org/mainnet/api" }
+celo-alfajores = { key = "", url = "https://explorer.celo.org/alfajores/api" }
+
 
 
 ############################################################
@@ -141,7 +149,6 @@ manta-pacific = { key = "", url = "https://manta-pacific.calderaexplorer.xyz/api
 # aurora = "https://aurora-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # starknet = "https://starknet-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # starket-goerli = "https://starknet-goerli.infura.io/v3/${INFURA_API_KEY}"
-# celo = "https://celo-mainnet.infura.io/v3/${INFURA_API_KEY}"
 # celo-alfajores = "https://celo-alfajores.infura.io/v3/${INFURA_API_KEY}" # 44787
 # moonbase = "https://rpc.api.moonbase.moonbeam.network"
 # zetachain-testnet = "https://zetachain-athens-evm.blockpi.network/v1/rpc/public" # 7001
