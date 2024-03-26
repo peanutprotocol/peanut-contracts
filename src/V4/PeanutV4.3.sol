@@ -56,7 +56,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         /////
         uint256 tokenId; // (32 bytes) id of the token being sent (if erc721 or erc1155)
         address senderAddress; // (20 bytes) address of the sender
-    } // 5 storage slots (32 byte each)
+        ///// slot for address-bound links data
+        address recipient; // unless it's 0x00, only this address can claim the link
+        uint40 reclaimableAfter; // for address-bound links, the sender is able to re-claim only after this timestamp
+    } // 6 storage slots (32 byte each)
 
     // We may include this hash in peanut-specific signatures to make sure
     // that the message signed by the user has effects only in peanut contracts.
@@ -609,7 +612,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // check that the signer is the same as the one stored in the deposit
         address depositSigner = getSigner(_recipientAddressHash, _signature);
         require(!_deposit.requiresMFA || _authorized, "REQUIRES AUTHORIZATION");
-        require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
+        require(_deposit.pubKey20 == address(0) || depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
+        require(_deposit.recipient == address(0) || _recipientAddress == _deposit.recipient, "WRONG RECIPIENT");
 
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _recipientAddress);
@@ -657,6 +661,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // check that the sender is the one who made the deposit
         require(_deposit.senderAddress == _senderAddress, "NOT THE SENDER");
+        // check timestamp for address-bound links
+        if (_deposit.recipient != address(0)) {
+            require(block.timestamp > _deposit.reclaimableAfter, "TOO EARLY TO RECLAIM");
+        }
 
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _deposit.senderAddress);
