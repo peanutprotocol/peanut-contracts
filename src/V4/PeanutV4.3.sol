@@ -60,17 +60,17 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
 
     // We may include this hash in peanut-specific signatures to make sure
     // that the message signed by the user has effects only in peanut contracts.
-    bytes32 public PEANUT_SALT = 0x70adbbeba9d4f0c82e28dd574f15466f75df0543b65f24460fc445813b5d94e0; // keccak256("Konrad makes tokens go woosh tadam");
+    bytes32 public constant PEANUT_SALT = 0x70adbbeba9d4f0c82e28dd574f15466f75df0543b65f24460fc445813b5d94e0; // keccak256("Konrad makes tokens go woosh tadam");
 
-    bytes32 public ANYONE_WITHDRAWAL_MODE = 0x0000000000000000000000000000000000000000000000000000000000000000; // default. Any address can trigger the withdrawal function
-    bytes32 public RECIPIENT_WITHDRAWAL_MODE = 0x2bb5bef2b248d3edba501ad918c3ab524cce2aea54d4c914414e1c4401dc4ff4; // keccak256("only recipient") - only the signed recipient can trigger the withdrawal function
+    bytes32 public constant ANYONE_WITHDRAWAL_MODE = 0x0000000000000000000000000000000000000000000000000000000000000000; // default. Any address can trigger the withdrawal function
+    bytes32 public constant RECIPIENT_WITHDRAWAL_MODE = 0x2bb5bef2b248d3edba501ad918c3ab524cce2aea54d4c914414e1c4401dc4ff4; // keccak256("only recipient") - only the signed recipient can trigger the withdrawal function
 
     bytes32 public DOMAIN_SEPARATOR; // initialized in the constructor
 
-    bytes32 public EIP712DOMAIN_TYPEHASH =
+    bytes32 public constant EIP712DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
-    address constant MFA_AUTHORIZER = 0x3B14D43Bf521EF7FD9600533bEB73B6e9178DE7C;
+    address public constant MFA_AUTHORIZER = 0x3B14D43Bf521EF7FD9600533bEB73B6e9178DE7C;
 
     struct EIP712Domain {
         string name;
@@ -109,7 +109,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         );
     }
 
-    function hash(EIP712Domain memory eip712Domain) internal view returns (bytes32) {
+    function hash(EIP712Domain memory eip712Domain) internal pure returns (bytes32) {
         return keccak256(
             abi.encode(
                 EIP712DOMAIN_TYPEHASH,
