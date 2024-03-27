@@ -18,9 +18,11 @@ CONTRACTS_MAPPING = {
     "PeanutV4.1": "v4",
     "PeanutV4.2": "v4.2",
     "PeanutV4.3": "v4.3",
+    "PeanutV4.4": "v4.4",
     "PeanutBatcherV4": "Bv4",
     "PeanutBatcherV4.2": "Bv4.2",
     "PeanutBatcherV4.3": "Bv4.3",
+    "PeanutBatcherV4.4": "Bv4.4",
     "PeanutV4Router": "Rv4.2"
 }
 CONTRACTS = list(CONTRACTS_MAPPING.keys())
