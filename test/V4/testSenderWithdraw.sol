@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
-import "../../src/V4/PeanutV4.2.sol";
+import "../../src/V4/PeanutV4.4.sol";
 import "../../src/util/ERC20Mock.sol";
 import "../../src/util/ERC721Mock.sol";
 import "../../src/util/ERC1155Mock.sol";
@@ -88,7 +88,7 @@ contract TestSenderWithdrawErc721 is Test, ERC721Holder {
         testToken.approve(address(peanutV4), _tokenId);
 
         // Make a deposit
-        _depositIdx = peanutV4.makeDeposit(address(testToken), 2, 0, _tokenId, PUBKEY20);
+        _depositIdx = peanutV4.makeDeposit(address(testToken), 2, 1, _tokenId, PUBKEY20);
     }
 
     function testSenderWithdrawErc721() public {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../../src/V4/PeanutV4.3.sol";
+import "../../src/V4/PeanutV4.4.sol";
 
 contract PeanutV4MFATest is Test {
     PeanutV4 public peanutV4;
