@@ -8,7 +8,7 @@ pragma solidity ^0.8.23;
 //          Links use asymmetric ECDSA encryption by default to be secure & enable trustless,
 //          gasless claiming.
 //          more at: https://peanut.to
-// @version 0.4.3
+// @version 0.4.4
 // @author  Squirrel Labs
 //////////////////////////////////////////////////////////////////////////////////////
 //⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -56,21 +56,24 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         /////
         uint256 tokenId; // (32 bytes) id of the token being sent (if erc721 or erc1155)
         address senderAddress; // (20 bytes) address of the sender
-    } // 5 storage slots (32 byte each)
+        ///// slot for address-bound links data
+        address recipient; // unless it's 0x00, only this address can claim the link
+        uint40 reclaimableAfter; // for address-bound links, the sender is able to re-claim only after this timestamp
+    } // 6 storage slots (32 byte each)
 
     // We may include this hash in peanut-specific signatures to make sure
     // that the message signed by the user has effects only in peanut contracts.
-    bytes32 public PEANUT_SALT = 0x70adbbeba9d4f0c82e28dd574f15466f75df0543b65f24460fc445813b5d94e0; // keccak256("Konrad makes tokens go woosh tadam");
+    bytes32 public constant PEANUT_SALT = 0x70adbbeba9d4f0c82e28dd574f15466f75df0543b65f24460fc445813b5d94e0; // keccak256("Konrad makes tokens go woosh tadam");
 
-    bytes32 public ANYONE_WITHDRAWAL_MODE = 0x0000000000000000000000000000000000000000000000000000000000000000; // default. Any address can trigger the withdrawal function
-    bytes32 public RECIPIENT_WITHDRAWAL_MODE = 0x2bb5bef2b248d3edba501ad918c3ab524cce2aea54d4c914414e1c4401dc4ff4; // keccak256("only recipient") - only the signed recipient can trigger the withdrawal function
+    bytes32 public constant ANYONE_WITHDRAWAL_MODE = 0x0000000000000000000000000000000000000000000000000000000000000000; // default. Any address can trigger the withdrawal function
+    bytes32 public constant RECIPIENT_WITHDRAWAL_MODE = 0x2bb5bef2b248d3edba501ad918c3ab524cce2aea54d4c914414e1c4401dc4ff4; // keccak256("only recipient") - only the signed recipient can trigger the withdrawal function
 
     bytes32 public DOMAIN_SEPARATOR; // initialized in the constructor
 
-    bytes32 public EIP712DOMAIN_TYPEHASH =
+    bytes32 public constant EIP712DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
-    address constant MFA_AUTHORIZER = 0x3B14D43Bf521EF7FD9600533bEB73B6e9178DE7C;
+    address public constant MFA_AUTHORIZER = 0x3B14D43Bf521EF7FD9600533bEB73B6e9178DE7C;
 
     struct EIP712Domain {
         string name;
@@ -79,7 +82,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address verifyingContract;
     }
 
-    bytes32 public GASLESS_RECLAIM_TYPEHASH = keccak256("GaslessReclaim(uint256 depositIndex)");
+    bytes32 public constant GASLESS_RECLAIM_TYPEHASH = keccak256("GaslessReclaim(uint256 depositIndex)");
 
     struct GaslessReclaim {
         uint256 depositIndex;
@@ -109,7 +112,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         );
     }
 
-    function hash(EIP712Domain memory eip712Domain) internal view returns (bytes32) {
+    function hash(EIP712Domain memory eip712Domain) internal pure returns (bytes32) {
         return keccak256(
             abi.encode(
                 EIP712DOMAIN_TYPEHASH,
@@ -121,7 +124,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         );
     }
 
-    function hash(GaslessReclaim memory reclaim) internal view returns (bytes32) {
+    function hash(GaslessReclaim memory reclaim) internal pure returns (bytes32) {
         return keccak256(abi.encode(GASLESS_RECLAIM_TYPEHASH, reclaim.depositIndex));
     }
 
@@ -153,6 +156,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             || _interfaceId == type(IERC1155Receiver).interfaceId;
     }
 
+    /*
+     * A minimalistic function to make a deposit.
+     * @deprecated makeCustomDeposit should be used for everything
+     */
     function makeDeposit(
         address _tokenAddress,
         uint8 _contractType,
@@ -160,9 +167,29 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         uint256 _tokenId,
         address _pubKey20
     ) public payable nonReentrant returns (uint256) {
-        return _makeDeposit(_tokenAddress, _contractType, _amount, _tokenId, _pubKey20, msg.sender, false);
+        _amount = _pullTokensViaApproval(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId
+        );
+        return _storeDeposit(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId,
+            _pubKey20,
+            msg.sender, // the sender is the onBehalfOf here
+            false, // no MFA
+            address(0), // no restrictions on the recipient
+            0 // no restrictions on the recipient
+        );
     }
 
+    /*
+     * Makes a minimalistic with MFA (requires an external authorisation to withdraw).
+     * @deprecated makeCustomDeposit should be used for everything
+     */
     function makeMFADeposit(
         address _tokenAddress,
         uint8 _contractType,
@@ -170,9 +197,29 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         uint256 _tokenId,
         address _pubKey20
     ) public payable nonReentrant returns (uint256) {
-        return _makeDeposit(_tokenAddress, _contractType, _amount, _tokenId, _pubKey20, msg.sender, true);
+        _amount = _pullTokensViaApproval(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId
+        );
+        return _storeDeposit(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId,
+            _pubKey20,
+            msg.sender, // the sender is the onBehalfOf here
+            true, // with MFA
+            address(0), // no restrictions on the recipient
+            0 // no restrictions on the recipient
+        );
     }
 
+    /*
+     * Minimalistic function to make an MFA deposit and delegate ownership of the deposit.
+     * @deprecated makeCustomDeposit should be used for everything
+     */
     function makeSelflessMFADeposit(
         address _tokenAddress,
         uint8 _contractType,
@@ -181,9 +228,29 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address _pubKey20,
         address _onBehalfOf
     ) public payable nonReentrant returns (uint256) {
-        return _makeDeposit(_tokenAddress, _contractType, _amount, _tokenId, _pubKey20, _onBehalfOf, true);
+        _amount = _pullTokensViaApproval(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId
+        );
+        return _storeDeposit(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId,
+            _pubKey20,
+            _onBehalfOf,
+            true, // with MFA
+            address(0), // no restrictions on the recipient
+            0 // no restrictions on the recipient
+        );
     }
 
+    /*
+     * Minimalistic function to make a deposit and delegate ownership.
+     * @deprecated makeCustomDeposit should be used for everything
+     */
     function makeSelflessDeposit(
         address _tokenAddress,
         uint8 _contractType,
@@ -192,11 +259,27 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         address _pubKey20,
         address _onBehalfOf
     ) public payable nonReentrant returns (uint256) {
-        return _makeDeposit(_tokenAddress, _contractType, _amount, _tokenId, _pubKey20, _onBehalfOf, false);
+        _amount = _pullTokensViaApproval(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId
+        );
+        return _storeDeposit(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId,
+            _pubKey20,
+            _onBehalfOf,
+            false, // no MFA
+            address(0), // no restrictions on the recipient
+            0 // no restrictions on the recipient
+        );
     }
 
     /**
-     * @notice Function to make a deposit
+     * The big main function that supports ALL possible scenarios of depositing. 
      * @dev For token deposits, allowance must be set before calling this function
      * @param _tokenAddress address of the token being sent. 0x0 for eth
      * @param _contractType uint8 for the type of contract being sent. 0 for eth, 1 for erc20, 2 for erc721, 3 for erc1155, 4 for ECO-like rebasing erc20
@@ -204,26 +287,110 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
      * @param _tokenId uint256 of the id of the token being sent if erc721 or erc1155
      * @param _pubKey20 last 20 bytes of the public key of the deposit signer
      * @param _onBehalfOf who will be able to reclaim the link if the private key is lost
+     * @param _withMFA whether an external auhorisation is required for withdrawal
+     * @param _recipient if not 0x00.00, only _recipient will be able to withdraw
+     * @param _reclaimableAfter if _recipient is set, the sender will be able to reclaim only after this timestamp
+     * @param _isGasless3009 if true, the deposit will be made via eip-3009, see makeDepositWithAuthorization funfction for more info
+     * @param _args3009 all the arguments for an EIP-3009 deposit, used if _isGasless3009 is true. Encoded with abi.encode, this is: address (from), bytes32 (_nonce), uint256 (_validAfter), uint256 (_validBefore), uint8 (_v), bytes32 (_r), bytes32 (_s). Unfortunately we have to encode it this way, because else we get a stack too deep error (EVM supports max 16 variables on the stack). 
      * @return uint256 index of the deposit
-     */
-    function _makeDeposit(
+    */
+    function makeCustomDeposit(
         address _tokenAddress,
         uint8 _contractType,
         uint256 _amount,
         uint256 _tokenId,
         address _pubKey20,
         address _onBehalfOf,
-        bool _requiresMFA
+        bool _withMFA,
+        // arguments for address-bound deposits
+        address _recipient,
+        uint40 _reclaimableAfter,
+        // arguments for 3009 
+        bool _isGasless3009,
+        bytes calldata _args3009
+    ) public payable nonReentrant returns (uint256) {
+        if (_isGasless3009) {
+            require(_contractType == 1, "_contractType HAS TO BE 1 FOR 3009");
+            _amount = _pullTokensVia3009Encoded(
+                _tokenAddress,
+                _amount,
+                _pubKey20,
+                _onBehalfOf,
+                _args3009
+            );
+        } else {
+            _amount = _pullTokensViaApproval(
+                _tokenAddress,
+                _contractType,
+                _amount,
+                _tokenId
+            );
+        }
+
+        return _storeDeposit(
+            _tokenAddress,
+            _contractType,
+            _amount,
+            _tokenId,
+            _pubKey20,
+            _onBehalfOf,
+            _withMFA,
+            _recipient,
+            _reclaimableAfter
+        );
+    }
+
+    function _storeDeposit(
+        address _tokenAddress,
+        uint8 _contractType,
+        uint256 _amount,
+        uint256 _tokenId,
+        address _pubKey20,
+        address _onBehalfOf,
+        bool _requiresMFA,
+        address _recipient,
+        uint40 _reclaimableAfter
+    ) internal returns (uint256) {
+        // create deposit
+        deposits.push(
+            Deposit({
+                tokenAddress: _tokenAddress,
+                contractType: _contractType,
+                amount: _amount,
+                tokenId: _tokenId,
+                claimed: false,
+                pubKey20: _pubKey20,
+                senderAddress: _onBehalfOf,
+                timestamp: uint40(block.timestamp),
+                requiresMFA: _requiresMFA,
+                recipient: _recipient,
+                reclaimableAfter: _reclaimableAfter
+            })
+        );
+
+        // emit the deposit event
+        emit DepositEvent(deposits.length - 1, _contractType, _amount, _onBehalfOf);
+
+        // return id of new deposit
+        return deposits.length - 1;
+    }
+
+    /**
+     * Pulls tokens from msg.sender via a standard approval.
+     * @return IMPORTANT: returns the amount that has been actually deposited. MUST be used by the caller.
+     */
+    function _pullTokensViaApproval(
+        address _tokenAddress,
+        uint8 _contractType,
+        uint256 _amount,
+        uint256 _tokenId
     ) internal returns (uint256) {
         // check that the contract type is valid
         require(_contractType < 5, "INVALID CONTRACT TYPE");
 
         // handle deposit types
         if (_contractType == 0) {
-            // check that the amount sent is equal to the amount being deposited
-            require(msg.value > 0, "NO ETH SENT");
-            // override amount with msg.value
-            _amount = msg.value;
+            require(_amount == msg.value, "WRONG ETH AMOUNT");
         } else if (_contractType == 1) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function
             // Unfortunately there's no way of doing this in just one transaction.
@@ -240,6 +407,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         } else if (_contractType == 2) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function.
             // alternatively, the user can call the safeTransferFrom function directly and append the appropriate calldata
+            require(_amount == 1, "AMOUNT MUST BE 1 FOR ERC721");
 
             IERC721 token = IERC721(_tokenAddress);
             // require(token.ownerOf(_tokenId) == msg.sender, "Invalid token id");
@@ -263,26 +431,70 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             _amount *= token.linearInflationMultiplier();
         }
 
-        // create deposit
-        deposits.push(
-            Deposit({
-                tokenAddress: _tokenAddress,
-                contractType: _contractType,
-                amount: _amount,
-                tokenId: _tokenId,
-                claimed: false,
-                pubKey20: _pubKey20,
-                senderAddress: _onBehalfOf,
-                timestamp: uint40(block.timestamp),
-                requiresMFA: _requiresMFA
-            })
+        return _amount;
+    }
+
+    /**
+     * Pulls the tokens via EIP-3009 according to the encoded data
+     * Also validates that _onBehalfOf is the unpacked  _from.
+     */
+    function _pullTokensVia3009Encoded(
+        address _tokenAddress,
+        uint256 _amount,
+        address _pubKey20,
+        address _onBehalfOf,
+        bytes calldata _encodedArgs
+    ) internal returns (uint256) {
+        address _from;
+        bytes32 _nonce;
+        uint256 _validAfter;
+        uint256 _validBefore;
+        uint8 _v;
+        bytes32 _r;
+        bytes32 _s;
+
+        (_from, _nonce, _validAfter, _validBefore, _v, _r, _s) =
+            abi.decode(_encodedArgs, (address, bytes32, uint256, uint256, uint8, bytes32, bytes32));
+
+        require(_from == _onBehalfOf, "WRONG _onBehalfOf FOR EIP-3009");
+        return _pullTokensVia3009(_tokenAddress, _from, _amount, _pubKey20, _nonce, _validAfter, _validBefore, _v, _r, _s);
+    }
+
+    /**
+     * Performs a EIP-3009 transfer for tokens like USDC.
+     * Reverts if the transfer failed.
+     * Returns the amount of actually deposited tokens.
+     */
+    function _pullTokensVia3009(
+        address _tokenAddress,
+        address _from,
+        uint256 _amount,
+        address _pubKey20,
+        bytes32 _nonce,
+        uint256 _validAfter,
+        uint256 _validBefore,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) internal returns(uint256) {
+        // Recalculate the nonce.
+        // If we don't include pubKey20 in the nonce, the link will be front-runnable
+        bytes32 nonce = keccak256(abi.encodePacked(_pubKey20, _nonce));
+
+        IEIP3009 token = IEIP3009(_tokenAddress);
+        token.receiveWithAuthorization(
+            _from,
+            address(this), // to
+            _amount,
+            _validAfter,
+            _validBefore,
+            nonce,
+            _v,
+            _r,
+            _s
         );
-
-        // emit the deposit event
-        emit DepositEvent(deposits.length - 1, _contractType, _amount, _onBehalfOf);
-
-        // return id of new deposit
-        return deposits.length - 1;
+        
+        return _amount;
     }
 
     /**
@@ -316,43 +528,30 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         // the recipient would get more tokens than what was deposited.
         require(_tokenAddress != ecoAddress, "ECO must be be deposited via makeDeposit with tokenType 4");
 
-        // Recalculate the nonce.
-        // If we don't include pubKey20 in the nonce, the link will be front-runnable
-        bytes32 nonce = keccak256(abi.encodePacked(_pubKey20, _nonce));
-
-        IEIP3009 token = IEIP3009(_tokenAddress);
-        token.receiveWithAuthorization(
-            _from,
-            address(this), // to
-            _amount,
+        _pullTokensVia3009(
+             _tokenAddress,
+             _from,
+             _amount,
+             _pubKey20,
+             _nonce,
             _validAfter,
             _validBefore,
-            nonce,
             _v,
             _r,
             _s
         );
 
-        // create deposit
-        deposits.push(
-            Deposit({
-                tokenAddress: _tokenAddress,
-                contractType: 1, // always ERC20
-                amount: _amount,
-                tokenId: 0, // not used for ERC20
-                claimed: false,
-                pubKey20: _pubKey20,
-                senderAddress: _from,
-                timestamp: uint40(block.timestamp),
-                requiresMFA: false
-            })
+        return _storeDeposit(
+            _tokenAddress,
+            1, // contractType is always 1 here (ERC20)
+            _amount,
+            0, // it's alwasy ERC20, so tokenId doesn't matter
+            _pubKey20,
+            _from,
+            false, // no MFA
+            address(0), // no restrictions on the recipient
+            0 // no restrictions on the recipient
         );
-
-        // emit the deposit event
-        emit DepositEvent(deposits.length - 1, 1, _amount, _from);
-
-        // return id of new deposit
-        return deposits.length - 1;
     }
 
     /**
@@ -389,7 +588,9 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 senderAddress: _from,
                 timestamp: uint40(block.timestamp),
                 claimed: false,
-                requiresMFA: false
+                requiresMFA: false,
+                recipient: address(0),
+                reclaimableAfter: 0
             })
         );
 
@@ -433,7 +634,9 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                 senderAddress: _from,
                 timestamp: uint40(block.timestamp),
                 claimed: false,
-                requiresMFA: false
+                requiresMFA: false,
+                recipient: address(0),
+                reclaimableAfter: 0
             })
         );
 
@@ -480,7 +683,9 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
                     senderAddress: _from,
                     timestamp: uint40(block.timestamp),
                     claimed: false,
-                    requiresMFA: false
+                    requiresMFA: false,
+                    recipient: address(0),
+                    reclaimableAfter: 0
                 })
             );
 
@@ -592,24 +797,29 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(_index < deposits.length, "DEPOSIT INDEX DOES NOT EXIST");
         Deposit memory _deposit = deposits[_index];
         require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
-
-        // Compute the hash of the withdrawal message
-        bytes32 _recipientAddressHash = ECDSA.toEthSignedMessageHash(
-            keccak256(
-                abi.encodePacked(
-                    PEANUT_SALT,
-                    block.chainid,
-                    address(this),
-                    _index,
-                    _recipientAddress,
-                    _extraData
+        
+        // check that the signer is the same as the one stored in the deposit.
+        // Signature may be empty for address-bound deposits.
+        address depositSigner;
+        if (_signature.length > 0) {
+            // Compute the hash of the withdrawal message
+            bytes32 _recipientAddressHash = ECDSA.toEthSignedMessageHash(
+                keccak256(
+                    abi.encodePacked(
+                        PEANUT_SALT,
+                        block.chainid,
+                        address(this),
+                        _index,
+                        _recipientAddress,
+                        _extraData
+                    )
                 )
-            )
-        );
-        // check that the signer is the same as the one stored in the deposit
-        address depositSigner = getSigner(_recipientAddressHash, _signature);
+            );
+            depositSigner = getSigner(_recipientAddressHash, _signature);
+        }
         require(!_deposit.requiresMFA || _authorized, "REQUIRES AUTHORIZATION");
-        require(depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
+        require(_deposit.pubKey20 == address(0) || depositSigner == _deposit.pubKey20, "WRONG SIGNATURE");
+        require(_deposit.recipient == address(0) || _recipientAddress == _deposit.recipient, "WRONG RECIPIENT");
 
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _recipientAddress);
@@ -657,6 +867,10 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         require(_deposit.claimed == false, "DEPOSIT ALREADY WITHDRAWN");
         // check that the sender is the one who made the deposit
         require(_deposit.senderAddress == _senderAddress, "NOT THE SENDER");
+        // check timestamp for address-bound links
+        if (_deposit.recipient != address(0)) {
+            require(block.timestamp > _deposit.reclaimableAfter, "TOO EARLY TO RECLAIM");
+        }
 
         // emit the withdraw event
         emit WithdrawEvent(_index, _deposit.contractType, _deposit.amount, _deposit.senderAddress);
