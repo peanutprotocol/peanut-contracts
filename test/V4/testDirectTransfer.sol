@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "@forge-std/Test.sol";
-import "../../src/V4/PeanutV4.2.sol";
+import "../../src/V4/PeanutV4.3.sol";
 import "../../src/util/ERC20Mock.sol";
 import "../../src/util/ERC721Mock.sol";
 import "../../src/util/ERC1155Mock.sol";

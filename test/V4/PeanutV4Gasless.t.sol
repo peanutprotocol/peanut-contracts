@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../../src/V4/PeanutV4.2.sol";
+import "../../src/V4/PeanutV4.3.sol";
 import "../../src/util/ERC20Mock.sol";
 import "../../src/util/SampleSCW.sol";
 
@@ -158,5 +158,57 @@ contract PeanutV4Test is Test {
             // In our sample SCW the digest will be the right signature
             abi.encodePacked(digest)
         );
+    }
+
+    /**
+     * Test that we can use makeCustomisableDeposit to deposit gaslessly
+    */
+    function testGaslessViaMakeCustomisableDeposit() public {
+        testToken.mint(SAMPLE_ADDRESS, 1000);
+
+        uint256 amount = 1000;
+        bytes32 _nonce = bytes32(0); // any random value
+        bytes32 authorizationNonce = keccak256(abi.encodePacked(PUBKEY20, _nonce));
+
+        bytes memory typeHashAndData = abi.encode(
+            RECEIVE_WITH_AUTHORIZATION_TYPEHASH,
+            SAMPLE_ADDRESS, // the spender & peanut depositor address
+            address(peanutV4), // receiver of the tokens
+            amount,
+            block.timestamp - 1, // validUntil
+            block.timestamp + 1, // validBefore
+            authorizationNonce
+        );
+
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, keccak256(typeHashAndData)));
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(uint256(SAMPLE_PRIVKEY), digest);
+
+        bytes memory packed3009args = abi.encode(
+            SAMPLE_ADDRESS, // from
+            _nonce,
+            block.timestamp - 1, // validAfter
+            block.timestamp + 1, // validBefore
+            v,
+            r,
+            s
+        );
+
+        uint256 depositIndex = peanutV4.makeCustomDeposit(
+            address(testToken),
+            1, // contract type - erc 20
+            amount,
+            0, // tokenId. Not used for 3009 deposits.
+            PUBKEY20,
+            SAMPLE_ADDRESS, // the depositor
+            false, // no MFA
+            address(0), // not recipient bound
+            0, // not recipient bound
+            true, // yes, it is a 3009 deposit!
+            packed3009args
+        );
+
+        assertEq(depositIndex, 0, "Deposit failed");
+        assertEq(peanutV4.getDepositCount(), 1, "Deposit count mismatch");
     }
 }
