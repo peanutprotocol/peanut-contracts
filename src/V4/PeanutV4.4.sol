@@ -406,7 +406,6 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             token.safeTransferFrom(msg.sender, address(this), _amount);
         } else if (_contractType == 2) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function.
-            // alternatively, the user can call the safeTransferFrom function directly and append the appropriate calldata
             require(_amount == 1, "AMOUNT MUST BE 1 FOR ERC721");
 
             IERC721 token = IERC721(_tokenAddress);
@@ -414,7 +413,6 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
             token.safeTransferFrom(msg.sender, address(this), _tokenId, "Internal transfer");
         } else if (_contractType == 3) {
             // REMINDER: User must approve this contract to spend the tokens before calling this function.
-            // alternatively, the user can call the safeTransferFrom function directly and append the appropriate calldata
 
             IERC1155 token = IERC1155(_tokenAddress);
             token.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "Internal transfer");
@@ -557,12 +555,6 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     /**
      * @notice Erc721 token receiver function
      * @dev These functions are called by the token contracts when a token is sent to this contract
-     * @dev If calldata is "Internal transfer" then the token was sent by this contract and we don't need to do anything
-     * @dev Otherwise, calldata needs a 20 byte pubkey20
-     * @param _operator address operator requesting the transfer
-     * @param _from address address which previously owned the token
-     * @param _tokenId uint256 ID of the token being transferred
-     * @param _data bytes data to send along with a safe transfer check (has to be 32 bytes)
      */
     function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data)
         external
@@ -570,47 +562,13 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         returns (bytes4)
     {
         if (_operator == address(this)) {
-            // if operator is this contract, nothing to do, return
             return this.onERC721Received.selector;
-        } else if (_data.length != 32) {
-            // if data is not 32 bytes, revert (don't want to accept and lock up tokens!)
-            revert("INVALID CALLDATA");
         }
-
-        // create deposit
-        deposits.push(
-            Deposit({
-                tokenAddress: msg.sender,
-                contractType: 2,
-                amount: 1,
-                tokenId: _tokenId,
-                pubKey20: address(abi.decode(_data, (bytes20))),
-                senderAddress: _from,
-                timestamp: uint40(block.timestamp),
-                claimed: false,
-                requiresMFA: false,
-                recipient: address(0),
-                reclaimableAfter: 0
-            })
-        );
-
-        // emit the deposit event
-        emit DepositEvent(deposits.length - 1, 2, 1, _from);
-
-        // return correct bytes4
-        return this.onERC721Received.selector;
     }
 
     /**
      * @notice Erc1155 token receiver function
-     *     @dev These functions are called by the token contracts when a token is sent to this contract
-     *     @dev If calldata is "Internal transfer" then the token was sent by this contract and we don't need to do anything
-     *     @dev Otherwise, calldata needs 20 bytes pubKey20
-     *     @param _operator address operator requesting the transfer
-     *     @param _from address address which previously owned the token
-     *     @param _tokenId uint256 ID of the token being transferred
-     *     @param _value uint256 amount of tokens being transferred
-     *     @param _data bytes data passed with the call
+     * @dev These functions are called by the token contracts when a token is sent to this contract
      */
     function onERC1155Received(address _operator, address _from, uint256 _tokenId, uint256 _value, bytes calldata _data)
         external
@@ -619,44 +577,12 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     {
         if (_operator == address(this)) {
             return this.onERC1155Received.selector;
-        } else if (_data.length != 32) {
-            // if data is not 32 bytes, revert (don't want to accept and lock up tokens!)
-            revert("INVALID CALLDATA");
         }
-
-        deposits.push(
-            Deposit({
-                tokenAddress: msg.sender,
-                contractType: 3,
-                amount: _value,
-                tokenId: _tokenId,
-                pubKey20: address(abi.decode(_data, (bytes20))),
-                senderAddress: _from,
-                timestamp: uint40(block.timestamp),
-                claimed: false,
-                requiresMFA: false,
-                recipient: address(0),
-                reclaimableAfter: 0
-            })
-        );
-
-        // emit the deposit event
-        emit DepositEvent(deposits.length - 1, 3, _value, _from);
-
-        // return correct bytes4
-        return this.onERC1155Received.selector;
     }
 
     /**
      * @notice Erc1155 token receiver function
      * @dev These functions are called by the token contracts when a set of tokens is sent to this contract
-     * @dev If calldata is "Internal transfer" then the token was sent by this contract and we don't need to do anything
-     * @param _operator address operator requesting the transfer
-     * @param _from address address which previously owned the token
-     * @param _ids uint256[] IDs of each token being transferred (order and length must match _values array)
-     * @param _values uint256[] amount of each token being transferred (order and length must match _ids array)
-     * @param _data bytes data forwarded from the caller
-     * @dev _data needs to contain array of 32 byte pubKey20s (length must match _ids and _values arrays). Encode with abi.encode()
      */
     function onERC1155BatchReceived(
         address _operator,
@@ -667,40 +593,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     ) external override returns (bytes4) {
         if (_operator == address(this)) {
             return this.onERC1155BatchReceived.selector;
-        } else if (_data.length != (_ids.length * 32)) {
-            // dont accept if data is not 32 bytes per token
-            revert("INVALID CALLDATA");
         }
-
-        for (uint256 i = 0; i < _ids.length; i++) {
-            deposits.push(
-                Deposit({
-                    tokenAddress: msg.sender, // token address (not the address of transaction sender)
-                    contractType: 3, // 3 is for ERC1155 (should be uint8)
-                    amount: _values[i], // amount of this token
-                    tokenId: _ids[i], // token id
-                    pubKey20: address(bytes20(_data[i * 32:i * 32 + 20])),
-                    senderAddress: _from,
-                    timestamp: uint40(block.timestamp),
-                    claimed: false,
-                    requiresMFA: false,
-                    recipient: address(0),
-                    reclaimableAfter: 0
-                })
-            );
-
-            // emit the deposit event
-            emit DepositEvent(
-                deposits.length - 1,
-                3,
-                _values[i], // amount of this token
-                _from
-            );
-        }
-
-        // return correct bytes4
-        return this.onERC1155BatchReceived.selector;
-    }
+     }
 
     /**
      * @notice Function to withdraw tokens. Can be called by anyone.
