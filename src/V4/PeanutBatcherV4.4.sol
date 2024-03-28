@@ -135,9 +135,10 @@ contract PeanutBatcherV4 is IERC721Receiver, IERC1155Receiver {
         address _peanutAddress,
         address[] memory _tokenAddresses,
         uint8[] memory _contractTypes,
-        uint256[] calldata _amounts,
-        uint256[] calldata _tokenIds,
-        address[] calldata _pubKeys20
+        uint256[] memory _amounts,
+        uint256[] memory _tokenIds,
+        address[] memory _pubKeys20,
+        bool[] memory _withMFAs
     ) external payable returns (uint256[] memory) {
         require(
             _tokenAddresses.length == _pubKeys20.length && _contractTypes.length == _pubKeys20.length
@@ -166,8 +167,18 @@ contract PeanutBatcherV4 is IERC721Receiver, IERC1155Receiver {
                 etherAmount = 0;
             }
 
-            depositIndexes[i] = peanut.makeSelflessDeposit{value: etherAmount}(
-                _tokenAddresses[i], _contractTypes[i], _amounts[i], _tokenIds[i], _pubKeys20[i], msg.sender
+            peanut.makeCustomDeposit{value: etherAmount}(
+                _tokenAddresses[i],
+                _contractTypes[i],
+                _amounts[i],
+                _tokenIds[i],
+                _pubKeys20[i],
+                msg.sender, // deposit ownerm
+                _withMFAs[i],
+                address(0), // not recipient-bound
+                uint40(0), // not recipient-bound
+                false, // not a EIP-3009 deposit
+                "" // not a EIP-3009 deposit
             );
         }
 
