@@ -14,7 +14,7 @@ holesky = "https://ethereum-holesky.publicnode.com"
 optimism = "https://optimism-mainnet.infura.io/v3/${INFURA_API_KEY}"
 optimism-goerli = "https://optimism-goerli.infura.io/v3/${INFURA_API_KEY}"
 arbitrum = "https://arbitrum-mainnet.infura.io/v3/${INFURA_API_KEY}"
-bnb = "https://bsc-dataseed1.binance.org"
+bnb = "https://bsc-mainnet.public.blastapi.io"
 polygon = "https://polygon-mainnet.infura.io/v3/${INFURA_API_KEY}" # 137 # legacy
 polygon-mumbai = "https://polygon-mumbai.infura.io/v3/${INFURA_API_KEY}" # 80001 # legacy
 polygon-zkevm = "https://zkevm-rpc.com"
@@ -123,9 +123,8 @@ scroll = { key = "${SCROLLSCAN_TOKEN}", url = "https://api.scrollscan.com/api"}
 moonbeam = { key = "${MOONSCAN_TOKEN}", url = "https://api-moonbeam.moonscan.io/api" }
 milkomeda-c1 = { key = "", url = " https://explorer-mainnet-cardano-evm.c1.milkomeda.com/api"}
 manta-pacific = { key = "", url = "https://manta-pacific.calderaexplorer.xyz/api" }
-celo = { key = "", url = " https://explorer.celo.org/mainnet/api" }
-celo-alfajores = { key = "", url = "https://explorer.celo.org/alfajores/api" }
-
+celo = { key = "lolkek", url = "https://explorer.celo.org/mainnet/api" }
+celo-alfajores = { key = "lolkek", url = "https://explorer.celo.org/alfajores/api" }
 
 
 ############################################################
