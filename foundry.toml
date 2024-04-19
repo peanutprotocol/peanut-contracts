@@ -8,6 +8,7 @@ solc = "0.8.23"
 
 [rpc_endpoints]
 mainnet = "https://mainnet.infura.io/v3/${INFURA_API_KEY}"
+# mainnet = "https://core.gashawk.io/rpc"
 goerli = "https://goerli.infura.io/v3/${INFURA_API_KEY}"
 sepolia = "https://sepolia.infura.io/v3/${INFURA_API_KEY}"
 holesky = "https://ethereum-holesky.publicnode.com"
@@ -32,6 +33,8 @@ base-testnet = "https://goerli.base.org"
 milkomeda-c1 = "https://rpc-mainnet-cardano-evm.c1.milkomeda.com"
 milkomeda-c1-testnet = "https://rpc-devnet-cardano-evm.c1.milkomeda.com"
 taiko-grimsvotn = "https://rpc.test.taiko.xyz"
+taiko-hekla = "https://rpc.hekla.taiko.xyz"
+taiko-katla = "https://rpc.katla.taiko.xyz"
 avalanche = "https://avalanche-mainnet.infura.io/v3/${INFURA_API_KEY}"
 linea = "https://rpc.linea.build"
 linea-goerli = "https://rpc.goerli.linea.build"
@@ -72,6 +75,8 @@ base-testnet = "84531"
 milkomeda-c1 = "2001"
 milkomeda-c1-testnet = "200101"
 taiko-grimsvotn = "167005"
+taiko-katla = "167008"
+taiko-hekla = "167009"
 bnb = "56"
 avalanche = "43114"
 linea = "59144"
@@ -111,7 +116,9 @@ gnosis = { key = "${GNOSISSCAN_TOKEN}" , url="https://api.gnosisscan.io/api"}
 gnosis-testnet = { key = "${GNOSISSCAN_TOKEN}" , url="https://gnosis-chiado.blockscout.com/api"}
 base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org/api" }
 base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org/api" }
-taiko-grimsvotn = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.test.taiko.xyz/api" }
+taiko-grimsvotn = { key = "", url = "https://explorer.test.taiko.xyz/api" }
+taiko-hekla = { key = "", url = "https://explorer.hekla.taiko.xyz/api" }
+taiko-katla = { key = "", url = "https://explorer.katla.taiko.xyz/api" }
 mantle = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.mantle.xyz/api" }
 mantle-testnet = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.testnet.mantle.xyz/api" }
 avalanche = { key = "${SNOWTRACE_TOKEN}", url = "https://api.snowtrace.io/api" }
