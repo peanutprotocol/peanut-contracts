@@ -117,8 +117,8 @@ gnosis-testnet = { key = "${GNOSISSCAN_TOKEN}" , url="https://gnosis-chiado.bloc
 base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org/api" }
 base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org/api" }
 taiko-grimsvotn = { key = "", url = "https://explorer.test.taiko.xyz/api" }
-taiko-hekla = { key = "", url = "https://explorer.hekla.taiko.xyz/api" }
-taiko-katla = { key = "", url = "https://explorer.katla.taiko.xyz/api" }
+taiko-hekla = { key = "${ETHERSCAN_TOKEN}", url = "https://api.routescan.io/v2/network/testnet/evm/167009/etherscan" }
+taiko-katla = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.katla.taiko.xyz/api" }
 mantle = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.mantle.xyz/api" }
 mantle-testnet = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.testnet.mantle.xyz/api" }
 avalanche = { key = "${SNOWTRACE_TOKEN}", url = "https://api.snowtrace.io/api" }
