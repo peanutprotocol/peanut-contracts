@@ -117,7 +117,8 @@ def deploy_contract(command: str) -> str:
 def make_command(contract: str, chain: str, contracts_json: dict, broadcast: bool) -> str:
     # Existence of `contract` in CONTRACTS_MAPPING must be validated by the caller
     _, legacy = get_chain_info(chain)
-    command = f"forge script script/{contract}.s.sol:DeployScript --rpc-url {config['rpc_endpoints'][chain]} --verify -vvvv"
+    command = f"forge script script/{contract}.s.sol:DeployScript --rpc-url {config['rpc_endpoints'][chain]} -vvvv"
+    
     if legacy:
         command += " --legacy"
         print(f"Using legacy mode for {chain}")
@@ -126,82 +127,93 @@ def make_command(contract: str, chain: str, contracts_json: dict, broadcast: boo
         command += " --broadcast"
         print("Will broadcast transactions to the chain")
 
+    # Add etherscan verification key and URL if available
+    etherscan_info = config['etherscan'].get(chain)
+    if etherscan_info:
+        command += f" --etherscan-api-key {etherscan_info['key']}"
+        if 'url' in etherscan_info:
+            command += f" --verifier-url {etherscan_info['url']}"
+
     return command
 
 
 def deploy_to_chain(chain: str, contracts: List[str]):
-
     if not has_etherscan_key(chain):
-        print(
-            f"Error: foundry.toml does not include an etherscan verification key for {chain}"
-        )
+        print(f"Error: foundry.toml does not include an etherscan verification key for {chain}")
         return
 
     if chain not in config["rpc_endpoints"]:
         print(f"Error: foundry.toml rpc_endpoints does not include chain {chain}")
         return
 
-    chain_id, legacy = get_chain_info(chain)
+    chain_id, _ = get_chain_info(chain)
+
+    # Load existing contracts JSON
+    with open(CONTRACTS_JSON_PATH, "r") as file:
+        contracts_json = json.load(file)
+
+    # Check if the chain is already in the contracts.json, if not add it
+    if chain_id not in contracts_json:
+        print(f"Adding new chain {chain} with ID {chain_id} to contracts.json")
+        contracts_json[chain_id] = {
+            "name": f"placeholder_chainid_{chain_id}",
+            "mainnet": True
+        }
 
     for contract in contracts:
-        with open(CONTRACTS_JSON_PATH, "r") as file:
-            contracts_json = json.load(file)
-
         short_contract_name = CONTRACTS_MAPPING.get(contract)
         if not short_contract_name:
             print(f"Error: {contract} is not in the CONTRACTS_MAPPING.")
             return
 
-        # Check if the contract already exists
-        if chain_id not in contracts_json:
-            contracts_json[chain_id] = {}
         existing_address = contracts_json[chain_id].get(short_contract_name)
         if existing_address:
-            # Show a warning
-            print(
-                f"Warning: Contract {short_contract_name} already exists for {chain} at address {existing_address}."
-            )
-            action = input("The contract is already deployed. Enter Y to redeploy, v to verify, and anything else to cancel: ").lower().strip()
-            if action == "v":
-                command = make_command(
-                    contract=contract,
-                    chain=chain,
-                    contracts_json=contracts_json,
-                    broadcast=False,
-                )
-                print(f"Verifying {contract} on {chain}")
-                output = run_command(command)
-                print(output)
+            print(f"Warning: Contract {short_contract_name} already exists for {chain} at address {existing_address}.")
+            user_input = input("Do you want to (R)edeploy, (V)erify, or (C)ancel? [R/V/C] ").lower()
+            if user_input == 'c':
                 continue
-            elif action != "y":
-                print(
-                    f"Skipped deploying & overwriting {contract} ({short_contract_name}) for {chain}."
-                )
-                continue  # Skip the rest of the loop and move to the next contract        
-        
-        command = make_command(
-            contract=contract,
-            chain=chain,
-            contracts_json=contracts_json,
-            broadcast=True,
-        )
+            elif user_input == 'v':
+                verify_command = make_verify_command(contract, existing_address, chain)
+                print(f"Verifying {contract} on {chain}")
+                verify_output = run_command(verify_command)
+                print(verify_output)
+                continue
+            # If redeploy, it will just continue to the deployment code below
 
+        command = make_command(contract=contract, chain=chain, contracts_json=contracts_json, broadcast=True)
         print(f"Deploying {contract} to {chain}")
-        output = deploy_contract(command)  # use the new deploy_contract function
-
+        output = deploy_contract(command)
         contract_address = extract_contract_address(contract, chain_id)
 
-        print(f"Deployed {contract} to {chain} at {contract_address}.")
+        if contract_address:
+            print(f"Deployed {contract} to {chain} at {contract_address}.")
+            contracts_json[chain_id][short_contract_name] = contract_address
+            with open(CONTRACTS_JSON_PATH, "w") as file:
+                json.dump(contracts_json, file, indent=4)
 
-        # Make sure chain_id exists in the json
-        if chain_id not in contracts_json:
-            contracts_json[chain_id] = {}
+            # Always verify after deployment
+            verify_command = make_verify_command(contract, contract_address, chain)
+            print(f"Verifying {contract} on {chain}")
+            verify_output = run_command(verify_command)
+            print(verify_output)
+        else:
+            print(f"Failed to deploy {contract} to {chain}.")
 
-        contracts_json[chain_id][short_contract_name] = contract_address
+    # Save any changes to the contracts.json
+    with open(CONTRACTS_JSON_PATH, "w") as file:
+        json.dump(contracts_json, file, indent=4)
 
-        with open(CONTRACTS_JSON_PATH, "w") as file:
-            json.dump(contracts_json, file, indent=4)
-        print(f"Saved {contract} to {chain} at {contract_address} in contracts.json")
+
+def make_verify_command(contract: str, contract_address: str, chain: str) -> str:
+    etherscan_info = config['etherscan'].get(chain)
+    if not etherscan_info:
+        raise ValueError(f"No etherscan information available for chain {chain}")
+
+    verifier_url = etherscan_info.get('url')
+    etherscan_api_key = etherscan_info.get('key')
+    contract_path = f"src/V4/{contract}.sol:{contract}"
+
+    return f"forge verify-contract --etherscan-api-key {etherscan_api_key} --verifier-url {verifier_url} {contract_address} {contract_path} --watch"
 
 
 def deploy_to_all_chains(contracts: List[str]):
