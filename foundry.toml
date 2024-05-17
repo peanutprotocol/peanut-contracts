@@ -30,6 +30,7 @@ zksync = "https://mainnet.era.zksync.io"
 zksync-testnet = "https://testnet.era.zksync.dev"
 base = "https://developer-access-mainnet.base.org"
 base-testnet = "https://goerli.base.org"
+base-sepolia = "https://sepolia.base.org"
 milkomeda-c1 = "https://rpc-mainnet-cardano-evm.c1.milkomeda.com"
 milkomeda-c1-testnet = "https://rpc-devnet-cardano-evm.c1.milkomeda.com"
 taiko-grimsvotn = "https://rpc.test.taiko.xyz"
@@ -76,6 +77,7 @@ zksync = "324"
 zksync-testnet = "280"
 base = "8453"
 base-testnet = "84531"
+base-sepolia = "84532"
 milkomeda-c1 = "2001"
 milkomeda-c1-testnet = "200101"
 taiko-grimsvotn = "167005"
@@ -87,7 +89,7 @@ linea = "59144"
 linea-goerli = "59140"
 moonbeam = "1284"
 scroll = "534352"
-# scroll-sepolia = "534351"
+scroll-sepolia = "534351"
 manta-pacific = "169"
 celo = "42220"
 celo-alfajores = "44787"
@@ -129,6 +131,7 @@ gnosis = { key = "${GNOSISSCAN_TOKEN}" , url="https://api.gnosisscan.io/api"}
 gnosis-testnet = { key = "${GNOSISSCAN_TOKEN}" , url="https://gnosis-chiado.blockscout.com/api"}
 base = { key = "${BASESCAN_TOKEN}", url = "https://api.basescan.org/api" }
 base-testnet = { key = "${BASESCAN_TOKEN}", url = "https://api-goerli.basescan.org/api" }
+base-sepolia = { key = "${BASESCAN_TOKEN}", url = "https://api-sepolia.basescan.org/api" }
 taiko-grimsvotn = { key = "", url = "https://explorer.test.taiko.xyz/api" }
 taiko-hekla = { key = "${ETHERSCAN_TOKEN}", url = "https://api.routescan.io/v2/network/testnet/evm/167009/etherscan" }
 taiko-katla = { key = "${ETHERSCAN_TOKEN}", url = "https://explorer.katla.taiko.xyz/api" }
@@ -139,7 +142,7 @@ bnb = { key = "${BSCSCAN_TOKEN}", url = "https://api.bscscan.com" }
 linea = { key = "${LINEASCAN_TOKEN}", url = "https://api.lineascan.build/api" }
 linea-goerli = { key = "${LINEASCAN_TOKEN}", url = "https://api-goerli.lineascan.build/api" }
 scroll = { key = "${SCROLLSCAN_TOKEN}", url = "https://api.scrollscan.com/api"}
-# scroll-sepolia = { key = "${SCROLLSCAN_TOKEN}" , url = "https://api.scrollscan.com/api"}
+scroll-sepolia = { key = "${SCROLLSCAN_TOKEN}" , url = "https://api.scrollscan.com/api"}
 moonbeam = { key = "${MOONSCAN_TOKEN}", url = "https://api-moonbeam.moonscan.io/api" }
 milkomeda-c1 = { key = "", url = " https://explorer-mainnet-cardano-evm.c1.milkomeda.com/api"}
 manta-pacific = { key = "", url = "https://manta-pacific.calderaexplorer.xyz/api" }
