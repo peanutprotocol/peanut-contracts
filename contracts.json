@@ -279,8 +279,8 @@
         "v4.3": "0x7b36e10aa3ff44576eff4b1afb80587b9b3ba3a5"
     },
     "534351": {
-        "name": "placeholder_chainid_534351",
-        "mainnet": "true",
+        "name": "scroll-sepolia",
+        "mainnet": "false",
         "Bv4.3": "0x8d1a17a3a4504aeb17515645ba8098f1d75237f7",
         "v4.3": "0x7b36e10aa3ff44576eff4b1afb80587b9b3ba3a5"
     }
