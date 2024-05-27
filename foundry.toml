@@ -171,15 +171,5 @@ blast = { key = "${BLASTSCAN_TOKEN}", url = "https://api.blastscan.io/api" }
 # forge verify-contract  --verifier-url https://manta-pacific.calderaexplorer.xyz/api 0x7B36e10AA3ff44576efF4b1AfB80587B9b3BA3a5 src/V4/PeanutBatcherV4.3.sol:PeanutBatcherV4 --watch
 ############################################################
 
-# palm = "https://palm-mainnet.infura.io/v3/${INFURA_API_KEY}"
-# palm-testnet = "https://palm-testnet.infura.io/v3/${INFURA_API_KEY}"
-# near = "https://near-mainnet.infura.io/v3/${INFURA_API_KEY}"
-# aurora = "https://aurora-mainnet.infura.io/v3/${INFURA_API_KEY}"
-# starknet = "https://starknet-mainnet.infura.io/v3/${INFURA_API_KEY}"
-# starket-goerli = "https://starknet-goerli.infura.io/v3/${INFURA_API_KEY}"
-# celo-alfajores = "https://celo-alfajores.infura.io/v3/${INFURA_API_KEY}" # 44787
-# moonbase = "https://rpc.api.moonbase.moonbeam.network"
-# zetachain-testnet = "https://zetachain-athens-evm.blockpi.network/v1/rpc/public" # 7001
-# zetachain = "https://api.mainnet.zetachain.com/evm" # 7000
-# neon = "https://neon-mainnet.everstake.one" # 245022934 # legacy
-# neon-devnet = "https://devnet.neonevm.org" # 245022926 # legacy
+# ----
+# forge verify-contract --etherscan-api-key ${BASESCAN_TOKEN} --verifier-url https://api-sepolia.basescan.org/api 0x7b36e10aa3ff44576eff4b1afb80587b9b3ba3a5 src/V4/PeanutV4.3.sol:PeanutV4 --watch --constructor-args 0000000000000000000000000000000000000000000000000000000000000000

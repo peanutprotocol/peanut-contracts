@@ -11,6 +11,7 @@ contract DeployScript is Script, DeploymentGlobals {
         vm.startBroadcast(deployerPrivateKey);
 
         address ecoAddress = ecoAddressByChain[block.chainid];
+        console.log("ecoAddress: %s", address(ecoAddress));
 
         // Create new peanut contract (with broadcast enabled this will send the tx to mempool)
         PeanutV4 peanutV4 = new PeanutV4(ecoAddress);
