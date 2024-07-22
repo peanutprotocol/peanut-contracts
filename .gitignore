@@ -23,6 +23,9 @@ playground/
 
 # Dotenv file
 .env
+*.env
+!.dummy.env
+__pycache__/
 
 # random stuff
 test_uni_example/
@@ -35,3 +38,5 @@ broadcast/
 
 # vscode
 .vscode/
+
+venv/

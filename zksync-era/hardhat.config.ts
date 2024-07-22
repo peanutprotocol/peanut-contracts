@@ -6,7 +6,7 @@ import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "zkSyncSepoliaTestnet",
+  defaultNetwork: "zkSyncMainnet",
   networks: {
     zkSyncSepoliaTestnet: {
       url: "https://sepolia.era.zksync.dev",
