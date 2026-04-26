@@ -104,6 +104,11 @@
         "v4.4": "0xe8A4c1DC1E30E01b7D9471FE0422A60beE3fa36c",
         "Bv4.4": "0xB41656294EE211E8B89c83AB16AB5Cef5770D3ee"
     },
+    "421614": {
+        "name": "arbitrum-sepolia",
+        "mainnet": "false",
+        "v4.3": "0x7520510631f865b3b1166a4ba7f8646debeaa8e6"
+    },
     "100": {
         "name": "xdai-mainnet",
         "mainnet": "true",
