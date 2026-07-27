@@ -2,7 +2,7 @@
 
 Repo for peanut smart contracts
 
-If you find any vulnerabilities, please report them to us asap. We have a bug bounty program and a history of payouts! More info here: https://docs.peanut.to/other/bug-bounties
+If you find a vulnerability, please report it to us as soon as possible: https://peanut.me/en/help/security-disclosure — scope, what to include, and what happens next are all on that page. We read every report and reply. Rewards are discretionary.
 
 ## Deployments
 
