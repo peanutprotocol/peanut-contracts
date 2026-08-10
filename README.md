@@ -4,6 +4,8 @@ Repo for peanut smart contracts
 
 If you find a vulnerability, please report it to us as soon as possible: https://peanut.me/en/help/security-disclosure — scope, what to include, and what happens next are all on that page. We read every report. Rewards are discretionary — there is no fixed payout schedule and no guaranteed amount.
 
+Published third-party security assessments are archived in [`audits/`](audits/README.md).
+
 ## Deployments
 
 See list of deployed contracts on `contracts.json`
