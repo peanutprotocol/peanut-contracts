@@ -155,6 +155,12 @@
         "v4.4": "0xd092f910be70328426530bCa92C746De1e0989eC",
         "Bv4.4": "0xE9963b5f864099c3A4454c395C8Cf1bBd97eCA91"
     },
+    "43113": {
+        "name": "avalanche-fuji",
+        "mainnet": "false",
+        "v4.4": "0xe832Bd6E2648624db74D64d2A3ADa19141b3faf2",
+        "Bv4.4": "0xe983E7c5401AeC5Ed2677dbebC1D43D6d017f526"
+    },
     "59144": {
         "name": "linea",
         "mainnet": "true",
@@ -290,5 +296,11 @@
         "mainnet": "false",
         "Bv4.3": "0x8d1a17a3a4504aeb17515645ba8098f1d75237f7",
         "v4.3": "0x7b36e10aa3ff44576eff4b1afb80587b9b3ba3a5"
+    },
+    "5042002": {
+        "name": "arc-testnet",
+        "mainnet": "false",
+        "v4.4": "0x479C82528A448f1e1CBAf3ee01143C1713B3B06d",
+        "Bv4.4": "0x774d1F2086a5106810E5aecB6f650019b3950eA4"
     }
 }
