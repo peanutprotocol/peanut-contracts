@@ -352,6 +352,7 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
     {
         // check that the contract type is valid
         require(_contractType < 5, "INVALID CONTRACT TYPE");
+        require(_contractType == 0 || msg.value == 0, "ETH NOT ACCEPTED FOR TOKEN DEPOSITS");
 
         // handle deposit types
         if (_contractType == 0) {
@@ -441,6 +442,8 @@ contract PeanutV4 is IERC721Receiver, IERC1155Receiver, ReentrancyGuard {
         bytes32 _r,
         bytes32 _s
     ) internal returns (uint256) {
+        require(msg.value == 0, "ETH NOT ACCEPTED FOR TOKEN DEPOSITS");
+
         // Recalculate the nonce.
         // If we don't include pubKey20 in the nonce, the link will be front-runnable
         bytes32 nonce = keccak256(abi.encodePacked(_pubKey20, _nonce));
