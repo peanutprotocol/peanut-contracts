@@ -103,7 +103,7 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
     }
 
     // Test failure case where PeanutV4 contract is not approved to spend ERC20 tokens
-    function testFailBatchERC20DepositNotApproved() public {
+    function testRevertBatchERC20DepositNotApproved() public {
         uint64 amount = 100;
         uint64 numDeposits = 10;
         address[] memory pubKeys20 = new address[](numDeposits);
@@ -115,13 +115,14 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
         // Do NOT approve the PeanutV4 contract to spend the tokens
         // testToken.approve(address(peanutV4), amount * numDeposits);
         // make the batch deposit
+        vm.expectRevert(bytes("ERC20: insufficient allowance"));
         uint256[] memory depositIndexes =
             batcher.batchMakeDeposit(address(peanutV4), address(testToken), 1, amount, 0, pubKeys20);
         depositIndexes;
     }
 
     // Test failure case where PeanutV4 contract is not approved to spend ERC721 tokens
-    function testFailBatchERC721DepositNotApproved() public {
+    function testRevertBatchERC721DepositNotApproved() public {
         uint64 numDeposits = 10;
         address[] memory pubKeys20 = new address[](numDeposits);
         for (uint256 i = 0; i < numDeposits; i++) {
@@ -133,13 +134,14 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             // testToken721.approve(address(peanutV4), g);
         }
         // make the batch deposit
+        vm.expectRevert(bytes("ERC721 batch not implemented"));
         uint256[] memory depositIndexes =
             batcher.batchMakeDeposit(address(peanutV4), address(testToken721), 2, 1, numDeposits, pubKeys20);
         depositIndexes;
     }
 
     // Test failure case where PeanutV4 contract is not approved to spend ERC1155 tokens
-    function testFailBatchERC1155DepositNotApproved() public {
+    function testRevertBatchERC1155DepositNotApproved() public {
         uint64 numDeposits = 10;
         address[] memory pubKeys20 = new address[](numDeposits);
         for (uint256 i = 0; i < numDeposits; i++) {
@@ -152,6 +154,7 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
             // testToken1155.setApprovalForAll(address(peanutV4), true);
         }
         // make the batch deposit
+        vm.expectRevert(bytes("ERC1155: caller is not token owner or approved"));
         uint256[] memory depositIndexes =
             batcher.batchMakeDeposit(address(peanutV4), address(testToken1155), 3, 1, numDeposits, pubKeys20);
         depositIndexes;
@@ -191,18 +194,13 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
         amounts[1] = 20;
         amounts[2] = 30;
         amounts[3] = 40;
-        
-        uint256[] memory depositIndices = batcher.batchMakeDepositRaffle{value: 100}(
-            address(peanutV4),
-            address(testToken),
-            0,
-            amounts,
-            PUBKEY20
-        );
 
-        for(uint256 i = 0; i < amounts.length; i++) {
+        uint256[] memory depositIndices =
+            batcher.batchMakeDepositRaffle{value: 100}(address(peanutV4), address(testToken), 0, amounts, PUBKEY20);
+
+        for (uint256 i = 0; i < amounts.length; i++) {
             PeanutV4.Deposit memory deposit = peanutV4.getDeposit(depositIndices[i]);
-            assert(deposit.amount == amounts[i]);  // main assertion
+            assert(deposit.amount == amounts[i]); // main assertion
 
             // a few sanity checks
             assert(deposit.contractType == 0);
@@ -222,18 +220,13 @@ contract PeanutBatcherTest is Test, ERC1155Holder, ERC721Holder {
 
         testToken.mint(address(this), 100);
         testToken.approve(address(batcher), 100);
-        
-        uint256[] memory depositIndices = batcher.batchMakeDepositRaffle(
-            address(peanutV4),
-            address(testToken),
-            1,
-            amounts,
-            PUBKEY20
-        );
 
-        for(uint256 i = 0; i < amounts.length; i++) {
+        uint256[] memory depositIndices =
+            batcher.batchMakeDepositRaffle(address(peanutV4), address(testToken), 1, amounts, PUBKEY20);
+
+        for (uint256 i = 0; i < amounts.length; i++) {
             PeanutV4.Deposit memory deposit = peanutV4.getDeposit(depositIndices[i]);
-            assert(deposit.amount == amounts[i]);  // main assertion
+            assert(deposit.amount == amounts[i]); // main assertion
 
             // a few sanity checks
             assert(deposit.contractType == 1);
